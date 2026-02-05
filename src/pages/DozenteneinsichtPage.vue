@@ -3,7 +3,7 @@
     <!-- Header for information about lecturer -->
     <q-card bordered class="q-mb-lg">
       <q-card-section class="row no-wrap items-center q-pa-none">
-        <!-- Dozent -->
+        <!-- Lecturer -->
         <div class="col-3 q-pa-md">
           <div class="row items-center q-gutter-x-md">
             <!-- Have to use style to set text and background color as quasar does not support hex values by default -->
@@ -12,7 +12,7 @@
               size="56px"
               :style="{
                 fontFamily: 'Inter, sans-serif',
-                backgroundColor: getDozentenProfilePic(lecturer.dozID),
+                backgroundColor: getAvatarColor(lecturer.dozID),
               }"
             >
               {{ getDozentenInitials(lecturer.firstName, lecturer.lastName) }}
@@ -38,7 +38,7 @@
 
         <q-separator vertical />
 
-        <!-- Bereich -->
+        <!-- Status -->
         <div class="col-1 text-center">
           <div
             class="text-caption text-grey-6 text-center q-mb-xs text-weight-bold"
@@ -58,7 +58,7 @@
 
         <q-separator vertical class="self-stretch" />
 
-        <!-- Vorliebe -->
+        <!-- Preference -->
         <div class="col-3 q-pa-md text-center">
           <div
             class="text-caption text-grey-6 q-mb-xs text-weight-bold"
@@ -76,7 +76,7 @@
 
         <q-separator vertical />
 
-        <!-- Rechter Bereich: Kontakt -->
+        <!-- Contact -->
         <div class="col-3 q-pa-md flex justify-center">
           <div>
             <div
@@ -92,7 +92,7 @@
       </q-card-section>
     </q-card>
 
-    <!-- Trenner mit Titel -->
+    <!-- Separator with title -->
     <div class="row items-center q-mb-md">
       <div class="text-h6 text-grey-8 text-weight-bold q-mr-md" style="letter-spacing: 1px">
         Vorlesungen
@@ -100,7 +100,7 @@
       <q-separator class="col" color="grey-4" />
     </div>
 
-    <!-- 2. Datentabelle -->
+    <!-- Table with data -->
     <q-table
       flat
       bordered
@@ -172,6 +172,7 @@ const lecturer = {
   prioMaster: 1,
 }
 
+//Definition of columns for the table
 const columns = [
   { name: 'kuerzel', align: 'left', label: 'Kürzel', field: 'kuerzel', sortable: true },
   {
@@ -202,6 +203,7 @@ const columns = [
   },
 ]
 
+//Temporary data for the table, later to be replaced with data from backend
 const rows = [
   {
     kuerzel: 'GDI',
@@ -235,18 +237,21 @@ const rows = [
   },
 ]
 
+//Function for getting the color for the lead time badge
 const getVorlaufColor = (val) => {
   if (val.includes('Sofort Bereit')) return 'green-7'
   if (val.includes('Wochen')) return 'amber-8'
   return 'red-7'
 }
 
+//Function for getting the color for the already held badge
 const getGehaltenColor = (val) => {
   if (val.includes('Intern')) return 'blue-7'
   if (val.includes('Extern')) return 'amber-9'
   return 'grey-10'
 }
 
+//Function for getting the preference string based on its ID
 const getPreference = (preferenceID) => {
   //Temporary function until we have the actual preference from the backend, then we can adjust it according to its ID
   //TODO: adjust the return values
@@ -255,6 +260,7 @@ const getPreference = (preferenceID) => {
   return 'Alle Vorlesungen'
 }
 
+//Function for getting the status string (Intern/Extern/etc.) based on its ID
 const getDozStatus = (statusID) => {
   //Temporary function until we have the actual status from the backend, then we can adjust it accordingly
   //TODO: adjust the return values
@@ -263,7 +269,9 @@ const getDozStatus = (statusID) => {
   return 'Unbekannt'
 }
 
+//Function for getting the color of the avatar based on the lecturer ID (Deterministic so same ID always gets same color)
 const getAvatarColor = (id) => {
+  if (!id) return '#9a9a9aff' // default color
   const strId = id.toString()
   let hash = 0
   for (let i = 0; i < strId.length; i++) {
@@ -288,11 +296,7 @@ const getAvatarColor = (id) => {
   return colors[Math.abs(hash) % colors.length]
 }
 
-const getDozentenProfilePic = (id) => {
-  if (!id) return '#9a9a9aff' // default color
-  return getAvatarColor(id)
-}
-
+//Function for getting the initials of the lecturer based on first and last name
 const getDozentenInitials = (firstName, lastName) => {
   const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : ''
   const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : ''
