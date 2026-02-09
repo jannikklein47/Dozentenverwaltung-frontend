@@ -1,0 +1,5 @@
+services:
+  doz-frontend:
+    build: .
+    ports:
+      - '443:443'
