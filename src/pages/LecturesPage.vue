@@ -52,7 +52,10 @@
 </template>
 
 <script setup>
-// Hier kommen die Daten und die spezifische Logik der Seite rein
+
+// Placeholder until the database is ready to be used
+
+// this function should generate a color based on the 'DozentenID'
 const getAvatarColor = (initials) => {
   const map = {
     'EH': 'bg-blue',
