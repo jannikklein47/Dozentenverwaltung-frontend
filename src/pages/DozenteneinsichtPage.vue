@@ -104,7 +104,7 @@
     <q-table
       flat
       bordered
-      :rows="rows"
+      :rows="lectures"
       :columns="columns"
       row-key="kuerzel"
       hide-bottom
@@ -158,19 +158,37 @@
 </template>
 
 <script setup>
-const lecturer = {
-  //TODO feed with data from backend
-  dozID: 1,
-  title: 'Dr.',
-  lastName: 'Volk',
-  firstName: 'Florian',
-  dozStatusID: 1,
-  email: 'florian.volk@provadis-hochschule.de',
-  phone: '+49 176 12345678',
-  preferenceID: 0,
-  prioBachelor: 1,
-  prioMaster: 1,
-}
+import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+// Get the ID from the URL query string
+const lecturerId = route.query.id
+
+console.log('Lecturer ID from URL:', lecturerId)
+
+watch(
+  () => route.query.id,
+  (newId) => {
+    console.log('ID changed to:', newId)
+    getLecturer(newId).then((data) => {
+      lecturer.value = data
+    })
+    getLecturerLectures(newId).then((data) => {
+      lectures.value = data
+    })
+  },
+)
+
+const lectures = ref([])
+
+const lecturer = ref({})
+
+// Load data when component mounts
+onMounted(async () => {
+  lecturer.value = await getLecturer(lecturerId)
+  lectures.value = await getLecturerLectures(lecturerId)
+})
 
 //Definition of columns for the table
 const columns = [
@@ -203,39 +221,99 @@ const columns = [
   },
 ]
 
-//Temporary data for the table, later to be replaced with data from backend
-const rows = [
-  {
-    kuerzel: 'GDI',
-    bezeichnung: 'Grundlagen der Informatik',
-    offen: true,
-    art: 'Bachelor',
-    semester: 1,
-    vorliebe: 'Egal',
-    vorlauf: 'Sofort Bereit',
-    gehalten: 'Intern & Extern',
-  },
-  {
-    kuerzel: 'ADS',
-    bezeichnung: 'Algorithmen und Datenstrukturen',
-    offen: true,
-    art: 'Bachelor',
-    semester: 2,
-    vorliebe: 'Bachelor',
-    vorlauf: '4 Wochen',
-    gehalten: 'Extern',
-  },
-  {
-    kuerzel: 'NuVS',
-    bezeichnung: 'Netze und Verteilte Systeme',
-    offen: false,
-    art: 'Bachelor',
-    semester: 3,
-    vorliebe: 'Egal',
-    vorlauf: '2 Monate',
-    gehalten: 'Gar nicht',
-  },
-]
+const getLecturerLectures = async (id) => {
+  const defaultData = []
+
+  if (!id) {
+    //TODO: Handle the case if there were to be no ID provided, e.g. show an error message or redirect to another page
+    console.warn('No lecturer ID provided, using default data')
+    return defaultData
+  } else {
+    console.log('Fetching data for lecturer ID:', id)
+    //TODO feed with data from backend
+
+    if (id === '1') {
+      //Temporary data for the table, later to be replaced with data from backend
+      return [
+        {
+          kuerzel: 'GDI',
+          bezeichnung: 'Grundlagen der Informatik',
+          offen: true,
+          art: 'Bachelor',
+          semester: 1,
+          vorliebe: 'Egal',
+          vorlauf: 'Sofort Bereit',
+          gehalten: 'Intern & Extern',
+        },
+        {
+          kuerzel: 'ADS',
+          bezeichnung: 'Algorithmen und Datenstrukturen',
+          offen: true,
+          art: 'Bachelor',
+          semester: 2,
+          vorliebe: 'Bachelor',
+          vorlauf: '4 Wochen',
+          gehalten: 'Extern',
+        },
+        {
+          kuerzel: 'NuVS',
+          bezeichnung: 'Netze und Verteilte Systeme',
+          offen: false,
+          art: 'Bachelor',
+          semester: 3,
+          vorliebe: 'Egal',
+          vorlauf: '2 Monate',
+          gehalten: 'Gar nicht',
+        },
+      ]
+    }
+
+    // If the ID does not match any known lecturer, return default data (or handle as needed)
+    return defaultData
+  }
+}
+
+const getLecturer = async (id) => {
+  const defaultData = {
+    dozID: null,
+    title: '',
+    lastName: '',
+    firstName: '',
+    dozStatusID: 1,
+    email: '',
+    phone: '',
+    preferenceID: 0,
+    prioBachelor: 0,
+    prioMaster: 0,
+  }
+
+  if (!id) {
+    //TODO: Handle the case if there were to be no ID provided, e.g. show an error message or redirect to another page
+    console.warn('No lecturer ID provided, using default data')
+    return defaultData
+  } else {
+    console.log('Fetching data for lecturer ID:', id)
+    //TODO feed with data from backend
+
+    if (id === '1') {
+      return {
+        dozID: id,
+        title: 'Dr.',
+        lastName: 'Gunther',
+        firstName: 'Ralf',
+        dozStatusID: 1,
+        email: 'ralf.gunther@test-hochschule.de',
+        phone: '+49 176 12345678',
+        preferenceID: 0,
+        prioBachelor: 1,
+        prioMaster: 1,
+      }
+    }
+
+    // If the ID does not match any known lecturer, return default data (or handle as needed)
+    return defaultData
+  }
+}
 
 //Function for getting the color for the lead time badge
 const getVorlaufColor = (val) => {
