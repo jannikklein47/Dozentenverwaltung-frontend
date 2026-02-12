@@ -30,9 +30,24 @@
         <q-space />
 
         <q-input
-          label="Nach einem Dozenten suchen..."
+          v-if="$route.name === 'vorlesungen'"
+          :label="'Nach einer Vorlesung suchen...'"
           rounded
-          v-model="test"
+          v-model="filterModel.search"
+          standout="bg-grey-4"
+          dense
+          style="min-width: 300px"
+          input-class="text-black"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="primary" />
+          </template>
+        </q-input>
+        <q-input
+          v-if="$route.name === 'dozenten'"
+          :label="'Nach einem Dozenten suchen...'"
+          rounded
+          v-model="filterModel.search"
           standout="bg-grey-4"
           dense
           style="min-width: 300px"
@@ -105,6 +120,20 @@
               <q-item-label class="text-h6 text-weight-medium"> Reporting </q-item-label>
             </q-item-section>
           </q-item>
+          <q-item
+            clickable
+            tag="a"
+            to="/manage"
+            class="text-grey-5"
+            :active-class="'gradient-bg force-white'"
+          >
+            <q-item-section avatar>
+              <q-icon name="person_search" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-h6 text-weight-medium"> Nutzer Verwalten </q-item-label>
+            </q-item-section>
+          </q-item>
           <q-item class="text-grey-5">
             <q-item-section>
               <q-item-label class="text-overline" style="position: relative; top: 9px">
@@ -120,8 +149,8 @@
             <q-item-section>
               <q-select
                 dense
-                v-model="test"
-                :options="['Option 1', 'Option 2', 'Option 3']"
+                v-model="filterModel.niveau"
+                :options="['Bachelor', 'Master']"
                 dark
                 label="Niveau"
                 filled
@@ -137,8 +166,8 @@
             <q-item-section>
               <q-select
                 dense
-                v-model="test"
-                :options="['Option 1', 'Option 2', 'Option 3']"
+                v-model="filterModel.vorlaufzeit"
+                :options="['Sofort', '4 Wochen', 'Mehr als 4 Wochen']"
                 dark
                 label="Vorlaufzeit"
                 filled
@@ -154,8 +183,8 @@
             <q-item-section>
               <q-select
                 dense
-                v-model="test"
-                :options="['Option 1', 'Option 2', 'Option 3']"
+                v-model="filterModel.erfahrung"
+                :options="['An der Provadis', 'Extern']"
                 dark
                 label="Erfahrung"
                 filled
@@ -217,9 +246,9 @@
 import { ref } from 'vue'
 import LogoComponent from 'src/components/LogoComponent.vue'
 
-const test = ref('')
-
 const leftDrawerOpen = ref(true)
+
+const filterModel = ref({})
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
