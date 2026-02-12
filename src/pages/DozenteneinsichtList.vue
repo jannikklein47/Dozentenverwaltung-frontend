@@ -71,6 +71,183 @@
         </q-td>
       </template>
     </q-table>
+
+    <!-- TODO: Fix text to bubble alignment and make bottom two fields mandatory as well -->
+    <!-- Dialog for creating new lecturer -->
+    <q-dialog v-model="showDialog" no-backdrop-dismiss>
+      <q-card style="min-width: 480px; border-radius: 20px" class="bg-grey-2">
+        <q-card-section class="q-pt-lg q-pb-md">
+          <div
+            class="text-center text-weight-medium"
+            style="font-size: 16px; font-family: Inter, sans-serif"
+          >
+            Neuen Dozenten Erstellen
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none q-px-lg">
+          <q-form @submit="createLecturer" class="q-gutter-sm">
+            <!-- Titel -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Titel:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecturer.title"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Vorname -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Vorname:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecturer.firstName"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Nachname -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Nachname:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecturer.lastName"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Email-Adresse -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Email-Adresse:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecturer.email"
+                  type="email"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[
+                    (val) => !!val || 'Erforderlich',
+                    (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültig',
+                  ]"
+                />
+              </div>
+            </div>
+
+            <!-- Telefonnummer -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Telefonnummer:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecturer.phone"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Vorliebe -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Vorliebe:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="newLecturer.preferenceID"
+                  :options="preferenceOptions"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                />
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Status:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="newLecturer.dozStatusID"
+                  :options="statusOptions"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row justify-center q-gutter-md q-mt-md q-mb-sm">
+              <q-btn
+                type="button"
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelForm"
+              />
+              <q-btn
+                type="submit"
+                color="light-blue-9"
+                label="Dozenten erstellen"
+                icon="person_add"
+                rounded
+                unelevated
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 
   <!-- Floating Action Button -->
@@ -80,10 +257,71 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDozStatus, getDozStatusColor, getPreference } from 'src/utils/lecturerHelper'
 
 const router = useRouter()
+const showDialog = ref(false)
+
+// Form data
+const newLecturer = ref({
+  title: '',
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  preferenceID: null,
+  dozStatusID: null,
+})
+
+// Options for dropdowns
+const preferenceOptions = [
+  { label: 'Bachelor', prioBachelor: 1, prioMaster: 0 },
+  { label: 'Master', prioBachelor: 0, prioMaster: 1 },
+  { label: 'Alle Vorlesungen', prioBachelor: 1, prioMaster: 1 },
+]
+
+const statusOptions = [
+  //Needs to be a list of all different statuses from backend, currently just a placeholder
+  { label: 'Intern', value: 1 },
+  { label: 'Extern', value: 2 },
+]
+
+const addNewLecturer = () => {
+  showDialog.value = true
+}
+
+const cancelForm = () => {
+  showDialog.value = false
+  // Reset form
+  newLecturer.value = {
+    title: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    preferenceID: null,
+    dozStatusID: null,
+  }
+}
+
+const createLecturer = () => {
+  // Generate new ID
+  const newId = Math.max(...lecturers.map((l) => l.dozID)) + 1
+
+  // Add to lecturers array
+  lecturers.push({
+    dozID: newId,
+    ...newLecturer.value,
+    lecturesShort: [],
+  })
+
+  console.log('Lecturer created:', newLecturer.value)
+
+  // Close dialog and reset form
+  cancelForm()
+}
 
 //Definition of columns for the table
 const columns = [
