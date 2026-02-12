@@ -49,7 +49,7 @@
           <div class="flex flex-center">
             <q-badge
               rounded
-              color="light-blue"
+              :color="getDozStatusColor(lecturer.dozStatusID)"
               :label="getDozStatus(lecturer.dozStatusID)"
               class="q-px-sm q-py-xs"
             />
@@ -67,10 +67,13 @@
             Allgemeine Vorliebe
           </div>
           <q-badge
+            v-for="(preference, index) in getPreference(lecturer.prioBachelor, lecturer.prioMaster)"
+            :key="index"
             color="grey-6"
+            text-color="white"
             rounded
-            :label="getPreference(lecturer.preferenceID)"
-            class="q-px-md q-py-xs"
+            class="q-px-md q-py-xs text-weight-bold q-mr-xs"
+            :label="preference"
           />
         </div>
 
@@ -158,17 +161,24 @@
 </template>
 
 <script setup>
+import {
+  getDozStatus,
+  getDozStatusColor,
+  getAvatarColor,
+  getDozentenInitials,
+  getPreference,
+} from 'src/utils/lecturerHelper'
 import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 // Get the ID from the URL query string
-const lecturerId = route.query.id
+const lecturerId = route.params.id
 
 console.log('Lecturer ID from URL:', lecturerId)
 
 watch(
-  () => route.query.id,
+  () => route.params.id,
   (newId) => {
     console.log('ID changed to:', newId)
     getLecturer(newId).then((data) => {
@@ -301,7 +311,7 @@ const getLecturer = async (id) => {
         title: 'Dr.',
         lastName: 'Gunther',
         firstName: 'Ralf',
-        dozStatusID: 1,
+        dozStatusID: 2,
         email: 'ralf.gunther@test-hochschule.de',
         phone: '+49 176 12345678',
         preferenceID: 0,
@@ -327,57 +337,5 @@ const getGehaltenColor = (val) => {
   if (val.includes('Intern')) return 'blue-7'
   if (val.includes('Extern')) return 'amber-9'
   return 'grey-10'
-}
-
-//Function for getting the preference string based on its ID
-const getPreference = (preferenceID) => {
-  //Temporary function until we have the actual preference from the backend, then we can adjust it according to its ID
-  //TODO: adjust the return values
-  if (preferenceID === 1) return 'Bachelor'
-  if (preferenceID === 2) return 'Master'
-  return 'Alle Vorlesungen'
-}
-
-//Function for getting the status string (Intern/Extern/etc.) based on its ID
-const getDozStatus = (statusID) => {
-  //Temporary function until we have the actual status from the backend, then we can adjust it accordingly
-  //TODO: adjust the return values
-  if (statusID === 1) return 'Intern'
-  if (statusID === 2) return 'Extern'
-  return 'Unbekannt'
-}
-
-//Function for getting the color of the avatar based on the lecturer ID (Deterministic so same ID always gets same color)
-const getAvatarColor = (id) => {
-  if (!id) return '#9a9a9aff' // default color
-  const strId = id.toString()
-  let hash = 0
-  for (let i = 0; i < strId.length; i++) {
-    const char = strId.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash | 0 // Convert to 32-bit integer
-  }
-  const colors = [
-    '#d32f2f', // red
-    '#f57c00', // orange
-    '#fbc02d', // yellow (darker)
-    '#689f38', // green
-    '#00897b', // teal
-    '#0288d1', // blue
-    '#1976d2', // dark blue
-    '#5e35b1', // purple
-    '#8e24aa', // deep purple
-    '#c2185b', // pink
-    '#d84315', // deep orange
-    '#6d4c41', // brown
-  ]
-  return colors[Math.abs(hash) % colors.length]
-}
-
-//Function for getting the initials of the lecturer based on first and last name
-const getDozentenInitials = (firstName, lastName) => {
-  const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : ''
-  const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : ''
-  return firstInitial + lastInitial
 }
 </script>
