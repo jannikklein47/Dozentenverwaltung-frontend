@@ -7,7 +7,9 @@
         row-key="id"
         flat
         :pagination="{ rowsPerPage: 10 }"
+        :loading="loading"
         class="dozenten-table"
+        @row-click="onRowClick"
       >
         <template v-slot:body-cell-offen="props">
           <q-td :props="props">
@@ -24,24 +26,17 @@
           </q-td>
         </template>
 
-        <template v-slot:header-cell-semester="props">
-          <q-th :props="props">
-            <q-icon name="arrow_downward" size="xs" class="q-mr-xs" />
-            {{ props.col.label }}
-          </q-th>
-        </template>
-
         <template v-slot:body-cell-dozenten="props">
           <q-td :props="props">
             <div class="row q-gutter-x-xs no-wrap">
               <q-avatar
-                v-for="(dozent, index) in props.value"
+                v-for="(initials, index) in props.value"
                 :key="index"
                 size="28px"
-                :class="getAvatarColor(dozent)"
+                :class="getAvatarColor(initials)"
                 class="text-white text-caption text-weight-bold"
               >
-                {{ dozent }}
+                {{ initials }}
               </q-avatar>
             </div>
           </q-td>
@@ -52,19 +47,61 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-// Placeholder until the database is ready to be used
+const router = useRouter()
+const rows = ref([])
+const loading = ref(false)
 
-// this function should generate a color based on the 'DozentenID'
+const fetchVorlesungen = async () => {
+  loading.value = true
+  try {
+    // URL zur 'Vorlesungen' DB im Backend
+    const response = await axios.get('http://localhost:3000/api/v1.0/app/lectures')
+
+    // Wir mappen die Backend-Struktur (lectures: rows) auf unser Tabellen-Format
+    rows.value = response.data.lectures.map(v => {
+      // Hilfsfunktion für Initialen (Vorname + Name)
+      const getInitials = (p) => {
+        return `${p.vorname?.charAt(0) || ''}${p.name?.charAt(0) || ''}`.toUpperCase()
+      }
+
+      // TODO: Richtigen Kürzel einfügen, solbald dieser übergeben wird
+      return {
+        id: v.id,
+        kuerzel: v.name.substring(0, 4), // Da noch kein Kürzel im Backend existiert, nehmen wir die ersten 4 Buchstaben
+        bezeichnung: v.name,
+        offen: v.lectureStatus?.name || 'Unbekannt',
+        art: v.completionType?.name || 'N/A',
+        semester: v.semester,
+        // Generiert Initialen 
+        dozenten: v.professors ? v.professors.map(p => getInitials(p)) : []
+      }
+    })
+  } catch (error) {
+    console.error('Fehler beim Laden der Vorlesungen:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchVorlesungen()
+})
+
+const onRowClick = (evt, row) => {
+  router.push(`/vorlesungen/details/${row.id}`)
+}
+
+// TODO: Use the getAvatarColor() function to generate deterministic colors based on the initials
 const getAvatarColor = (initials) => {
   const map = {
-    'EH': 'bg-blue',
-    'FV': 'bg-brown',
-    'HP': 'bg-green',
-    'VS': 'bg-blue-grey',
-    'JD': 'bg-teal'
+    'EH': 'bg-blue', 'FV': 'bg-brown', 'HP': 'bg-green',
+    'VS': 'bg-blue-grey', 'JD': 'bg-teal'
   }
-  return map[initials] || 'bg-grey'
+  return map[initials] || 'bg-grey-7'
 }
 
 const columns = [
@@ -75,55 +112,4 @@ const columns = [
   { name: 'semester', align: 'center', label: 'Semester', field: 'semester', sortable: true },
   { name: 'dozenten', align: 'left', label: 'Dozenten', field: 'dozenten' }
 ]
-
-const rows = [
-
-{ id: 1, kuerzel: 'Prog', bezeichnung: 'Programmierung', offen: 'Geschlossen', art: 'Bachelor', semester: 1, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 2, kuerzel: 'GDI', bezeichnung: 'Grundlagen der Informatik', offen: 'Offen', art: 'Bachelor', semester: 1, dozenten: ['EH', 'HP'] },
-
-{ id: 3, kuerzel: 'MA1', bezeichnung: 'Mathematik 1', offen: 'Offen', art: 'Bachelor', semester: 1, dozenten: ['EH', 'FV', 'HP', 'VS', 'JD'] },
-
-{ id: 4, kuerzel: 'ADS', bezeichnung: 'Algorithmen und Datenstrukturen', offen: 'Offen', art: 'Bachelor', semester: 2, dozenten: ['FV', 'VS'] },
-
-{ id: 5, kuerzel: 'FProg', bezeichnung: 'Fortgeschrittene Programmierung', offen: 'Geschlossen', art: 'Bachelor', semester: 2, dozenten: ['HP', 'VS'] },
-
-{ id: 6, kuerzel: 'MA2', bezeichnung: 'Mathematik 2', offen: 'Offen', art: 'Bachelor', semester: 2, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 7, kuerzel: 'BS', bezeichnung: 'Betriebssysteme', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 8, kuerzel: 'NuVS', bezeichnung: 'Netze und Verteilte Systeme', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 9, kuerzel: 'InfSich', bezeichnung: 'Informationssicherheit', offen: 'Geschlossen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 10, kuerzel: 'PrM', bezeichnung: 'Projektmanagement', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 11, kuerzel: 'PrM', bezeichnung: 'Projektmanagement', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 12, kuerzel: 'GDI', bezeichnung: 'Grundlagen der Informatik', offen: 'Offen', art: 'Bachelor', semester: 1, dozenten: ['EH', 'HP'] },
-
-{ id: 13, kuerzel: 'MA1', bezeichnung: 'Mathematik 1', offen: 'Offen', art: 'Bachelor', semester: 1, dozenten: ['EH', 'FV', 'HP', 'VS', 'JD'] },
-
-{ id: 14, kuerzel: 'ADS', bezeichnung: 'Algorithmen und Datenstrukturen', offen: 'Offen', art: 'Bachelor', semester: 2, dozenten: ['FV', 'VS'] },
-
-{ id: 15, kuerzel: 'FProg', bezeichnung: 'Fortgeschrittene Programmierung', offen: 'Geschlossen', art: 'Bachelor', semester: 2, dozenten: ['HP', 'VS'] },
-
-{ id: 16, kuerzel: 'MA2', bezeichnung: 'Mathematik 2', offen: 'Offen', art: 'Bachelor', semester: 2, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 17, kuerzel: 'BS', bezeichnung: 'Betriebssysteme', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 18, kuerzel: 'NuVS', bezeichnung: 'Netze und Verteilte Systeme', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 19, kuerzel: 'InfSich', bezeichnung: 'Informationssicherheit', offen: 'Geschlossen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-
-{ id: 20, kuerzel: 'PrM', bezeichnung: 'Projektmanagement', offen: 'Offen', art: 'Bachelor', semester: 3, dozenten: ['EH', 'FV', 'HP', 'VS'] },
-]
-
 </script>
-
-<style scoped>
-.dozenten-table :deep(thead tr th) {
-  font-weight: bold;
-  color: #757575;
-}
-</style>
