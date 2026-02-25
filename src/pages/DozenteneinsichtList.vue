@@ -6,8 +6,7 @@
       bordered
       :rows="lecturers"
       :columns="columns"
-      row-key="titel"
-      hide-bottom
+      row-key="dozID"
       @row-click="onRowClick"
       class="text-grey-8 text-weight-bold"
       font-size="16px"
@@ -257,12 +256,48 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatus, getDozStatusColor, getPreference } from 'src/utils/lecturerHelper'
+import {
+  getDozStatus,
+  getDozStatusColor,
+  getPreference,
+  getAllProfessors,
+  createProfessor,
+} from 'src/utils/lecturerHelper'
 
 const router = useRouter()
 const showDialog = ref(false)
+
+const lecturers = ref([])
+const loading = ref(false)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const response = await getAllProfessors()
+    console.log('API response:', response)
+
+    // Transform API data to match table expectations
+    lecturers.value = (response.professors || []).map((prof) => ({
+      dozID: prof.id,
+      title: prof.titel,
+      firstName: prof.vorname,
+      lastName: prof.name,
+      email: prof.email,
+      phone: prof.telefonnummer,
+      dozStatusID: prof.professorStatus?.id || 1, // Map status properly
+      lecturesShort: prof.lectures?.slice(0, 5).map((l) => l.kuerzel) || [], // First 5 lecture codes
+      prioBachelor: prof.preference?.prioBachelor || 1,
+      prioMaster: prof.preference?.prioMaster || 1,
+      preferenceID: prof.preference?.id || 1,
+    }))
+  } catch (error) {
+    console.error('Failed to load professors:', error)
+  } finally {
+    loading.value = false
+  }
+})
 
 // Form data
 const newLecturer = ref({
@@ -276,16 +311,16 @@ const newLecturer = ref({
 })
 
 // Options for dropdowns
-const preferenceOptions = [
-  { label: 'Bachelor', prioBachelor: 1, prioMaster: 0 },
-  { label: 'Master', prioBachelor: 0, prioMaster: 1 },
-  { label: 'Alle Vorlesungen', prioBachelor: 1, prioMaster: 1 },
-]
-
 const statusOptions = [
-  //Needs to be a list of all different statuses from backend, currently just a placeholder
   { label: 'Intern', value: 1 },
   { label: 'Extern', value: 2 },
+  // Add more from actual backend response
+]
+
+const preferenceOptions = [
+  { label: 'Bachelor', value: 1, prioBachelor: 1, prioMaster: 0 },
+  { label: 'Master', value: 2, prioBachelor: 0, prioMaster: 1 },
+  { label: 'Alle Vorlesungen', value: 3, prioBachelor: 1, prioMaster: 1 },
 ]
 
 const addNewLecturer = () => {
@@ -306,66 +341,35 @@ const cancelForm = () => {
   }
 }
 
-const createLecturer = () => {
-  // Generate new ID
-  const newId = Math.max(...lecturers.map((l) => l.dozID)) + 1
-
-  // Add to lecturers array
-  lecturers.push({
-    dozID: newId,
-    ...newLecturer.value,
-    lecturesShort: [],
-  })
-
-  console.log('Lecturer created:', newLecturer.value)
-
-  // Close dialog and reset form
-  cancelForm()
+const createLecturer = async () => {
+  try {
+    await createProfessor(newLecturer.value)
+    await onMounted()
+    cancelForm()
+  } catch (error) {
+    console.error('Create failed:', error)
+  }
 }
 
 //Definition of columns for the table
 const columns = [
-  { name: 'titel', align: 'left', label: 'Titel', field: 'title', sortable: true },
+  { name: 'title', align: 'left', label: 'Titel', field: 'title', sortable: true },
   {
     name: 'name',
     align: 'left',
     label: 'Name',
-    field: 'name',
+    field: (row) => `${row.firstName} ${row.lastName}`,
     sortable: true,
   },
   { name: 'status', align: 'center', label: 'Status', field: 'dozStatusID', sortable: true },
   { name: 'email', align: 'left', label: 'E-Mail-Adresse', field: 'email', sortable: true },
-  {
-    name: 'telefon',
-    align: 'left',
-    label: 'Telefonnummer',
-    style: 'font-weight: bold',
-    field: 'phone',
-    sortable: true,
-  },
+  { name: 'telefon', align: 'left', label: 'Telefonnummer', field: 'phone', sortable: true },
   { name: 'vorlesungen', align: 'left', label: 'Vorlesungen', field: 'lecturesShort' },
   {
     name: 'vorlieben',
     align: 'left',
     label: 'Vorlieben',
-    field: 'preferenceID',
-    sortable: true,
-  },
-]
-
-const lecturers = [
-  {
-    dozID: 1,
-    title: 'Dr.',
-    lastName: 'Gunther',
-    firstName: 'Ralf',
-    dozStatusID: 2,
-    email: 'ralf.gunther@test-hochschule.de',
-    phone: '+49 176 12345678',
-    preferenceID: 0,
-    prioBachelor: 1,
-    prioMaster: 1,
-    lecturesShort: ['GDI', 'ADS', 'NuVS'],
+    field: (row) => ({ prioBachelor: row.prioBachelor, prioMaster: row.prioMaster }),
   },
 ]
 
