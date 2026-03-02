@@ -57,9 +57,8 @@ export const useProfessorStore = defineStore('professor', {
       limit: 20,
       offset: 0,
       term: null,
-      vorlesung_statusId: null,
-      abschluss_typId: null,
-      semester: null,
+      dozenten_statusId: null,
+      vorliebeId: null,
     }),
   }),
 
@@ -77,7 +76,7 @@ export const useProfessorStore = defineStore('professor', {
         // request the api with all filters
         const response = await api.get(
           '/app/professors' +
-            `?limit=${this.filters.limit}&offset=${this.filters.offset}&term=${this.filters.term}&vorlesung_statusId=${this.filters.vorlesung_statusId}&abschluss_typId=${this.filters.abschluss_typId}&semester=${this.filters.semester}`,
+            `?limit=${this.filters.limit}&offset=${this.filters.offset}&term=${this.filters.term}&vorliebeId=${this.filters.vorliebeId}&dozenten_statusId=${this.filters.dozenten_statusId}`,
         )
 
         if (response.status === 200) {
@@ -97,13 +96,14 @@ export const useProfessorStore = defineStore('professor', {
     },
 
     /**
-     * Clears the professors array and resets the total count.
+     * Clears the professors array and resets the total count as well as the offset.
      *
      * Use this function to clear the professors data when the user changes the filters.
      */
     clearProfessors() {
       this.professors = []
       this.totalProfessors = 0
+      this.filters.offset = 0
     },
 
     /**
