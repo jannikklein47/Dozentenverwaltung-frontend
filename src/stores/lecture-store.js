@@ -61,9 +61,9 @@ export const useLectureStore = defineStore('lecture', {
       term: null,
       vorlesung_statusId: null,
       abschluss_typId: null,
-      semester: null,
       gehalten_anId: null,
-      vorliebeId: null,
+      semester: null,
+      vorlaufzeit: null,
     }),
     dozentFilters: ref({
       limit: 20,
@@ -71,10 +71,12 @@ export const useLectureStore = defineStore('lecture', {
       term: null,
       vorlesung_statusId: null,
       abschluss_typId: null,
+      vorliebeId: null,
       semester: null,
       gehalten_anId: null,
-      vorliebeId: null,
+      vorlaufzeit: null,
     }),
+    mappings: {},
   }),
 
   getters: {},
@@ -88,11 +90,14 @@ export const useLectureStore = defineStore('lecture', {
      */
     async loadLectures() {
       try {
+        const query =
+          '?' +
+          Object.entries(this.filters)
+            .filter(([key, value]) => value !== null && value !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&')
         // request the api with all filters
-        const response = await api.get(
-          '/app/lectures' +
-            `?limit=${this.filters.limit}&offset=${this.filters.offset}&term=${this.filters.term}&vorlesung_statusId=${this.filters.vorlesung_statusId}&abschluss_typId=${this.filters.abschluss_typId}&semester=${this.filters.semester}&gehalten_anId=${this.filters.gehalten_anId}&vorliebeId=${this.filters.vorliebeId}`,
-        )
+        const response = await api.get('/app/lectures' + query)
 
         if (response.status === 200) {
           const lecs = response.data.lectures
@@ -114,12 +119,14 @@ export const useLectureStore = defineStore('lecture', {
      */
     async loadDozentLectures(id) {
       try {
+        const query =
+          '?' +
+          Object.entries(this.dozentFilters)
+            .filter(([key, value]) => value !== null && value !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&')
         // request the api with all filters
-        const response = await api.get(
-          '/app/lectures/professor/' +
-            id +
-            `?limit=${this.dozentFilters.limit}&offset=${this.dozentFilters.offset}&term=${this.dozentFilters.term}&vorlesung_statusId=${this.dozentFilters.vorlesung_statusId}&abschluss_typId=${this.dozentFilters.abschluss_typId}&semester=${this.filters.semester}&gehalten_anId=${this.dozentFilters.gehalten_anId}&vorliebeId=${this.dozentFilters.vorliebeId}`,
-        )
+        const response = await api.get('/app/lectures/professor/' + id + query)
 
         if (response.status === 200) {
           const lecs = response.data.lectures
@@ -175,6 +182,26 @@ export const useLectureStore = defineStore('lecture', {
       } catch (error) {
         console.error(error)
         return null
+      }
+    },
+
+    /**
+     * Loads the mappings from the API.
+     * The mappings are a list of all possible filter values and their corresponding human-readable names.
+     * The function will fetch the mappings and store them in the 'mappings' property.
+     * If the request fails, an error will be logged to the console.
+     */
+    async loadMappings() {
+      try {
+        const response = await api.get('/app/lectures/mapping')
+
+        if (response.status === 200) {
+          Object.entries(response.data).forEach(([key, value]) => {
+            this.mappings[key] = value.map((v) => ({ label: v.name, value: v.id }))
+          })
+        }
+      } catch (error) {
+        console.error(error)
       }
     },
   },
