@@ -93,7 +93,7 @@ export const useLectureStore = defineStore('lecture', {
         const query =
           '?' +
           Object.entries(this.filters)
-            .filter(([key, value]) => value !== null && value !== undefined)
+            .filter((data) => data[1] !== null && data[1] !== undefined)
             .map(([key, value]) => `${key}=${value}`)
             .join('&')
         // request the api with all filters
@@ -122,7 +122,7 @@ export const useLectureStore = defineStore('lecture', {
         const query =
           '?' +
           Object.entries(this.dozentFilters)
-            .filter(([key, value]) => value !== null && value !== undefined)
+            .filter((data) => data[1] !== null && data[1] !== undefined)
             .map(([key, value]) => `${key}=${value}`)
             .join('&')
         // request the api with all filters
