@@ -6,8 +6,8 @@ import { ref } from 'vue'
 This is the professor store to store professors centralized.
 To use it in a component, you need to import it like this:
 
-import { useCounterStore } from 'stores/professor-store'
-const professorStore = useCounterStore()
+import { useProfessorStore } from 'stores/professor-store'
+const professorStore = useProfessorStore()
 
 To use the professor data in html:
 *************** Script ****************
@@ -22,7 +22,7 @@ const totalProfessors = computed(() => professorStore.totalProfessors)
 
 ***************************************
 
-To load professors, you need to call the loadProfessors() function. It will fetch the professor
+To load professors, you need to call the loadProfessors() function. It will fetch the professors
 from the backend.
 It is async and you are able to await it.
 
