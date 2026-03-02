@@ -142,57 +142,238 @@
             </q-item-section>
           </q-item>
           <q-separator dark />
-          <q-item>
+
+          <!-- Lectures Filter -->
+          <q-item v-if="$route.name === 'lectures'">
             <q-item-section avatar>
-              <q-icon name="filter_list" color="grey-5" />
+              <q-icon name="flag" color="grey-5" />
             </q-item-section>
             <q-item-section>
               <q-select
                 dense
-                v-model="filterModel.niveau"
-                :options="['Bachelor', 'Master']"
+                v-model="lectureFilters.abschluss_typId"
+                :options="lectureMappings.completionType"
                 dark
-                label="Niveau"
+                label="Abschluss"
                 filled
                 color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectures"
               >
               </q-select>
             </q-item-section>
           </q-item>
-          <q-item>
+          <q-item v-if="$route.name === 'lectures'">
             <q-item-section avatar>
               <q-icon name="timer" color="grey-5" />
             </q-item-section>
             <q-item-section>
               <q-select
                 dense
-                v-model="filterModel.vorlaufzeit"
-                :options="['Sofort', '4 Wochen', 'Mehr als 4 Wochen']"
+                v-model="lectureFilters.vorlaufzeit"
+                :options="[
+                  { label: 'Sofort', value: 'S' },
+                  { label: '4 Wochen', value: '4' },
+                  { label: 'Mehr als 4 Wochen', value: 'M' },
+                ]"
                 dark
                 label="Vorlaufzeit"
                 filled
                 color="white"
+                map-options
+                emit-value
               >
               </q-select>
             </q-item-section>
           </q-item>
-          <q-item>
+          <q-item v-if="$route.name === 'lectures'">
             <q-item-section avatar>
               <q-icon name="history" color="grey-5" />
             </q-item-section>
             <q-item-section>
               <q-select
                 dense
-                v-model="filterModel.erfahrung"
-                :options="['An der Provadis', 'Extern']"
+                v-model="lectureFilters.gehalten_anId"
+                :options="lectureMappings.gehalten_an"
                 dark
                 label="Erfahrung"
                 filled
                 color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectures"
               >
               </q-select>
             </q-item-section>
           </q-item>
+          <q-item v-if="$route.name === 'lectures'">
+            <q-item-section avatar>
+              <q-icon name="lock_open" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureFilters.vorlesung_statusId"
+                :options="lectureMappings.lectureStatus"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="$route.name === 'lectures'">
+            <q-item-section avatar>
+              <q-icon name="stairs" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureFilters.semester"
+                :options="[1, 2, 3, 4, 5, 6]"
+                dark
+                label="Semester"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section avatar>
+              <q-icon name="flag" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureProfessorFilters.abschluss_typId"
+                :options="lectureMappings.completionType"
+                dark
+                label="Abschluss"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessorLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section avatar>
+              <q-icon name="timer" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureProfessorFilters.vorlaufzeit"
+                :options="[
+                  { label: 'Sofort', value: 'S' },
+                  { label: '4 Wochen', value: '4' },
+                  { label: 'Mehr als 4 Wochen', value: 'M' },
+                ]"
+                dark
+                label="Vorlaufzeit"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessorLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section avatar>
+              <q-icon name="history" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureProfessorFilters.gehalten_anId"
+                :options="lectureMappings.gehalten_an"
+                dark
+                label="Erfahrung"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessorLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section avatar>
+              <q-icon name="lock_open" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureProfessorFilters.vorlesung_statusId"
+                :options="lectureMappings.lectureStatus"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessorLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section avatar>
+              <q-icon name="stairs" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureProfessorFilters.semester"
+                :options="[1, 2, 3, 4, 5, 6]"
+                dark
+                label="Semester"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessorLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section avatar>
+              <q-icon name="center_focus_weak" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="lectureProfessorFilters.vorliebeId"
+                :options="professorMappings.preference"
+                dark
+                label="Vorliebe des Dozenten"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessorLectures"
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <!-- Professors Filter -->
 
           <q-space />
 
@@ -243,16 +424,46 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import LogoComponent from 'src/components/LogoComponent.vue'
+import { useLectureStore } from 'src/stores/lecture-store'
+import { useProfessorStore } from 'src/stores/professor-store'
+import { useRoute } from 'vue-router'
+
+const lectureStore = useLectureStore()
+const professorStore = useProfessorStore()
+
+const lectureFilters = lectureStore.filters
+const lectureProfessorFilters = lectureStore.dozentFilters
+const lectureMappings = computed(() => lectureStore.mappings)
+
+const professorMappings = computed(() => professorStore.mappings)
+
+const route = useRoute()
+
+//const professorFilters = professorStore.filters
 
 const leftDrawerOpen = ref(true)
-
-const filterModel = ref({})
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+
+function applyFilterToLectures() {
+  lectureStore.clearLectures()
+  lectureStore.loadLectures()
+}
+
+function applyFilterToProfessorLectures() {
+  const id = route.params.id
+  lectureStore.clearDozentLectures()
+  lectureStore.loadDozentLectures(id)
+}
+
+onMounted(() => {
+  lectureStore.loadMappings()
+  professorStore.loadMappings()
+})
 </script>
 
 <style scoped lang="scss">

@@ -53,6 +53,8 @@ export const useProfessorStore = defineStore('professor', {
   state: () => ({
     professors: [],
     totalProfessors: 0,
+    lectureProfessors: [],
+    totalLectureProfessors: 0,
     filters: ref({
       limit: 20,
       offset: 0,
@@ -60,6 +62,14 @@ export const useProfessorStore = defineStore('professor', {
       dozenten_statusId: null,
       vorliebeId: null,
     }),
+    lectureFilters: ref({
+      limit: 20,
+      offset: 0,
+      term: null,
+      dozenten_statusId: null,
+      vorliebeId: null,
+    }),
+    mappings: {},
   }),
 
   getters: {},
@@ -73,11 +83,14 @@ export const useProfessorStore = defineStore('professor', {
      */
     async loadProfessors() {
       try {
+        const query =
+          '?' +
+          Object.entries(this.filters)
+            .filter(([key, value]) => value !== null && value !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&')
         // request the api with all filters
-        const response = await api.get(
-          '/app/professors' +
-            `?limit=${this.filters.limit}&offset=${this.filters.offset}&term=${this.filters.term}&vorliebeId=${this.filters.vorliebeId}&dozenten_statusId=${this.filters.dozenten_statusId}`,
-        )
+        const response = await api.get('/app/professors' + query)
 
         if (response.status === 200) {
           const profs = response.data.professors
@@ -87,6 +100,41 @@ export const useProfessorStore = defineStore('professor', {
           this.professors = this.professors.splice(
             this.filters.offset,
             this.professors.length,
+            ...profs,
+          )
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    /**
+     * Load professors from the API.
+     * The function will fetch the professors with all filters applied.
+     * The total professors will be updated and the professors array will be replaced after the offset with new data.
+     * If the request fails, an error will be logged to the console.
+     */
+    async loadLectureProfessors() {
+      try {
+        // request the api with all filters
+
+        const query =
+          '?' +
+          Object.entries(this.lectureFilters)
+            .filter(([key, value]) => value !== null && value !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&')
+
+        const response = await api.get('/app/professors' + query)
+
+        if (response.status === 200) {
+          const profs = response.data.professors
+          // set total professors for visual feedback
+          this.totalLectureProfessors = response.data.total
+          // replace all entries after offset with new data
+          this.lectureProfessors = this.lectureProfessors.splice(
+            this.lectureFilters.offset,
+            this.lectureProfessors.length,
             ...profs,
           )
         }
@@ -122,6 +170,25 @@ export const useProfessorStore = defineStore('professor', {
       } catch (error) {
         console.error(error)
         return null
+      }
+    },
+
+    /**
+     * Loads the mappings from the API.
+     * The function will fetch the mappings and store them in the 'mappings' property.
+     * If the request fails, an error will be logged to the console.
+     */
+    async loadMappings() {
+      try {
+        const response = await api.get('/app/professors/mapping')
+
+        if (response.status === 200) {
+          Object.entries(response.data).forEach(([key, value]) => {
+            this.mappings[key] = value.map((v) => ({ label: v.name, value: v.id }))
+          })
+        }
+      } catch (error) {
+        console.error(error)
       }
     },
   },
