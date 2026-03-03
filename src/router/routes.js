@@ -2,14 +2,7 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
-      {
-        path: 'dozenten/details/:id',
-        component: () => import('pages/DozenteneinsichtDetails.vue'),
-      },
-      { path: 'dozenten', component: () => import('pages/DozenteneinsichtList.vue') },
-    ],
+    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
   },
 
   // Always leave this as last one,
