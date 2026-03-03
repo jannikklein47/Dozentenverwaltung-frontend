@@ -27,7 +27,7 @@
             text-color="white"
             rounded
             class="q-px-md q-py-xs text-weight-bold"
-            :label="getDozStatus(props.value)"
+            :label="props.value"
           />
         </q-td>
       </template>
@@ -258,13 +258,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  getDozStatus,
-  getDozStatusColor,
-  getPreference,
-  getAllProfessors,
-  createProfessor,
-} from 'src/utils/lecturerHelper'
+import { getDozStatusColor, getPreference, createProfessor } from 'src/utils/lecturerHelper'
 
 const router = useRouter()
 const showDialog = ref(false)
@@ -286,11 +280,13 @@ onMounted(async () => {
       lastName: prof.name,
       email: prof.email,
       phone: prof.telefonnummer,
-      dozStatusID: prof.professorStatus?.id || 1, // Map status properly
-      lecturesShort: prof.lectures?.slice(0, 5).map((l) => l.kuerzel) || [], // First 5 lecture codes
-      prioBachelor: prof.preference?.prioBachelor || 1,
-      prioMaster: prof.preference?.prioMaster || 1,
+      dozStatus: prof.professorStatus.name,
+      lecturesShort: prof.lectures?.slice(0, 7).map((l) => l.kuerzel) || [], //Some might have too many lectures, so it is limited to 7 and the rest is shown in the details page
+      prioBachelor: prof.prio_bachelor,
+      prioMaster: prof.prio_master,
       preferenceID: prof.preference?.id || 1,
+
+      //TODO: Ask for backend data and what to even say in specific Vorlieben field on Frontend!?!?
     }))
   } catch (error) {
     console.error('Failed to load professors:', error)
@@ -361,7 +357,7 @@ const columns = [
     field: (row) => `${row.firstName} ${row.lastName}`,
     sortable: true,
   },
-  { name: 'status', align: 'center', label: 'Status', field: 'dozStatusID', sortable: true },
+  { name: 'status', align: 'center', label: 'Status', field: 'dozStatus', sortable: true },
   { name: 'email', align: 'left', label: 'E-Mail-Adresse', field: 'email', sortable: true },
   { name: 'telefon', align: 'left', label: 'Telefonnummer', field: 'phone', sortable: true },
   { name: 'vorlesungen', align: 'left', label: 'Vorlesungen', field: 'lecturesShort' },

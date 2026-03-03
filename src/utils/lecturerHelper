@@ -34,20 +34,11 @@ export function getDozentenInitials(firstName, lastName) {
   return firstInitial + lastInitial
 }
 
-//Function for getting the status string (Intern/Extern/etc.) based on its ID
-export function getDozStatus(statusID) {
+export function getDozStatusColor(status) {
   //Temporary function until we have the actual status from the backend, then we can adjust it accordingly
   //TODO: adjust the return values
-  if (statusID === 1) return 'Intern'
-  if (statusID === 2) return 'Extern'
-  return 'Unbekannt'
-}
-
-export function getDozStatusColor(statusID) {
-  //Temporary function until we have the actual status from the backend, then we can adjust it accordingly
-  //TODO: adjust the return values
-  if (statusID === 1) return 'light-blue' //Intern
-  if (statusID === 2) return 'brown-7' //Extern
+  if (status === 'Intern') return 'light-blue' //Intern
+  if (status === 'Extern') return 'brown-7' //Extern
   return 'Unbekannt'
 }
 
@@ -55,6 +46,13 @@ export function getDozStatusColor(statusID) {
 export function getPreference(prioBachelor, prioMaster) {
   //Temporary function until we have the actual preference from the backend
   //TODO: adjust the return values
+  console.log(
+    'getPreference called with:',
+    prioBachelor,
+    typeof prioBachelor,
+    prioMaster,
+    typeof prioMaster,
+  )
   if (prioBachelor === 1 && prioMaster === 1) return ['Alle Vorlesungen']
   if (prioBachelor === 1 && prioMaster === 0) return ['1. Bachelor', '2. Master']
   if (prioMaster === 1 && prioBachelor === 0) return ['1. Master', '2. Bachelor']
@@ -62,39 +60,6 @@ export function getPreference(prioBachelor, prioMaster) {
 }
 
 const baseAPI = '/api/v1.0/app'
-
-export const getAllProfessors = async () => {
-  try {
-    const { data } = await api.get(`${baseAPI}/professors`)
-    return data
-  } catch (error) {
-    console.error('Failed to fetch professors:', error)
-    return null
-  }
-}
-
-export const getProfessor = async (id) => {
-  if (!id) return null
-  try {
-    const { data } = await api.get(`${baseAPI}/professors/${id}`)
-    return data
-  } catch (error) {
-    console.error('Failed to fetch professor:', error)
-    return null
-  }
-}
-
-export const getProfessorLectures = async (id) => {
-  if (!id) return []
-
-  try {
-    const { data } = await api.get(`${baseAPI}/lectures/professor/${id}`)
-    return data
-  } catch (error) {
-    console.error('Failed to fetch professor lectures:', error)
-    return null
-  }
-}
 
 export const createProfessor = async (professorData) => {
   try {

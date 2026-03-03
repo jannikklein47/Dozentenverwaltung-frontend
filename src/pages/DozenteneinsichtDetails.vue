@@ -49,8 +49,8 @@
           <div class="flex flex-center">
             <q-badge
               rounded
-              :color="getDozStatusColor(lecturer.dozStatusID)"
-              :label="getDozStatus(lecturer.dozStatusID)"
+              :color="getDozStatusColor(lecturer.dozStatus)"
+              :label="lecturer.dozStatus"
               class="q-px-sm q-py-xs"
             />
           </div>
@@ -162,7 +162,6 @@
 
 <script setup>
 import {
-  getDozStatus,
   getDozStatusColor,
   getAvatarColor,
   getDozentenInitials,
@@ -179,11 +178,10 @@ console.log('Lecturer ID from URL:', lecturerId)
 
 watch(
   () => route.params.id,
-  (newId) => {
+  async (newId) => {
     console.log('ID changed to:', newId)
-    getLecturer(newId).then((data) => {
-      lecturer.value = data
-    })
+    const professorData = await loadProfessorData(newId)
+    lecturer.value = await mapProfDataToLecturer(professorData)
     getLecturerLectures(newId).then((data) => {
       lectures.value = data
     })
@@ -196,9 +194,49 @@ const lecturer = ref({})
 
 // Load data when component mounts
 onMounted(async () => {
-  lecturer.value = await getLecturer(lecturerId)
+  const professorData = await loadProfessorData(lecturerId)
+  lecturer.value = await mapProfDataToLecturer(professorData)
   lectures.value = await getLecturerLectures(lecturerId)
 })
+
+const loadProfessorData = async (id) => {
+  try {
+    const profData = await getProfessor(id)
+    console.log('Fetched Professor Data:', profData)
+    return profData
+  } catch (error) {
+    console.error('Error fetching professor data:', error)
+    // Return default data or handle as needed
+    return {
+      dozID: null,
+      title: '',
+      lastName: '',
+      firstName: '',
+      dozStatus: 'Intern',
+      email: '',
+      phone: '',
+      preferenceID: 0,
+      prioBachelor: 0,
+      prioMaster: 0,
+    }
+  }
+}
+
+const mapProfDataToLecturer = (profData) => {
+  const data = profData.professor
+  return {
+    dozID: data.id,
+    title: data.titel,
+    lastName: data.name,
+    firstName: data.vorname,
+    dozStatus: data.professorStatus?.name || 'Intern',
+    email: data.email,
+    phone: data.telefonnummer,
+    preferenceID: data.vorliebeId,
+    prioBachelor: data.prio_bachelor,
+    prioMaster: data.prio_master,
+  }
+}
 
 //Definition of columns for the table
 const columns = [
@@ -276,48 +314,6 @@ const getLecturerLectures = async (id) => {
           gehalten: 'Gar nicht',
         },
       ]
-    }
-
-    // If the ID does not match any known lecturer, return default data (or handle as needed)
-    return defaultData
-  }
-}
-
-const getLecturer = async (id) => {
-  const defaultData = {
-    dozID: null,
-    title: '',
-    lastName: '',
-    firstName: '',
-    dozStatusID: 1,
-    email: '',
-    phone: '',
-    preferenceID: 0,
-    prioBachelor: 0,
-    prioMaster: 0,
-  }
-
-  if (!id) {
-    //TODO: Handle the case if there were to be no ID provided, e.g. show an error message or redirect to another page
-    console.warn('No lecturer ID provided, using default data')
-    return defaultData
-  } else {
-    console.log('Fetching data for lecturer ID:', id)
-    //TODO feed with data from backend
-
-    if (id === '1') {
-      return {
-        dozID: id,
-        title: 'Dr.',
-        lastName: 'Gunther',
-        firstName: 'Ralf',
-        dozStatusID: 2,
-        email: 'ralf.gunther@test-hochschule.de',
-        phone: '+49 176 12345678',
-        preferenceID: 0,
-        prioBachelor: 1,
-        prioMaster: 1,
-      }
     }
 
     // If the ID does not match any known lecturer, return default data (or handle as needed)
