@@ -5,11 +5,24 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
 
-      { path: 'vorlesungseinsicht', component: () => import('pages/LecturesPage.vue') },
+      { path: 'lectures', component: () => import('pages/LecturesPage.vue'), name: 'lectures' },
       {
-        path: 'vorlesungseinsicht/details/:id',
+        path: 'lectures/details/:id',
         component: () => import('pages/DozentenDetailPage.vue'),
         props: true,
+        name: 'lectureDetails',
+      },
+
+      {
+        path: 'professors',
+        component: () => import('pages/DozenteneinsichtList.vue'),
+        name: 'professors',
+      },
+      {
+        path: 'professors/details/:id',
+        component: () => import('pages/DozenteneinsichtDetails.vue'),
+        props: true,
+        name: 'professorDetails',
       },
     ],
   },

@@ -97,11 +97,7 @@ export const useProfessorStore = defineStore('professor', {
           // set total professors for visual feedback
           this.totalProfessors = response.data.total
           // replace all entries after offset with new data
-          this.professors = this.professors.splice(
-            this.filters.offset,
-            this.professors.length,
-            ...profs,
-          )
+          this.professors.splice(this.filters.offset, this.professors.length, ...profs)
         }
       } catch (error) {
         console.error(error)
@@ -132,7 +128,7 @@ export const useProfessorStore = defineStore('professor', {
           // set total professors for visual feedback
           this.totalLectureProfessors = response.data.total
           // replace all entries after offset with new data
-          this.lectureProfessors = this.lectureProfessors.splice(
+          this.lectureProfessors.splice(
             this.lectureFilters.offset,
             this.lectureProfessors.length,
             ...profs,

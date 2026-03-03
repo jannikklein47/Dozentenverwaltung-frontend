@@ -199,9 +199,9 @@ onMounted(async () => {
   lectures.value = await getLecturerLectures(lecturerId)
 })
 
-const loadProfessorData = async (id) => {
+const loadProfessorData = async () => {
   try {
-    const profData = await getProfessor(id)
+    const profData = null //await getProfessor(id)
     console.log('Fetched Professor Data:', profData)
     return profData
   } catch (error) {

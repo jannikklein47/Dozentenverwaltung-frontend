@@ -104,7 +104,7 @@ export const useLectureStore = defineStore('lecture', {
           // set total lectures for visual feedback
           this.totalLectures = response.data.total
           // replace all entries after offset with new data
-          this.lectures = this.lectures.splice(this.filters.offset, this.lectures.length, ...lecs)
+          this.lectures.splice(this.filters.offset, this.lectures.length, ...lecs)
         }
       } catch (error) {
         console.error(error)
@@ -133,11 +133,7 @@ export const useLectureStore = defineStore('lecture', {
           // set total lectures for visual feedback
           this.totalDozentLectures = response.data.total
           // replace all entries after offset with new data
-          this.dozentLectures = this.dozentLectures.splice(
-            this.dozentFilters.offset,
-            this.dozentLectures.length,
-            ...lecs,
-          )
+          this.dozentLectures.splice(this.dozentFilters.offset, this.dozentLectures.length, ...lecs)
         }
       } catch (error) {
         console.error(error)
