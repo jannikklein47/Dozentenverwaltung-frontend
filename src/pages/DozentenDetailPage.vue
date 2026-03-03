@@ -4,7 +4,7 @@
       <q-spinner-dots size="50px" color="primary" />
     </q-inner-loading>
 
-    <div v-if="!loading && lecture && lecture.id">
+    <div v-if="lecture && lecture.id">
       <q-card bordered class="q-mb-lg">
         <q-card-section class="row no-wrap items-center q-pa-none">
           <div class="col-3 q-pa-md">
@@ -17,24 +17,46 @@
                 {{ lecture.titel?.charAt(0) || 'V' }}
               </q-avatar>
               <div>
-                <div class="text-caption text-grey-6 text-uppercase text-weight-bold" style="letter-spacing: 3px">Vorlesung</div>
+                <div
+                  class="text-caption text-grey-6 text-uppercase text-weight-bold"
+                  style="letter-spacing: 3px"
+                >
+                  Vorlesung
+                </div>
                 <div class="text-h6 text-weight-bold">{{ lecture.titel }}</div>
               </div>
             </div>
           </div>
           <q-separator vertical />
           <div class="col-2 text-center">
-            <div class="text-caption text-grey-6 text-weight-bold q-mb-xs" style="letter-spacing: 3px">Status</div>
+            <div
+              class="text-caption text-grey-6 text-weight-bold q-mb-xs"
+              style="letter-spacing: 3px"
+            >
+              Status
+            </div>
             <q-badge rounded color="light-blue" :label="lecture.statusText" class="q-px-sm" />
           </div>
           <q-separator vertical />
           <div class="col-3 text-center">
-            <div class="text-caption text-grey-6 text-weight-bold q-mb-xs" style="letter-spacing: 3px">Studienstufe</div>
-            <q-badge color="grey-6" rounded :label="lecture.art?.toUpperCase() || 'N/A'" class="q-px-md" />
+            <div
+              class="text-caption text-grey-6 text-weight-bold q-mb-xs"
+              style="letter-spacing: 3px"
+            >
+              Studienstufe
+            </div>
+            <q-badge
+              color="grey-6"
+              rounded
+              :label="lecture.art?.toUpperCase() || 'N/A'"
+              class="q-px-md"
+            />
           </div>
           <q-separator vertical />
           <div class="col-4 q-pa-md text-center">
-            <div class="text-caption text-grey-6 text-weight-bold" style="letter-spacing: 3px">Semester & Info</div>
+            <div class="text-caption text-grey-6 text-weight-bold" style="letter-spacing: 3px">
+              Semester & Info
+            </div>
             <div class="text-weight-bold">Regelsemester: {{ lecture.semester || '-' }}</div>
             <div class="text-caption text-grey-7">{{ lecture.kuerzel || 'Kein Kürzel' }}</div>
           </div>
@@ -59,9 +81,7 @@
               </q-avatar>
               <div class="q-ml-md">
                 <div class="text-caption text-grey-6 text-weight-bold">Dozent</div>
-                <div class="text-h6 text-weight-bold">
-                  {{ d_item.vorname }} {{ d_item.name }}
-                </div>
+                <div class="text-h6 text-weight-bold">{{ d_item.vorname }} {{ d_item.name }}</div>
               </div>
             </q-card-section>
           </q-card>
@@ -72,7 +92,7 @@
       </div>
     </div>
 
-    <div v-else-if="!loading" class="text-center q-pa-xl">
+    <div v-else class="text-center q-pa-xl">
       <q-icon name="error_outline" color="red" size="4rem" />
       <div class="text-h6 q-mt-md">Vorlesung mit ID {{ $route.params.id }} nicht gefunden.</div>
     </div>
@@ -80,59 +100,46 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
 
 const route = useRoute()
 const loading = ref(false)
-const assignedLecturers = ref([])
-const lecture = ref({})
 
-const API_URL = 'http://localhost:3000/api/v1.0/app/lectures'
+// Statischer Datensatz als Ersatz für die API
+const mockData = [
+  {
+    id: 1,
+    kuerzel: 'PROG',
+    titel: 'Programmierung I',
+    statusText: 'Offen',
+    art: 'Klausur',
+    semester: 1,
+    professors: [
+      { id: 101, vorname: 'Erika', name: 'Mustermann' },
+      { id: 102, vorname: 'Felix', name: 'Vogel' },
+    ],
+  },
+  {
+    id: 2,
+    kuerzel: 'DATA',
+    titel: 'Datenbanken',
+    statusText: 'Geschlossen',
+    art: 'Projekt',
+    semester: 2,
+    professors: [{ id: 103, vorname: 'Hans', name: 'Peter' }],
+  },
+]
 
-const fetchData = async (targetId) => {
-  if (!targetId) return
-  loading.value = true
+// Findet die passende Vorlesung basierend auf der ID in der URL
+const lecture = computed(() => {
+  const idFromUrl = parseInt(String(route.params.id).replace(':', ''))
+  return mockData.find((l) => l.id === idFromUrl) || null
+})
 
-  // Säubere die ID (entfernt Doppelpunkte etc.)
-  const idToFind = parseInt(String(targetId).replace(':', ''))
-
-  try {
-    // Da kein Einzel-Endpunkt existiert, laden wir die Liste
-    const response = await axios.get(API_URL)
-    const allLectures = response.data.lectures || []
-
-    // Suche die spezifische Vorlesung im Array
-    const found = allLectures.find(l => l.id === idToFind)
-
-    if (found) {
-      lecture.value = {
-        id: found.id,
-        kuerzel: found.name?.substring(0, 4),
-        titel: found.name,
-        statusText: found.lectureStatus?.name || 'Offen',
-        art: found.completionType?.name || 'N/A',
-        semester: found.semester
-      }
-
-      // Professoren mappen
-      assignedLecturers.value = found.professors || []
-    } else {
-      lecture.value = {}
-    }
-  } catch (error) {
-    console.error("Fehler beim Laden:", error)
-  } finally {
-    loading.value = false
-  }
-}
-
-// Überwachung der Route bei Wechsel (z.B. von /details/2 auf /details/3)
-watch(() => route.params.id, (newId) => fetchData(newId))
-
-onMounted(() => {
-  fetchData(route.params.id)
+// Extrahiert die Dozenten aus der gefundenen Vorlesung
+const assignedLecturers = computed(() => {
+  return lecture.value ? lecture.value.professors : []
 })
 
 const getAvatarColor = (id) => {
@@ -142,5 +149,7 @@ const getAvatarColor = (id) => {
 </script>
 
 <style scoped>
-.lecture-card { border-radius: 8px; }
+.lecture-card {
+  border-radius: 8px;
+}
 </style>

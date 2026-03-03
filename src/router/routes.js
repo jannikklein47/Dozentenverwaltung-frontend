@@ -5,14 +5,11 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
 
-      { path: 'vorlesungen', component: () => import('pages/LecturesPage.vue') },
-
-      // ÄNDERUNG HIER:
-      // Das :id ist der Platzhalter für deine Zahl (z.B. /vorlesungen/details/1)
+      { path: 'vorlesungseinsicht', component: () => import('pages/LecturesPage.vue') },
       {
-        path: 'vorlesungen/details/:id',
+        path: 'vorlesungseinsicht/details/:id',
         component: () => import('pages/DozentenDetailPage.vue'),
-        props: true // Sehr wichtig: Reicht die ID direkt als Prop an die Komponente weiter
+        props: true,
       },
     ],
   },
