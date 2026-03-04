@@ -24,7 +24,7 @@
         <q-separator vertical inset class="q-mx-md" />
 
         <div class="text-primary text-weight-bold" style="font-size: 24px; opacity: 0.6">
-          {{ $route.name }}
+          {{ $route.meta.title }}
         </div>
 
         <q-space />
@@ -419,6 +419,94 @@
 
           <!-- Professors Filter -->
 
+          <q-item v-if="$route.name === 'professors'">
+            <q-item-section avatar>
+              <q-icon name="favorite" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorFilters.vorliebeId"
+                :options="professorMappings.preference"
+                dark
+                label="Vorliebe"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'professors'">
+            <q-item-section avatar>
+              <q-icon name="assignment_ind" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorFilters.dozenten_statusId"
+                :options="professorMappings.professor_status"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'lectureDetails'">
+            <q-item-section avatar>
+              <q-icon name="favorite" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorLectureFilters.vorliebeId"
+                :options="professorMappings.preference"
+                dark
+                label="Vorliebe"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectureProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'lectureDetails'">
+            <q-item-section avatar>
+              <q-icon name="assignment_ind" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorLectureFilters.dozenten_statusId"
+                :options="professorMappings.professor_status"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectureProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
           <q-space />
 
           <q-item class="text-grey-5">
@@ -513,8 +601,9 @@ function applyFilterToProfessors() {
 }
 
 function applyFilterToLectureProfessors() {
-  professorStore.clearDozentLectures()
-  professorStore.loadLectureProfessors()
+  const id = route.params.id
+  professorStore.clearLectureProfessors()
+  professorStore.loadLectureProfessors(id)
 }
 
 onMounted(() => {

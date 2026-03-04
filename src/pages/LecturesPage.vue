@@ -1,88 +1,94 @@
 <template>
-  <q-page class="q-pa-md">
-    <q-card flat class="bg-white">
-      <q-table
-        :rows="lectures"
-        :columns="columns"
-        row-key="id"
-        flat
-        class="dozenten-table"
-        @row-click="onRowClick"
-        :pagination="pagination"
-        hide-pagination
-      >
-        <template v-slot:body-cell-offen="props">
-          <q-td :props="props">
-            <q-badge
-              :color="props.value.name === 'Geschlossen' ? 'brown-9' : 'green-8'"
-              text-color="white"
-              dense
-              rounded
-              class="q-px-md q-py-xs text-weight-bold"
-              :label="props.value.name"
-            />
-          </q-td>
-        </template>
+  <q-page class="q-pa-md bg-grey-2">
+    <q-table
+      :rows="lectures"
+      :columns="columns"
+      row-key="id"
+      flat
+      class="dozenten-table"
+      @row-click="onRowClick"
+      :pagination="pagination"
+      hide-pagination
+      bordered
+    >
+      <template v-slot:body-cell-offen="props">
+        <q-td :props="props">
+          <q-badge
+            :color="props.value.name === 'Geschlossen' ? 'brown-9' : 'green-8'"
+            text-color="white"
+            dense
+            rounded
+            class="q-px-md q-py-xs text-weight-bold"
+            :label="props.value.name"
+          />
+        </q-td>
+      </template>
 
-        <template v-slot:body-cell-abschluss="props">
-          <q-td :props="props">
-            {{ props.value.name }}
-          </q-td>
-        </template>
+      <template v-slot:body-cell-abschluss="props">
+        <q-td :props="props">
+          {{ props.value.name }}
+        </q-td>
+      </template>
 
-        <template v-slot:body-cell-dozenten="props">
-          <q-td :props="props">
-            <div class="row q-gutter-x-xs no-wrap">
-              <q-avatar
-                v-for="dozent in props.value"
-                :key="dozent.id"
-                size="28px"
-                :class="getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0))"
-                class="text-white text-caption text-weight-bold"
-                @click.stop="$router.push(`/dozenten/details/${dozent.id}`)"
-              >
-                {{ dozent.vorname.at(0) + dozent.name.at(0) }}
-                <q-tooltip class="q-pa-none" style="max-width: none">
-                  <q-card flat bordered style="min-width: 200px">
-                    <q-bar class="bg-primary">{{ dozent.vorname }} {{ dozent.name }}</q-bar>
-                    <q-card-section class="text-black">
-                      <div class="text-body2 text-weight-bold">
-                        <span class="text-weight-medium"> Vorlaufzeit:</span>
-                        {{
-                          dozent.Vorlesung_Dozent.vorlaufzeit === 'S'
-                            ? 'Sofort'
-                            : dozent.Vorlesung_Dozent.vorlaufzeit === 'M'
-                              ? 'Mehr als 4 Wochen'
-                              : '4 Wochen'
-                        }}
-                      </div>
-                      <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
-                    </q-card-section>
-                  </q-card>
-                </q-tooltip>
-              </q-avatar>
-            </div>
-          </q-td>
-        </template>
-      </q-table>
-
-      <q-infinite-scroll
-        @load="onLoad"
-        :offset="250"
-        :scroll-target="'.scroll-container'"
-        v-if="totalLectures !== lectures.length"
-      >
-        <template v-slot:loading>
-          <div class="row justify-center q-my-md">
-            <q-spinner-dots color="primary" size="40px" />
+      <template v-slot:body-cell-dozenten="props">
+        <q-td :props="props">
+          <div class="row q-gutter-x-xs no-wrap">
+            <q-avatar
+              v-for="dozent in props.value"
+              :key="dozent.id"
+              size="28px"
+              :style="{
+                'background-color': getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0)),
+              }"
+              class="text-white text-caption text-weight-bold"
+              @click.stop="$router.push(`/professors/details/${dozent.id}`)"
+            >
+              {{ dozent.vorname.at(0) + dozent.name.at(0) }}
+              <q-tooltip class="q-pa-none" style="max-width: none">
+                <q-card flat bordered style="min-width: 200px">
+                  <q-bar
+                    :style="{
+                      'background-color': getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0)),
+                    }"
+                    >{{ dozent.vorname }} {{ dozent.name }}</q-bar
+                  >
+                  <q-card-section class="text-black">
+                    <div class="text-body2 text-weight-bold">
+                      <span class="text-weight-medium"> Vorlaufzeit:</span>
+                      {{
+                        dozent.Vorlesung_Dozent.vorlaufzeit === 'S'
+                          ? 'Sofort'
+                          : dozent.Vorlesung_Dozent.vorlaufzeit === 'M'
+                            ? 'Mehr als 4 Wochen'
+                            : '4 Wochen'
+                      }}
+                    </div>
+                    <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
+                  </q-card-section>
+                </q-card>
+              </q-tooltip>
+            </q-avatar>
           </div>
-        </template>
-      </q-infinite-scroll>
-      <div v-else class="full-width text-center text-body2 text-grey-6 q-my-lg">
-        Du hast das Ende der Tabelle erreicht. {{ totalLectures }} / {{ totalLectures }} Einträge
-        werden angezeigt.
-      </div>
-    </q-card>
+        </q-td>
+      </template>
+    </q-table>
+
+    <q-infinite-scroll
+      @load="onLoad"
+      :offset="250"
+      :scroll-target="'.scroll-container'"
+      v-if="totalLectures !== lectures.length"
+    >
+      <template v-slot:loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" size="40px" />
+        </div>
+      </template>
+    </q-infinite-scroll>
+    <div v-else class="full-width text-center text-body2 text-grey-6 q-my-lg">
+      Du hast das Ende der Tabelle erreicht. {{ totalLectures }} / {{ totalLectures }} Einträge
+      werden angezeigt.
+    </div>
   </q-page>
 </template>
 
@@ -90,6 +96,7 @@
 import { useLectureStore } from 'src/stores/lecture-store'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { getAvatarColor } from 'src/utils/lecturerHelper'
 
 const pagination = ref({ rowsPerPage: 0 }) // Show all loaded rows
 
@@ -117,17 +124,6 @@ async function onLoad(index, done) {
 
 const onRowClick = (evt, row) => {
   router.push(`/lectures/details/${row.id}`)
-}
-
-const getAvatarColor = (initials) => {
-  const map = {
-    EH: 'bg-blue',
-    FV: 'bg-brown',
-    HP: 'bg-green',
-    VS: 'bg-blue-grey',
-    JD: 'bg-teal',
-  }
-  return map[initials] || 'bg-grey-7'
 }
 
 const columns = [

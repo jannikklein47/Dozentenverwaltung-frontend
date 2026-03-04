@@ -41,13 +41,14 @@
             size="36px"
             :style="{
               fontFamily: 'Inter, sans-serif',
+              'background-color': getAvatarColor(lecture.kuerzel),
             }"
             v-for="(lecture, index) in props.value"
             v-show="index < 3"
             :key="index"
-            color="light-blue-9"
             text-color="white"
             class="text-weight-bold q-mr-xs"
+            @click.stop="$router.push(`/lectures/details/${lecture.id}`)"
           >
             <svg viewBox="0 0 100 100" width="90%" height="90%">
               <text
@@ -64,7 +65,7 @@
             <q-tooltip class="q-pa-none" style="max-width: none">
               <q-card flat bordered style="min-width: 200px">
                 <q-bar
-                  class="bg-primary"
+                  :style="{ 'background-color': getAvatarColor(lecture.kuerzel) }"
                   style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
                   >{{ lecture.name }}</q-bar
                 >
@@ -318,7 +319,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, createProfessor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor, createProfessor, getAvatarColor } from 'src/utils/lecturerHelper'
 import { useProfessorStore } from 'src/stores/professor-store'
 
 const router = useRouter()
@@ -333,6 +334,7 @@ const professorFilters = professorStore.filters
 onMounted(async () => {
   professorStore.clearProfessors()
   await professorStore.loadProfessors()
+  console.log(professors.value)
 })
 
 async function loadMore() {
@@ -427,7 +429,6 @@ const columns = [
 ]
 
 const onRowClick = (evt, row) => {
-  console.log('Row clicked:', row)
-  router.push(`/dozenten/details/${row.dozID}`)
+  router.push(`/professors/details/${row.id}`)
 }
 </script>

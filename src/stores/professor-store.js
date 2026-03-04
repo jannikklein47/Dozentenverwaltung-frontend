@@ -110,7 +110,7 @@ export const useProfessorStore = defineStore('professor', {
      * The total professors will be updated and the professors array will be replaced after the offset with new data.
      * If the request fails, an error will be logged to the console.
      */
-    async loadLectureProfessors() {
+    async loadLectureProfessors(id) {
       try {
         // request the api with all filters
 
@@ -121,7 +121,7 @@ export const useProfessorStore = defineStore('professor', {
             .map(([key, value]) => `${key}=${value}`)
             .join('&')
 
-        const response = await api.get('/app/professors' + query)
+        const response = await api.get('/app/professors/lecture/' + id + query)
 
         if (response.status === 200) {
           const profs = response.data.professors
@@ -148,6 +148,12 @@ export const useProfessorStore = defineStore('professor', {
       this.professors = []
       this.totalProfessors = 0
       this.filters.offset = 0
+    },
+
+    clearLectureProfessors() {
+      this.lectureProfessors = []
+      this.totalLectureProfessors = 0
+      this.lectureFilters.offset = 0
     },
 
     /**
