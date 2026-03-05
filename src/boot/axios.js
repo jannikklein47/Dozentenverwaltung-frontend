@@ -9,8 +9,8 @@ import axios from 'axios'
 // for each client)
 const api = axios.create({
   baseURL: process.env.DEV
-    ? 'http://localhost:3000' // Dev-Mode
-    : 'http://164.30.75.20', // Production-Mode
+    ? 'http://localhost:3000/api/v1.0/' // Dev-Mode
+    : 'http://164.30.75.20/api/v1.0/', // Production-Mode
 })
 
 export default defineBoot(({ app }) => {

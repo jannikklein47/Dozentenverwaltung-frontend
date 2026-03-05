@@ -24,34 +24,66 @@
         <q-separator vertical inset class="q-mx-md" />
 
         <div class="text-primary text-weight-bold" style="font-size: 24px; opacity: 0.6">
-          {{ $route.name }}
+          {{ $route.meta.title }}
         </div>
 
         <q-space />
 
         <q-input
-          v-if="$route.name === 'vorlesungen'"
+          v-if="$route.name === 'lectures'"
           :label="'Nach einer Vorlesung suchen...'"
           rounded
-          v-model="filterModel.search"
-          standout="bg-grey-4"
+          v-model="lectureFilters.term"
+          standout="bg-white"
           dense
           style="min-width: 300px"
           input-class="text-black"
+          @update:model-value="debounceApplyFilterToLectures"
         >
           <template v-slot:prepend>
             <q-icon name="search" color="primary" />
           </template>
         </q-input>
         <q-input
-          v-if="$route.name === 'dozenten'"
+          v-if="$route.name === 'professorDetails'"
+          :label="'Nach einer Vorlesung suchen...'"
+          rounded
+          v-model="lectureProfessorFilters.term"
+          standout="bg-white"
+          dense
+          style="min-width: 300px"
+          input-class="text-black"
+          @update:model-value="debounceApplyFilterToProfessorLectures"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="primary" />
+          </template>
+        </q-input>
+        <q-input
+          v-if="$route.name === 'professors'"
           :label="'Nach einem Dozenten suchen...'"
           rounded
-          v-model="filterModel.search"
+          v-model="professorFilters.term"
           standout="bg-grey-4"
           dense
           style="min-width: 300px"
           input-class="text-black"
+          @update:model-value="debounceApplyFilterToProfessors"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="primary" />
+          </template>
+        </q-input>
+        <q-input
+          v-if="$route.name === 'lectureDetails'"
+          :label="'Nach einem Dozenten suchen...'"
+          rounded
+          v-model="professorLectureFilters.term"
+          standout="bg-grey-4"
+          dense
+          style="min-width: 300px"
+          input-class="text-black"
+          @update:model-value="debounceApplyFilterToLectureProfessors"
         >
           <template v-slot:prepend>
             <q-icon name="search" color="primary" />
@@ -80,7 +112,7 @@
           <q-item
             clickable
             tag="a"
-            to="/vorlesungseinsicht"
+            to="/lectures"
             :active-class="'gradient-bg force-white'"
             class="text-grey-5"
           >
@@ -94,7 +126,7 @@
           <q-item
             clickable
             tag="a"
-            to="/dozenteneinsicht"
+            to="/professors"
             class="text-grey-5"
             :active-class="'gradient-bg force-white'"
           >
@@ -160,6 +192,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -177,12 +210,14 @@
                   { label: '4 Wochen', value: '4' },
                   { label: 'Mehr als 4 Wochen', value: 'M' },
                 ]"
+                @update:model-value="applyFilterToLectures"
                 dark
                 label="Vorlaufzeit"
                 filled
                 color="white"
                 map-options
                 emit-value
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -203,6 +238,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -223,6 +259,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -243,6 +280,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -264,6 +302,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToProfessorLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -288,6 +327,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToProfessorLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -308,6 +348,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToProfessorLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -328,6 +369,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToProfessorLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -348,6 +390,7 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToProfessorLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
@@ -368,12 +411,101 @@
                 map-options
                 emit-value
                 @update:model-value="applyFilterToProfessorLectures"
+                clearable
               >
               </q-select>
             </q-item-section>
           </q-item>
 
           <!-- Professors Filter -->
+
+          <q-item v-if="$route.name === 'professors'">
+            <q-item-section avatar>
+              <q-icon name="favorite" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorFilters.vorliebeId"
+                :options="professorMappings.preference"
+                dark
+                label="Vorliebe"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'professors'">
+            <q-item-section avatar>
+              <q-icon name="assignment_ind" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorFilters.dozenten_statusId"
+                :options="professorMappings.professor_status"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'lectureDetails'">
+            <q-item-section avatar>
+              <q-icon name="favorite" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorLectureFilters.vorliebeId"
+                :options="professorMappings.preference"
+                dark
+                label="Vorliebe"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectureProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'lectureDetails'">
+            <q-item-section avatar>
+              <q-icon name="assignment_ind" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorLectureFilters.dozenten_statusId"
+                :options="professorMappings.professor_status"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectureProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
 
           <q-space />
 
@@ -429,6 +561,7 @@ import LogoComponent from 'src/components/LogoComponent.vue'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { useRoute } from 'vue-router'
+import { debounce } from 'quasar'
 
 const lectureStore = useLectureStore()
 const professorStore = useProfessorStore()
@@ -437,6 +570,8 @@ const lectureFilters = lectureStore.filters
 const lectureProfessorFilters = lectureStore.dozentFilters
 const lectureMappings = computed(() => lectureStore.mappings)
 
+const professorFilters = professorStore.filters
+const professorLectureFilters = professorStore.lectureFilters
 const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
@@ -460,10 +595,26 @@ function applyFilterToProfessorLectures() {
   lectureStore.loadDozentLectures(id)
 }
 
+function applyFilterToProfessors() {
+  professorStore.clearProfessors()
+  professorStore.loadProfessors()
+}
+
+function applyFilterToLectureProfessors() {
+  const id = route.params.id
+  professorStore.clearLectureProfessors()
+  professorStore.loadLectureProfessors(id)
+}
+
 onMounted(() => {
   lectureStore.loadMappings()
   professorStore.loadMappings()
 })
+
+const debounceApplyFilterToLectures = debounce(applyFilterToLectures, 500)
+const debounceApplyFilterToProfessorLectures = debounce(applyFilterToProfessorLectures, 500)
+const debounceApplyFilterToProfessors = debounce(applyFilterToProfessors, 500)
+const debounceApplyFilterToLectureProfessors = debounce(applyFilterToLectureProfessors, 500)
 </script>
 
 <style scoped lang="scss">

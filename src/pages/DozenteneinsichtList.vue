@@ -4,8 +4,10 @@
     <q-table
       flat
       bordered
-      :rows="lecturers"
+      :rows="professors"
       :columns="columns"
+      :pagination="{ rowsPerPage: 0 }"
+      hide-pagination
       row-key="dozID"
       @row-click="onRowClick"
       class="text-grey-8 text-weight-bold"
@@ -23,11 +25,11 @@
       <template #body-cell-status="props">
         <q-td :props="props">
           <q-badge
-            :color="getDozStatusColor(props.value)"
+            :color="getDozStatusColor(props.value.name)"
             text-color="white"
             rounded
             class="q-px-md q-py-xs text-weight-bold"
-            :label="props.value"
+            :label="props.value.name"
           />
         </q-td>
       </template>
@@ -37,17 +39,64 @@
         <q-td :props="props">
           <q-avatar
             size="36px"
+            :style="{
+              fontFamily: 'Inter, sans-serif',
+              'background-color': getAvatarColor(lecture.kuerzel),
+            }"
+            v-for="(lecture, index) in props.value"
+            v-show="index < 3"
+            :key="index"
+            text-color="white"
+            class="text-weight-bold q-mr-xs"
+            @click.stop="$router.push(`/lectures/details/${lecture.id}`)"
+          >
+            <svg viewBox="0 0 100 100" width="90%" height="90%">
+              <text
+                x="50%"
+                y="50%"
+                text-anchor="middle"
+                dominant-baseline="central"
+                fill="currentColor"
+                style="font-size: 25px; font-weight: bold"
+              >
+                {{ lecture.kuerzel }}
+              </text>
+            </svg>
+            <q-tooltip class="q-pa-none" style="max-width: none">
+              <q-card flat bordered style="min-width: 200px">
+                <q-bar
+                  :style="{ 'background-color': getAvatarColor(lecture.kuerzel) }"
+                  style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+                  >{{ lecture.name }}</q-bar
+                >
+                <q-card-section class="text-black">
+                  <div class="text-body2 text-weight-bold">
+                    <span class="text-weight-medium"> Ich benötige Vorlaufzeit:</span>
+                    {{
+                      lecture.Vorlesung_Dozent.vorlaufzeit === 'S'
+                        ? 'Sofort'
+                        : lecture.Vorlesung_Dozent.vorlaufzeit === 'M'
+                          ? 'Mehr als 4 Wochen'
+                          : '4 Wochen'
+                    }}
+                  </div>
+                  <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
+                </q-card-section>
+              </q-card>
+            </q-tooltip>
+          </q-avatar>
+          <q-avatar
+            size="36px"
             font-size="10px"
             :style="{
               fontFamily: 'Inter, sans-serif',
             }"
-            v-for="(lecture, index) in props.value"
-            :key="index"
-            color="light-blue-9"
-            text-color="white"
+            v-if="props.value.length > 3"
+            color="light-blue-1"
+            text-color="black"
             class="text-weight-bold q-mr-xs"
           >
-            {{ lecture }}
+            ...
           </q-avatar>
         </q-td>
       </template>
@@ -56,20 +105,32 @@
       <template #body-cell-vorlieben="props">
         <q-td :props="props">
           <q-badge
-            v-for="(preference, index) in getPreference(
-              props.row.prioBachelor,
-              props.row.prioMaster,
-            )"
-            :key="index"
             color="grey-6"
             text-color="white"
             rounded
             class="q-px-md q-py-xs text-weight-bold q-mr-xs"
-            :label="preference"
+            :label="props.value.name"
           />
         </q-td>
       </template>
     </q-table>
+
+    <q-infinite-scroll
+      @load="onLoad"
+      :offset="250"
+      :scroll-target="'.scroll-container'"
+      v-if="totalProfessors !== professors.length"
+    >
+      <template v-slot:loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" size="40px" />
+        </div>
+      </template>
+    </q-infinite-scroll>
+    <div v-else class="full-width text-center text-body2 text-grey-6 q-my-lg">
+      Du hast das Ende der Tabelle erreicht. {{ totalProfessors }} / {{ totalProfessors }} Einträge
+      werden angezeigt.
+    </div>
 
     <!-- TODO: Fix text to bubble alignment and make bottom two fields mandatory as well -->
     <!-- Dialog for creating new lecturer -->
@@ -256,44 +317,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, getPreference, createProfessor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor, createProfessor, getAvatarColor } from 'src/utils/lecturerHelper'
+import { useProfessorStore } from 'src/stores/professor-store'
 
 const router = useRouter()
 const showDialog = ref(false)
 
-const lecturers = ref([])
-const loading = ref(false)
+const professorStore = useProfessorStore()
+
+const professors = computed(() => professorStore.professors)
+const totalProfessors = computed(() => professorStore.totalProfessors)
+const professorFilters = professorStore.filters
 
 onMounted(async () => {
-  loading.value = true
-  try {
-    const response = await getAllProfessors()
-    console.log('API response:', response)
-
-    // Transform API data to match table expectations
-    lecturers.value = (response.professors || []).map((prof) => ({
-      dozID: prof.id,
-      title: prof.titel,
-      firstName: prof.vorname,
-      lastName: prof.name,
-      email: prof.email,
-      phone: prof.telefonnummer,
-      dozStatus: prof.professorStatus.name,
-      lecturesShort: prof.lectures?.slice(0, 7).map((l) => l.kuerzel) || [], //Some might have too many lectures, so it is limited to 7 and the rest is shown in the details page
-      prioBachelor: prof.prio_bachelor,
-      prioMaster: prof.prio_master,
-      preferenceID: prof.preference?.id || 1,
-
-      //TODO: Ask for backend data and what to even say in specific Vorlieben field on Frontend!?!?
-    }))
-  } catch (error) {
-    console.error('Failed to load professors:', error)
-  } finally {
-    loading.value = false
-  }
+  professorStore.clearProfessors()
+  await professorStore.loadProfessors()
+  console.log(professors.value)
 })
+
+async function loadMore() {
+  professorFilters.offset += professorFilters.limit
+  await professorStore.loadProfessors()
+}
+
+async function onLoad(index, done) {
+  await loadMore()
+  done()
+}
 
 // Form data
 const newLecturer = ref({
@@ -340,7 +392,8 @@ const cancelForm = () => {
 const createLecturer = async () => {
   try {
     await createProfessor(newLecturer.value)
-    await onMounted()
+    professorStore.clearProfessors()
+    await professorStore.loadProfessors()
     cancelForm()
   } catch (error) {
     console.error('Create failed:', error)
@@ -349,28 +402,33 @@ const createLecturer = async () => {
 
 //Definition of columns for the table
 const columns = [
-  { name: 'title', align: 'left', label: 'Titel', field: 'title', sortable: true },
+  { name: 'title', align: 'left', label: 'Titel', field: 'titel', sortable: true },
   {
-    name: 'name',
+    name: 'profName',
     align: 'left',
     label: 'Name',
-    field: (row) => `${row.firstName} ${row.lastName}`,
+    field: (row) => `${row.vorname} ${row.name}`,
     sortable: true,
   },
-  { name: 'status', align: 'center', label: 'Status', field: 'dozStatus', sortable: true },
+  { name: 'status', align: 'center', label: 'Status', field: 'professorStatus', sortable: true },
   { name: 'email', align: 'left', label: 'E-Mail-Adresse', field: 'email', sortable: true },
-  { name: 'telefon', align: 'left', label: 'Telefonnummer', field: 'phone', sortable: true },
-  { name: 'vorlesungen', align: 'left', label: 'Vorlesungen', field: 'lecturesShort' },
+  {
+    name: 'telefon',
+    align: 'left',
+    label: 'Telefonnummer',
+    field: 'telefonnummer',
+    sortable: true,
+  },
+  { name: 'vorlesungen', align: 'left', label: 'Vorlesungen', field: 'lectures' },
   {
     name: 'vorlieben',
     align: 'left',
-    label: 'Vorlieben',
-    field: (row) => ({ prioBachelor: row.prioBachelor, prioMaster: row.prioMaster }),
+    label: 'Vorliebe',
+    field: 'preference',
   },
 ]
 
 const onRowClick = (evt, row) => {
-  console.log('Row clicked:', row)
-  router.push(`/dozenten/details/${row.dozID}`)
+  router.push(`/professors/details/${row.id}`)
 }
 </script>

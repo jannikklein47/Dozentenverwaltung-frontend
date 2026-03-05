@@ -1,10 +1,10 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <!-- Header for information about lecturer -->
-    <q-card bordered class="q-mb-lg">
+    <q-card bordered flat class="q-mb-lg">
       <q-card-section class="row no-wrap items-center q-pa-none">
         <!-- Lecturer -->
-        <div class="col-3 q-pa-md">
+        <div class="col-5 q-pa-md">
           <div class="row items-center q-gutter-x-md">
             <!-- Have to use style to set text and background color as quasar does not support hex values by default -->
             <q-avatar
@@ -12,10 +12,11 @@
               size="56px"
               :style="{
                 fontFamily: 'Inter, sans-serif',
-                backgroundColor: getAvatarColor(lecturer.dozID),
+                backgroundColor: getAvatarColor(professor.vorname?.at(0) + professor.name?.at(0)),
+                color: 'white',
               }"
             >
-              {{ getDozentenInitials(lecturer.firstName, lecturer.lastName) }}
+              {{ getDozentenInitials(professor.vorname, professor.name) }}
             </q-avatar>
             <div>
               <div
@@ -29,17 +30,19 @@
                   :style="{
                     fontFamily: 'Inter, sans-serif',
                   }"
-                  >{{ lecturer.title }} {{ lecturer.firstName }} {{ lecturer.lastName }}</span
+                  >{{ professor.titel }} {{ professor.vorname }} {{ professor.name }}</span
                 >
               </div>
             </div>
           </div>
         </div>
 
+        <q-space />
+
         <q-separator vertical />
 
         <!-- Status -->
-        <div class="col-1 text-center">
+        <div class="q-pa-md q-px-xl text-center">
           <div
             class="text-caption text-grey-6 text-center q-mb-xs text-weight-bold"
             style="letter-spacing: 3px"
@@ -49,8 +52,8 @@
           <div class="flex flex-center">
             <q-badge
               rounded
-              :color="getDozStatusColor(lecturer.dozStatus)"
-              :label="lecturer.dozStatus"
+              :color="getDozStatusColor(professor?.professorStatus?.name || '')"
+              :label="professor?.professorStatus?.name || ''"
               class="q-px-sm q-py-xs"
             />
           </div>
@@ -59,7 +62,7 @@
         <q-separator vertical class="self-stretch" />
 
         <!-- Preference -->
-        <div class="col-3 q-pa-md text-center">
+        <div class="q-pa-md q-px-xl text-center">
           <div
             class="text-caption text-grey-6 q-mb-xs text-weight-bold"
             style="letter-spacing: 3px"
@@ -67,20 +70,18 @@
             Allgemeine Vorliebe
           </div>
           <q-badge
-            v-for="(preference, index) in getPreference(lecturer.prioBachelor, lecturer.prioMaster)"
-            :key="index"
             color="grey-6"
             text-color="white"
             rounded
             class="q-px-md q-py-xs text-weight-bold q-mr-xs"
-            :label="preference"
+            :label="professor.preference?.name"
           />
         </div>
 
         <q-separator vertical />
 
         <!-- Contact -->
-        <div class="col-3 q-pa-md flex justify-center">
+        <div class="q-pa-md q-px-xl flex justify-center">
           <div>
             <div
               class="text-caption text-grey-6 q-mb-xs text-weight-bold text-left"
@@ -88,8 +89,8 @@
             >
               Kontakt
             </div>
-            <div class="text-weight-bold text-body2 text-left">{{ lecturer.email }}</div>
-            <div class="text-weight-bold text-body2 text-left">{{ lecturer.phone }}</div>
+            <div class="text-weight-bold text-body2 text-left">{{ professor.email }}</div>
+            <div class="text-weight-bold text-body2 text-left">{{ professor.telefonnummer }}</div>
           </div>
         </div>
       </q-card-section>
@@ -109,37 +110,58 @@
       bordered
       :rows="lectures"
       :columns="columns"
-      row-key="kuerzel"
+      row-key="id"
       hide-bottom
       class="text-grey-8 text-weight-bold"
       font-size="16px"
       :style="{
         fontFamily: 'Inter, sans-serif',
       }"
+      hide-pagination
+      :pagination="{ rowsPerPage: 0 }"
+      @row-click="onRowClick"
     >
       <!-- Slot for Status -->
-      <template #body-cell-offen="props">
+      <template v-slot:body-cell-offen="props">
         <q-td :props="props">
           <q-badge
-            :color="props.value ? 'green-7' : 'red-8'"
+            :color="props.value.name === 'Geschlossen' ? 'brown-9' : 'green-8'"
             text-color="white"
+            dense
             rounded
             class="q-px-md q-py-xs text-weight-bold"
-            :label="props.value ? 'Offen' : 'Geschlossen'"
+            :label="props.value.name"
           />
         </q-td>
       </template>
 
-      <!-- Slot for lead time -->
+      <template v-slot:body-cell-abschluss="props">
+        <q-td :props="props">
+          {{ props.value.name }}
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-vorliebe="props">
+        <q-td :props="props">
+          {{ props.value || 'Wie im Profil' }}
+        </q-td>
+      </template>
+
+      <!-- Slot for lead time-->
       <template #body-cell-vorlauf="props">
         <q-td :props="props">
           <q-badge
             rounded
             :color="getVorlaufColor(props.value)"
             text-color="white"
-            class="q-px-md q-py-xs full-width justify-center"
-            :label="props.value"
-            style="min-width: 100px"
+            class="q-px-sm q-py-xs full-width justify-center"
+            :label="
+              props.value === 'M'
+                ? '4 Wochen +'
+                : props.value === 'S'
+                  ? 'Sofort Bereit'
+                  : 'Bis 4 Wochen'
+            "
           />
         </q-td>
       </template>
@@ -157,84 +179,79 @@
         </q-td>
       </template>
     </q-table>
+    <q-infinite-scroll
+      @load="onLoad"
+      :offset="250"
+      :scroll-target="'.scroll-container'"
+      v-if="totalLectures !== lectures.length"
+    >
+      <template v-slot:loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" size="40px" />
+        </div>
+      </template>
+    </q-infinite-scroll>
+    <div v-else class="full-width text-center text-body2 text-grey-6 q-my-lg">
+      Du hast das Ende der Tabelle erreicht. {{ totalLectures }} / {{ totalLectures }} Einträge
+      werden angezeigt.
+    </div>
+
+    <q-dialog v-model="notFoundModel" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Keine Vorlesungen gefunden</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" @click="$router.push('/')" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup>
-import {
-  getDozStatusColor,
-  getAvatarColor,
-  getDozentenInitials,
-  getPreference,
-} from 'src/utils/lecturerHelper'
-import { ref, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useLectureStore } from 'src/stores/lecture-store'
+import { useProfessorStore } from 'src/stores/professor-store'
+import { getDozStatusColor, getAvatarColor, getDozentenInitials } from 'src/utils/lecturerHelper'
+import { ref, watch, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const professorStore = useProfessorStore()
+const lectureStore = useLectureStore()
+const professor = ref({})
+
+const lectures = computed(() => lectureStore.dozentLectures)
+const totalLectures = computed(() => lectureStore.totalDozentLectures)
+const lectureFilters = lectureStore.dozentFilters
 
 const route = useRoute()
 // Get the ID from the URL query string
-const lecturerId = route.params.id
+const professorId = route.params.id
 
-console.log('Lecturer ID from URL:', lecturerId)
+const notFoundModel = ref(false)
 
 watch(
   () => route.params.id,
-  async (newId) => {
-    console.log('ID changed to:', newId)
-    const professorData = await loadProfessorData(newId)
-    lecturer.value = await mapProfDataToLecturer(professorData)
-    getLecturerLectures(newId).then((data) => {
-      lectures.value = data
-    })
+  async () => {
+    loadProfessor()
   },
 )
 
-const lectures = ref([])
-
-const lecturer = ref({})
-
 // Load data when component mounts
 onMounted(async () => {
-  const professorData = await loadProfessorData(lecturerId)
-  lecturer.value = await mapProfDataToLecturer(professorData)
-  lectures.value = await getLecturerLectures(lecturerId)
+  loadProfessor()
+  await lectureStore.loadDozentLectures(professorId)
 })
 
-const loadProfessorData = async (id) => {
-  try {
-    const profData = await getProfessor(id)
-    console.log('Fetched Professor Data:', profData)
-    return profData
-  } catch (error) {
-    console.error('Error fetching professor data:', error)
-    // Return default data or handle as needed
-    return {
-      dozID: null,
-      title: '',
-      lastName: '',
-      firstName: '',
-      dozStatus: 'Intern',
-      email: '',
-      phone: '',
-      preferenceID: 0,
-      prioBachelor: 0,
-      prioMaster: 0,
-    }
-  }
-}
-
-const mapProfDataToLecturer = (profData) => {
-  const data = profData.professor
-  return {
-    dozID: data.id,
-    title: data.titel,
-    lastName: data.name,
-    firstName: data.vorname,
-    dozStatus: data.professorStatus?.name || 'Intern',
-    email: data.email,
-    phone: data.telefonnummer,
-    preferenceID: data.vorliebeId,
-    prioBachelor: data.prio_bachelor,
-    prioMaster: data.prio_master,
+async function loadProfessor() {
+  const result = await professorStore.getProfessorById(professorId)
+  if (result) {
+    professor.value = result
+  } else {
+    notFoundModel.value = true
+    console.log('Professor not found')
   }
 }
 
@@ -245,93 +262,61 @@ const columns = [
     name: 'bezeichnung',
     align: 'left',
     label: 'Bezeichnung',
-    field: 'bezeichnung',
+    field: 'name',
     sortable: true,
   },
-  { name: 'offen', align: 'center', label: 'Offen', field: 'offen', sortable: true },
-  { name: 'art', align: 'center', label: 'Art', field: 'art', sortable: true },
+  { name: 'offen', align: 'center', label: 'Offen', field: 'lectureStatus', sortable: true },
+  {
+    name: 'abschluss',
+    align: 'center',
+    label: 'Abschluss',
+    field: 'completionType',
+    sortable: true,
+  },
   { name: 'semester', align: 'center', label: 'Semester', field: 'semester', sortable: true },
   {
     name: 'vorliebe',
     align: 'left',
     label: 'Vorliebe',
     style: 'font-weight: bold',
-    field: 'vorliebe',
+    field: 'vorliebeName',
     sortable: true,
   },
-  { name: 'vorlauf', align: 'center', label: 'Vorlauf', field: 'vorlauf' },
+  { name: 'vorlauf', align: 'center', label: 'Vorlauf', field: 'vorlaufzeit' },
   {
     name: 'gehalten',
     align: 'center',
     label: 'Bereits gehalten',
-    field: 'gehalten',
+    field: 'gehalten_anName',
     sortable: true,
   },
 ]
 
-const getLecturerLectures = async (id) => {
-  const defaultData = []
-
-  if (!id) {
-    //TODO: Handle the case if there were to be no ID provided, e.g. show an error message or redirect to another page
-    console.warn('No lecturer ID provided, using default data')
-    return defaultData
-  } else {
-    console.log('Fetching data for lecturer ID:', id)
-    //TODO feed with data from backend
-
-    if (id === '1') {
-      //Temporary data for the table, later to be replaced with data from backend
-      return [
-        {
-          kuerzel: 'GDI',
-          bezeichnung: 'Grundlagen der Informatik',
-          offen: true,
-          art: 'Bachelor',
-          semester: 1,
-          vorliebe: 'Egal',
-          vorlauf: 'Sofort Bereit',
-          gehalten: 'Intern & Extern',
-        },
-        {
-          kuerzel: 'ADS',
-          bezeichnung: 'Algorithmen und Datenstrukturen',
-          offen: true,
-          art: 'Bachelor',
-          semester: 2,
-          vorliebe: 'Bachelor',
-          vorlauf: '4 Wochen',
-          gehalten: 'Extern',
-        },
-        {
-          kuerzel: 'NuVS',
-          bezeichnung: 'Netze und Verteilte Systeme',
-          offen: false,
-          art: 'Bachelor',
-          semester: 3,
-          vorliebe: 'Egal',
-          vorlauf: '2 Monate',
-          gehalten: 'Gar nicht',
-        },
-      ]
-    }
-
-    // If the ID does not match any known lecturer, return default data (or handle as needed)
-    return defaultData
-  }
-}
-
 //Function for getting the color for the lead time badge
 const getVorlaufColor = (val) => {
-  if (val.includes('Sofort Bereit')) return 'green-7'
-  if (val.includes('Wochen')) return 'amber-8'
+  if (val === 'S') return 'green-7'
+  if (val === '4') return 'amber-8'
   return 'red-7'
 }
 
 //Function for getting the color for the already held badge
 const getGehaltenColor = (val) => {
-  if (val.includes('Intern')) return 'blue-7'
+  if (val.includes('Provadis')) return 'blue-7'
   if (val.includes('Extern')) return 'amber-9'
   return 'grey-10'
+}
+
+async function loadMore() {
+  lectureFilters.offset += lectureFilters.limit
+  await lectureStore.loadDozentLectures(professorId)
+}
+
+async function onLoad(index, done) {
+  await loadMore()
+  done()
+}
+
+const onRowClick = (evt, row) => {
+  router.push(`/lectures/details/${row.id}`)
 }
 </script>
