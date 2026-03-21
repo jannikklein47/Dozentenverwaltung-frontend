@@ -10,7 +10,9 @@
       hide-pagination
       row-key="dozID"
       @row-click="onRowClick"
-      class="text-grey-8 text-weight-bold"
+      table-header-class="text-black text-weight-bolder"
+      table-class="text-grey-8"
+      class="text-weight-bold"
       font-size="16px"
       :style="{
         fontFamily: 'Inter, sans-serif',
@@ -432,3 +434,11 @@ const onRowClick = (evt, row) => {
   router.push(`/professors/details/${row.id}`)
 }
 </script>
+
+<style scoped>
+:deep(.q-table thead th) {
+  color: black !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+</style>
