@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex flex-center bg-grey-3">
-    <form class="q-pa-xl bg-white shadow-5" style="border-radius: 30px" @submit="login">
+    <form class="q-pa-xl bg-white shadow-5" style="border-radius: 30px" @submit.prevent="login">
       <img alt="Quasar logo" src="~assets/provadis-logo.png" />
       <div class="text-h4 text-weight-bold full-width text-center q-mb-xl q-mt-md text-primary">
         Dozentenverwaltung
@@ -10,7 +10,6 @@
         outlined
         rounded
         class="q-mb-md"
-        type="email"
         autofocus
         v-model="email"
         autocomplete="email"

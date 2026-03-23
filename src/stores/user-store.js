@@ -18,7 +18,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     async login(email, password) {
       try {
-        const result = await api.post('/login', { email: email, password: password })
+        const result = await api.post('/auth/login', { username: email, password: password })
 
         if (result.status === 200) {
           //const { accessToken, refreshToken, refreshTokenExp } = result.data
@@ -37,7 +37,10 @@ export const useUserStore = defineStore('user', {
     },
     async register(email, password) {
       try {
-        const result = await api.post('/login/register', { email: email, password: password })
+        const result = await api.post('/auth/login/register', {
+          username: email,
+          password: password,
+        })
 
         if (result.status === 200) {
           return true
@@ -51,7 +54,7 @@ export const useUserStore = defineStore('user', {
 
     async refreshAccessToken() {
       try {
-        const response = await api.post('/refreshToken', {
+        const response = await api.post('/auth/refreshToken', {
           refreshToken: this.refresh,
         })
 
@@ -65,7 +68,7 @@ export const useUserStore = defineStore('user', {
       this.token = payload.accessToken
       this.refresh = payload.refreshToken
       this.expiresAt = payload.refreshTokenExp
-      this.user = jwtDecode(payload.accessToken)?.payload || null
+      this.user = jwtDecode(payload.accessToken) || null
 
       localStorage.setItem('auth_data', JSON.stringify(payload))
     },
