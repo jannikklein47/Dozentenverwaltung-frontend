@@ -251,7 +251,7 @@ async function loadLecture() {
 
 async function loadMore() {
   professorFilters.offset += professorFilters.limit
-  await professorStore.loadLectureProfessors()
+  await professorStore.loadLectureProfessors(lectureId)
 }
 
 async function onLoad(index, done) {
