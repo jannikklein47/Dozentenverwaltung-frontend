@@ -165,7 +165,17 @@ dozentFilters: ref(getDefaultDozentLectureFilters()),
       this.totalDozentLectures = 0
       this.dozentFilters.offset = 0
     },
+resetLectureFilters() {
+  Object.assign(this.filters, getDefaultLectureFilters())
+  this.lectures = []
+  this.totalLectures = 0
+},
 
+resetDozentLectureFilters() {
+  Object.assign(this.dozentFilters, getDefaultDozentLectureFilters())
+  this.dozentLectures = []
+  this.totalDozentLectures = 0
+},
     /**
      * Retrieves a lecture by their ID.
      * @param {number} id The ID of the lecture to retrieve.
