@@ -40,7 +40,7 @@ export default defineBoot(({ app, store, router }) => {
         originalRequest._retry = true
 
         try {
-          const resp = await axios.post(baseURL + 'refreshToken', {
+          const resp = await axios.post(baseURL + 'auth/refreshToken', {
             refreshToken: userStore.refresh,
           })
 

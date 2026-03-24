@@ -1,5 +1,15 @@
 const routes = [
   {
+    path: '/login',
+    component: () => import('layouts/LoginLayout.vue'),
+    children: [{ path: '', component: () => import('pages/LoginPage.vue'), name: 'login' }],
+    meta: {
+      title: 'Login',
+      guestOnly: true,
+      requiresAuth: false,
+    },
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -48,17 +58,6 @@ const routes = [
         meta: {
           title: 'Dozentendetails',
           requiresAuth: true,
-        },
-      },
-
-      {
-        path: 'login',
-        component: () => import('pages/LoginPage.vue'),
-        name: 'login',
-        meta: {
-          title: 'Login',
-          guestOnly: true,
-          requiresAuth: false,
         },
       },
     ],

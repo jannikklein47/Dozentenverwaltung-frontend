@@ -13,15 +13,12 @@ export default boot(async ({ store }) => {
       const authData = JSON.parse(savedAuth)
 
       // 2. Check if the Refresh Token is actually still valid
-      // Current time in seconds vs refreshTokenExp
-      const currentTime = Math.floor(Date.now() / 1000)
 
-      if (authData.refreshTokenExp > currentTime) {
+      if (new Date(authData.refreshTokenExp) > new Date()) {
         // Token is still valid, hydrate the store
         userStore.setTokens(authData)
 
         await userStore.refreshAccessToken()
-
         // await userStore.refreshAccessToken();
       } else {
         // Refresh token expired, clean up

@@ -16,9 +16,9 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
-    async login(email, password) {
+    async login(username, password) {
       try {
-        const result = await api.post('/auth/login', { username: email, password: password })
+        const result = await api.post('/auth/login', { username: username, password: password })
 
         if (result.status === 200) {
           //const { accessToken, refreshToken, refreshTokenExp } = result.data

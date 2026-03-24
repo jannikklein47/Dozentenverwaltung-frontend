@@ -13,6 +13,7 @@
         autofocus
         v-model="email"
         autocomplete="email"
+        :disable="loading"
       />
       <q-input
         label="Passwort"
@@ -22,6 +23,7 @@
         type="password"
         v-model="password"
         autocomplete="password"
+        :disable="loading"
       />
       <q-btn
         label="Login"
@@ -31,7 +33,8 @@
         no-caps
         icon="login"
         type="submit"
-        :disable="!email || !password"
+        :disable="!email || !password || loading"
+        :loading="loading"
       />
       <q-btn
         label="Account erstellen"
@@ -41,6 +44,7 @@
         no-caps
         icon="person_add"
         @click="$router.push({ name: 'register' })"
+        :disable="loading"
       />
     </form>
   </q-page>
@@ -49,20 +53,25 @@
 import { useQuasar } from 'quasar'
 import { useUserStore } from 'src/stores/user-store'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const quasar = useQuasar()
-
+const router = useRouter()
 const email = ref('')
 const password = ref('')
+const loading = ref(false)
 
 async function login() {
+  loading.value = true
   try {
     const result = await userStore.login(email.value, password.value)
+    loading.value = false
     if (result === true) {
       quasar.notify({
         message: 'Login erfolgreich',
         color: 'positive',
       })
+      router.push('/lectures')
     } else {
       quasar.notify({
         message: `Login fehlgeschlagen: ${result}`,
