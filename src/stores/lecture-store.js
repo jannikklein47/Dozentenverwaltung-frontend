@@ -48,6 +48,29 @@ loads new lectures. If you use it for a search term, please debounce.
 ***************************************
 
 */
+const getDefaultLectureFilters = () => ({
+  limit: 20,
+  offset: 0,
+  term: null,
+  vorlesung_statusId: null,
+  abschluss_typId: null,
+  gehalten_anId: null,
+  semester: null,
+  vorlaufzeit: null,
+})
+
+const getDefaultDozentLectureFilters = () => ({
+  limit: 20,
+  offset: 0,
+  term: null,
+  vorlesung_statusId: null,
+  abschluss_typId: null,
+  vorliebeId: null,
+  semester: null,
+  gehalten_anId: null,
+  vorlaufzeit: null,
+})
+
 
 export const useLectureStore = defineStore('lecture', {
   state: () => ({
