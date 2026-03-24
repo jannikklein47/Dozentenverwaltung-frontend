@@ -463,88 +463,49 @@
             </q-item-section>
           </q-item>
 
-          <q-item v-if="$route.name === 'lectureDetails'">
-            <q-item-section avatar>
-              <q-icon name="favorite" color="grey-5" />
-            </q-item-section>
-            <q-item-section>
-              <q-select
-                dense
-                v-model="professorLectureFilters.vorliebeId"
-                :options="professorMappings.preference"
-                dark
-                label="Vorliebe"
-                filled
-                color="white"
-                map-options
-                emit-value
-                @update:model-value="applyFilterToLectureProfessors"
-                clearable
-              >
-              </q-select>
-            </q-item-section>
-          </q-item>
+<q-item v-if="$route.name === 'lectureDetails'">
+  <q-item-section avatar>
+    <q-icon name="assignment_ind" color="grey-5" />
+  </q-item-section>
+  <q-item-section>
+    <q-select
+      dense
+      v-model="professorLectureFilters.dozenten_statusId"
+      :options="professorMappings.professor_status"
+      dark
+      label="Status"
+      filled
+      color="white"
+      map-options
+      emit-value
+      @update:model-value="applyFilterToLectureProfessors"
+      clearable
+    >
+    </q-select>
+  </q-item-section>
+</q-item>
 
-          <q-item v-if="$route.name === 'lectureDetails'">
-            <q-item-section avatar>
-              <q-icon name="assignment_ind" color="grey-5" />
-            </q-item-section>
-            <q-item-section>
-              <q-select
-                dense
-                v-model="professorLectureFilters.dozenten_statusId"
-                :options="professorMappings.professor_status"
-                dark
-                label="Status"
-                filled
-                color="white"
-                map-options
-                emit-value
-                @update:model-value="applyFilterToLectureProfessors"
-                clearable
-              >
-              </q-select>
-            </q-item-section>
-          </q-item>
+<q-item v-if="showResetButton">
+  <q-item-section>
+    <q-btn
+      outline
+      color="white"
+      icon="restart_alt"
+      label="Filter zurücksetzen"
+      class="full-width"
+      @click="resetCurrentFilters"
+    />
+  </q-item-section>
+</q-item>
 
-          <q-space />
+<q-space />
 
-          <q-item class="text-grey-5">
-            <q-item-section>
-              <q-item-label class="text-overline" style="position: relative; top: 9px">
-                Deine Daten
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-separator dark />
-          <q-item
-            clickable
-            tag="a"
-            to="/profil"
-            :active-class="'gradient-bg force-white'"
-            class="text-grey-5"
-          >
-            <q-item-section avatar>
-              <q-icon name="account_circle" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-h6 text-weight-medium"> Profil </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            tag="a"
-            to="/einstellungen"
-            :active-class="'gradient-bg force-white'"
-            class="text-grey-5"
-          >
-            <q-item-section avatar>
-              <q-icon name="settings" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-h6 text-weight-medium"> Einstellungen </q-item-label>
-            </q-item-section>
-          </q-item>
+<q-item class="text-grey-5">
+  <q-item-section>
+    <q-item-label class="text-overline" style="position: relative; top: 9px">
+    </q-item-label>
+  </q-item-section>
+</q-item>
         </div>
       </q-list>
     </q-drawer>
@@ -575,7 +536,9 @@ const professorLectureFilters = professorStore.lectureFilters
 const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
-
+const showResetButton = computed(() =>
+  ['lectures', 'professorDetails', 'professors', 'lectureDetails'].includes(route.name),
+)
 //const professorFilters = professorStore.filters
 
 const leftDrawerOpen = ref(true)
@@ -605,7 +568,32 @@ function applyFilterToLectureProfessors() {
   professorStore.clearLectureProfessors()
   professorStore.loadLectureProfessors(id)
 }
+async function resetCurrentFilters() {
+  const id = route.params.id
 
+  if (route.name === 'lectures') {
+    lectureStore.resetLectureFilters()
+    await lectureStore.loadLectures()
+    return
+  }
+
+  if (route.name === 'professorDetails') {
+    lectureStore.resetDozentLectureFilters()
+    await lectureStore.loadDozentLectures(id)
+    return
+  }
+
+  if (route.name === 'professors') {
+    professorStore.resetProfessorFilters()
+    await professorStore.loadProfessors()
+    return
+  }
+
+  if (route.name === 'lectureDetails') {
+    professorStore.resetLectureProfessorFilters()
+    await professorStore.loadLectureProfessors(id)
+  }
+}
 onMounted(() => {
   lectureStore.loadMappings()
   professorStore.loadMappings()
