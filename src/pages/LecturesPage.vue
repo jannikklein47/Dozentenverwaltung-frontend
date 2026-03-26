@@ -5,7 +5,9 @@
       :columns="columns"
       row-key="id"
       flat
-      class="dozenten-table"
+      table-header-class="text-black text-weight-bolder"
+      table-class="text-grey-8"
+      class="text-weight-bold"
       @row-click="onRowClick"
       :pagination="pagination"
       hide-pagination
@@ -142,3 +144,11 @@ const columns = [
   { name: 'dozenten', align: 'left', label: 'Dozenten', field: 'professors' },
 ]
 </script>
+
+<style scoped>
+:deep(.q-table thead th) {
+  color: black !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+</style>
