@@ -10,7 +10,7 @@
           aria-label="Menu"
           color="primary"
           @click="toggleLeftDrawer"
-          v-if="$route.name !== 'login'"
+          v-if="$route.name !== 'login' && $route.name !== 'register'"
         />
 
         <LogoComponent
@@ -94,7 +94,7 @@
     </q-header>
 
     <q-drawer
-      v-if="$route.name !== 'login'"
+      v-if="$route.name !== 'login' && $route.name !== 'register'"
       :model-value="true"
       :mini="!leftDrawerOpen"
       show-if-above
