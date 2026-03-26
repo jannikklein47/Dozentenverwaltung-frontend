@@ -13,7 +13,9 @@
 
         <q-separator vertical inset class="q-mx-md" />
 
-        <div class="text-primary text-weight-bold" style="font-size: 24px; opacity: 0.6">Login</div>
+        <div class="text-primary text-weight-bold" style="font-size: 24px; opacity: 0.6">
+          {{ $route.meta.title }}
+        </div>
       </q-toolbar>
     </q-header>
 

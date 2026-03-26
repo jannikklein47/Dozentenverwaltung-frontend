@@ -2,12 +2,18 @@ const routes = [
   {
     path: '/login',
     component: () => import('layouts/LoginLayout.vue'),
-    children: [{ path: '', component: () => import('pages/LoginPage.vue'), name: 'login' }],
-    meta: {
-      title: 'Login',
-      guestOnly: true,
-      requiresAuth: false,
-    },
+    children: [
+      {
+        path: '',
+        component: () => import('pages/LoginPage.vue'),
+        name: 'login',
+        meta: {
+          title: 'Login',
+          guestOnly: true,
+          requiresAuth: false,
+        },
+      },
+    ],
   },
   {
     path: '/',
