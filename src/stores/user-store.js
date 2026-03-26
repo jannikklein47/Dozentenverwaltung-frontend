@@ -35,20 +35,22 @@ export const useUserStore = defineStore('user', {
         } else return error.message
       }
     },
-    async register(email, password) {
+    async register(username, password) {
       try {
-        const result = await api.post('/auth/login/register', {
-          username: email,
+        const result = await api.post('/auth/register', {
+          username: username,
           password: password,
         })
 
-        if (result.status === 200) {
+        if (result.status === 201) {
           return true
         } else {
           return result.status
         }
       } catch (error) {
-        return error.response?.data || error.message
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else return error.message
       }
     },
 
