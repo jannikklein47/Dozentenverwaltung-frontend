@@ -49,30 +49,26 @@ loads new professors. If you use it for a search term, please debounce.
 
 */
 
-const getDefaultProfessorFilters = () => ({
-  limit: 20,
-  offset: 0,
-  term: null,
-  dozenten_statusId: null,
-  vorliebeId: null,
-})
-
-const getDefaultLectureProfessorFilters = () => ({
-  limit: 20,
-  offset: 0,
-  term: null,
-  dozenten_statusId: null,
-  vorliebeId: null,
-})
-
 export const useProfessorStore = defineStore('professor', {
   state: () => ({
     professors: [],
     totalProfessors: 0,
     lectureProfessors: [],
     totalLectureProfessors: 0,
-    filters: ref(getDefaultProfessorFilters()),
-    lectureFilters: ref(getDefaultLectureProfessorFilters()),
+    filters: ref({
+  limit: 20,
+  offset: 0,
+  term: null,
+  dozenten_statusId: null,
+  vorliebeId: null,
+}),
+lectureFilters: ref({
+  limit: 20,
+  offset: 0,
+  term: null,
+  dozenten_statusId: null,
+  vorliebeId: null,
+}),
     mappings: {},
   }),
 
@@ -159,17 +155,7 @@ export const useProfessorStore = defineStore('professor', {
       this.totalLectureProfessors = 0
       this.lectureFilters.offset = 0
     },
-resetProfessorFilters() {
-  Object.assign(this.filters, getDefaultProfessorFilters())
-  this.professors = []
-  this.totalProfessors = 0
-},
 
-resetLectureProfessorFilters() {
-  Object.assign(this.lectureFilters, getDefaultLectureProfessorFilters())
-  this.lectureProfessors = []
-  this.totalLectureProfessors = 0
-},
     /**
      * Retrieves a professor by their ID.
      * @param {number} id The ID of the professor to retrieve.
