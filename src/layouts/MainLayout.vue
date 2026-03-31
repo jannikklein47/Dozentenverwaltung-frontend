@@ -197,6 +197,33 @@
               </q-select>
             </q-item-section>
           </q-item>
+
+<q-item v-if="$route.name === 'professorDetails'">
+  <q-item-section>
+    <q-btn
+      outline
+      color="white"
+      icon="restart_alt"
+      label="Filter zurücksetzen"
+      class="full-width"
+      @click="resetLectureProfessorFilters"
+    />
+  </q-item-section>
+</q-item>
+          
+<q-item v-if="$route.name === 'lectures'">
+  <q-item-section>
+    <q-btn
+      outline
+      color="white"
+      icon="restart_alt"
+      label="Filter zurücksetzen"
+      class="full-width"
+      @click="resetLectureFilters"
+    />
+  </q-item-section>
+</q-item>
+          
           <q-item v-if="$route.name === 'lectures'">
             <q-item-section avatar>
               <q-icon name="timer" color="grey-5" />
@@ -441,6 +468,19 @@
             </q-item-section>
           </q-item>
 
+<q-item v-if="$route.name === 'professors'">
+  <q-item-section>
+    <q-btn
+      outline
+      color="white"
+      icon="restart_alt"
+      label="Filter zurücksetzen"
+      class="full-width"
+      @click="resetProfessorFilters"
+    />
+  </q-item-section>
+</q-item>
+          
           <q-item v-if="$route.name === 'professors'">
             <q-item-section avatar>
               <q-icon name="assignment_ind" color="grey-5" />
@@ -485,7 +525,7 @@
   </q-item-section>
 </q-item>
 
-<q-item v-if="showResetButton">
+ <q-item v-if="$route.name === 'lectureDetails'">
   <q-item-section>
     <q-btn
       outline
@@ -493,10 +533,10 @@
       icon="restart_alt"
       label="Filter zurücksetzen"
       class="full-width"
-      @click="resetCurrentFilters"
+      @click="resetProfessorLectureFilters"
     />
   </q-item-section>
-</q-item>
+</q-item>         
 
 <q-space />
 
@@ -536,9 +576,7 @@ const professorLectureFilters = professorStore.lectureFilters
 const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
-const showResetButton = computed(() =>
-  ['lectures', 'professorDetails', 'professors', 'lectureDetails'].includes(route.name),
-)
+
 //const professorFilters = professorStore.filters
 
 const leftDrawerOpen = ref(true)
@@ -568,32 +606,42 @@ function applyFilterToLectureProfessors() {
   professorStore.clearLectureProfessors()
   professorStore.loadLectureProfessors(id)
 }
-async function resetCurrentFilters() {
-  const id = route.params.id
 
-  if (route.name === 'lectures') {
-    lectureStore.resetLectureFilters()
-    await lectureStore.loadLectures()
-    return
-  }
-
-  if (route.name === 'professorDetails') {
-    lectureStore.resetDozentLectureFilters()
-    await lectureStore.loadDozentLectures(id)
-    return
-  }
-
-  if (route.name === 'professors') {
-    professorStore.resetProfessorFilters()
-    await professorStore.loadProfessors()
-    return
-  }
-
-  if (route.name === 'lectureDetails') {
-    professorStore.resetLectureProfessorFilters()
-    await professorStore.loadLectureProfessors(id)
-  }
+function resetLectureFilters() {
+  lectureFilters.term = null
+  lectureFilters.vorlesung_statusId = null
+  lectureFilters.abschluss_typId = null
+  lectureFilters.gehalten_anId = null
+  lectureFilters.semester = null
+  lectureFilters.vorlaufzeit = null
+  applyFilterToLectures()
 }
+
+function resetProfessorLectureFilters() {
+  professorLectureFilters.term = null
+  professorLectureFilters.dozenten_statusId = null
+  professorLectureFilters.vorliebeId = null*
+  applyFilterToLectureProfessors()
+}
+
+function resetProfessorFilters() {
+  professorFilters.term = null
+  professorFilters.dozenten_statusId = null
+  professorFilters.vorliebeId = null
+  applyFilterToProfessors()
+}
+
+function resetLectureProfessorFilters() {
+  lectureProfessorFilters.term = null
+  lectureProfessorFilters.vorlesung_statusId = null
+  lectureProfessorFilters.abschluss_typId = null
+  lectureProfessorFilters.vorliebeId = null
+  lectureProfessorFilters.semester = null
+  lectureProfessorFilters.gehalten_anId = null
+  lectureProfessorFilters.vorlaufzeit = null
+  applyFilterToProfessorLectures()
+}
+  
 onMounted(() => {
   lectureStore.loadMappings()
   professorStore.loadMappings()
