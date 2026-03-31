@@ -48,7 +48,15 @@ loads new lectures. If you use it for a search term, please debounce.
 ***************************************
 
 */
-const getDefaultLectureFilters = () => ({
+
+export const useLectureStore = defineStore('lecture', {
+  state: () => ({
+    lectures: [],
+    totalLectures: 0,
+    dozentLectures: [],
+    totalDozentLectures: 0,
+
+filters: ref({
   limit: 20,
   offset: 0,
   term: null,
@@ -57,9 +65,8 @@ const getDefaultLectureFilters = () => ({
   gehalten_anId: null,
   semester: null,
   vorlaufzeit: null,
-})
-
-const getDefaultDozentLectureFilters = () => ({
+}),
+dozentFilters: ref({
   limit: 20,
   offset: 0,
   term: null,
@@ -69,17 +76,8 @@ const getDefaultDozentLectureFilters = () => ({
   semester: null,
   gehalten_anId: null,
   vorlaufzeit: null,
-})
-
-
-export const useLectureStore = defineStore('lecture', {
-  state: () => ({
-    lectures: [],
-    totalLectures: 0,
-    dozentLectures: [],
-    totalDozentLectures: 0,
-    filters: ref(getDefaultLectureFilters()),
-dozentFilters: ref(getDefaultDozentLectureFilters()),
+}),
+    
     mappings: {},
   }),
 
@@ -165,17 +163,7 @@ dozentFilters: ref(getDefaultDozentLectureFilters()),
       this.totalDozentLectures = 0
       this.dozentFilters.offset = 0
     },
-resetLectureFilters() {
-  Object.assign(this.filters, getDefaultLectureFilters())
-  this.lectures = []
-  this.totalLectures = 0
-},
 
-resetDozentLectureFilters() {
-  Object.assign(this.dozentFilters, getDefaultDozentLectureFilters())
-  this.dozentLectures = []
-  this.totalDozentLectures = 0
-},
     /**
      * Retrieves a lecture by their ID.
      * @param {number} id The ID of the lecture to retrieve.
