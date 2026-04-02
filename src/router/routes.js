@@ -1,9 +1,47 @@
 const routes = [
   {
+    path: '/login',
+    component: () => import('layouts/LoginLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/LoginPage.vue'),
+        name: 'login',
+        meta: {
+          title: 'Login',
+          guestOnly: true,
+          requiresAuth: false,
+        },
+      },
+    ],
+  },
+  {
+    path: '/register',
+    component: () => import('layouts/LoginLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/RegisterPage.vue'),
+        name: 'register',
+        meta: {
+          title: 'Registrierung',
+          guestOnly: true,
+          requiresAuth: false,
+        },
+      },
+    ],
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
+      {
+        path: '',
+        component: () => import('pages/IndexPage.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
 
       {
         path: 'lectures',
@@ -11,6 +49,7 @@ const routes = [
         name: 'lectures',
         meta: {
           title: 'Vorlesungen',
+          requiresAuth: true,
         },
       },
       {
@@ -20,6 +59,7 @@ const routes = [
         name: 'lectureDetails',
         meta: {
           title: 'Vorlesungsdetails',
+          requiresAuth: true,
         },
       },
 
@@ -29,6 +69,7 @@ const routes = [
         name: 'professors',
         meta: {
           title: 'Dozenten',
+          requiresAuth: true,
         },
       },
       {
@@ -38,6 +79,7 @@ const routes = [
         name: 'professorDetails',
         meta: {
           title: 'Dozentendetails',
+          requiresAuth: true,
         },
       },
     ],
