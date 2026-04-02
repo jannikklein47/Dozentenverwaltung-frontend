@@ -200,32 +200,32 @@
             </q-item-section>
           </q-item>
 
-<q-item v-if="$route.name === 'professorDetails'">
-  <q-item-section>
-    <q-btn
-      outline
-      color="white"
-      icon="restart_alt"
-      label="Filter zurücksetzen"
-      class="full-width"
-      @click="resetLectureProfessorFilters"
-    />
-  </q-item-section>
-</q-item>
-          
-<q-item v-if="$route.name === 'lectures'">
-  <q-item-section>
-    <q-btn
-      outline
-      color="white"
-      icon="restart_alt"
-      label="Filter zurücksetzen"
-      class="full-width"
-      @click="resetLectureFilters"
-    />
-  </q-item-section>
-</q-item>
-          
+          <q-item v-if="$route.name === 'professorDetails'">
+            <q-item-section>
+              <q-btn
+                outline
+                color="white"
+                icon="restart_alt"
+                label="Filter zurücksetzen"
+                class="full-width"
+                @click="resetLectureProfessorFilters"
+              />
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="$route.name === 'lectures'">
+            <q-item-section>
+              <q-btn
+                outline
+                color="white"
+                icon="restart_alt"
+                label="Filter zurücksetzen"
+                class="full-width"
+                @click="resetLectureFilters"
+              />
+            </q-item-section>
+          </q-item>
+
           <q-item v-if="$route.name === 'lectures'">
             <q-item-section avatar>
               <q-icon name="timer" color="grey-5" />
@@ -470,19 +470,19 @@
             </q-item-section>
           </q-item>
 
-<q-item v-if="$route.name === 'professors'">
-  <q-item-section>
-    <q-btn
-      outline
-      color="white"
-      icon="restart_alt"
-      label="Filter zurücksetzen"
-      class="full-width"
-      @click="resetProfessorFilters"
-    />
-  </q-item-section>
-</q-item>
-          
+          <q-item v-if="$route.name === 'professors'">
+            <q-item-section>
+              <q-btn
+                outline
+                color="white"
+                icon="restart_alt"
+                label="Filter zurücksetzen"
+                class="full-width"
+                @click="resetProfessorFilters"
+              />
+            </q-item-section>
+          </q-item>
+
           <q-item v-if="$route.name === 'professors'">
             <q-item-section avatar>
               <q-icon name="assignment_ind" color="grey-5" />
@@ -505,49 +505,49 @@
             </q-item-section>
           </q-item>
 
-<q-item v-if="$route.name === 'lectureDetails'">
-  <q-item-section avatar>
-    <q-icon name="assignment_ind" color="grey-5" />
-  </q-item-section>
-  <q-item-section>
-    <q-select
-      dense
-      v-model="professorLectureFilters.dozenten_statusId"
-      :options="professorMappings.professor_status"
-      dark
-      label="Status"
-      filled
-      color="white"
-      map-options
-      emit-value
-      @update:model-value="applyFilterToLectureProfessors"
-      clearable
-    >
-    </q-select>
-  </q-item-section>
-</q-item>
+          <q-item v-if="$route.name === 'lectureDetails'">
+            <q-item-section avatar>
+              <q-icon name="assignment_ind" color="grey-5" />
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                dense
+                v-model="professorLectureFilters.dozenten_statusId"
+                :options="professorMappings.professor_status"
+                dark
+                label="Status"
+                filled
+                color="white"
+                map-options
+                emit-value
+                @update:model-value="applyFilterToLectureProfessors"
+                clearable
+              >
+              </q-select>
+            </q-item-section>
+          </q-item>
 
- <q-item v-if="$route.name === 'lectureDetails'">
-  <q-item-section>
-    <q-btn
-      outline
-      color="white"
-      icon="restart_alt"
-      label="Filter zurücksetzen"
-      class="full-width"
-      @click="resetProfessorLectureFilters"
-    />
-  </q-item-section>
-</q-item>         
+          <q-item v-if="$route.name === 'lectureDetails'">
+            <q-item-section>
+              <q-btn
+                outline
+                color="white"
+                icon="restart_alt"
+                label="Filter zurücksetzen"
+                class="full-width"
+                @click="resetProfessorLectureFilters"
+              />
+            </q-item-section>
+          </q-item>
 
-<q-space />
+          <q-space />
 
-<q-item class="text-grey-5">
-  <q-item-section>
-    <q-item-label class="text-overline" style="position: relative; top: 9px">
-    </q-item-label>
-  </q-item-section>
-</q-item>
+          <q-item class="text-grey-5">
+            <q-item-section>
+              <q-item-label class="text-overline" style="position: relative; top: 9px">
+              </q-item-label>
+            </q-item-section>
+          </q-item>
         </div>
       </q-list>
     </q-drawer>
@@ -622,7 +622,7 @@ function resetLectureFilters() {
 function resetProfessorLectureFilters() {
   professorLectureFilters.term = null
   professorLectureFilters.dozenten_statusId = null
-  professorLectureFilters.vorliebeId = null*
+  professorLectureFilters.vorliebeId = null
   applyFilterToLectureProfessors()
 }
 
@@ -643,7 +643,7 @@ function resetLectureProfessorFilters() {
   lectureProfessorFilters.vorlaufzeit = null
   applyFilterToProfessorLectures()
 }
-  
+
 onMounted(() => {
   lectureStore.loadMappings()
   professorStore.loadMappings()
