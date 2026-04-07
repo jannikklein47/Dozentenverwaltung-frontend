@@ -674,8 +674,8 @@ const debounceApplyFilterToProfessorLectures = debounce(applyFilterToProfessorLe
 const debounceApplyFilterToProfessors = debounce(applyFilterToProfessors, 500)
 const debounceApplyFilterToLectureProfessors = debounce(applyFilterToLectureProfessors, 500)
 
-const logout = () => {
-  userStore.logout()
+const logout = async () => {
+  await userStore.logout()
   window.location.href = '/'
 }
 function resetLectureFilters() {

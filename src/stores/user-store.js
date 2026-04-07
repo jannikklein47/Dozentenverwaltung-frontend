@@ -75,7 +75,10 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('auth_data', JSON.stringify(payload))
     },
 
-    logout() {
+    async logout() {
+      await api.post('/auth/logout?all=true', {
+        refreshToken: this.refresh,
+      })
       this.$reset()
       localStorage.removeItem('auth_data')
     },
