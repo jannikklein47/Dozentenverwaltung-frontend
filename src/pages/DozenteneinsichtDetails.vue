@@ -8,7 +8,7 @@
           <div class="row items-center q-gutter-x-md">
             <!-- Have to use style to set text and background color as quasar does not support hex values by default -->
             <q-avatar
-              class="text-weight-bold"
+              class="text-weight-bold shadow-3"
               size="56px"
               :style="{
                 fontFamily: 'Inter, sans-serif',
