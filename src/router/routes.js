@@ -82,6 +82,15 @@ const routes = [
           requiresAuth: true,
         },
       },
+      {
+        path: 'reporting',
+        component: () => import('pages/SelectReportPage.vue'),
+        name: 'reporting',
+        meta: {
+          title: 'Reports',
+          requiresAuth: true,
+        },
+      },
     ],
   },
 
