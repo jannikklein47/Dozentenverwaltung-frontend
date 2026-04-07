@@ -41,14 +41,14 @@
               <q-icon name="book" class="q-ma-md" size="md" />
               <q-item-section>
                 <q-item-label class="text-h6 text-weight-bold q-py-sm">
-                  Vorlesungen ohne Provadis-Erfahrung
+                  Externe Vorlesungen
                 </q-item-label>
               </q-item-section>
             </q-item>
           </q-card-section>
           <q-card-section class="text-grey-7 text-weight-medium">
-            Alle Vorlesungen , die dozierende halten können, dies jedoch noch nicht an der Provadis
-            Hochschule getan haben.
+            Liste aller Dozenten und aller Vorlesungen, die der Dozierende halten kann, aber noch
+            nie an der Provadis Hochschule gehalten hat
           </q-card-section>
           <q-card-actions align="right">
             <q-btn
@@ -102,8 +102,8 @@
             </q-item>
           </q-card-section>
           <q-card-section class="text-grey-7 text-weight-medium">
-            Vorlesungen mit Dozierenden, die nur extern, jedoch nicht nicht an der Provdis gehalten
-            sind.
+            Liste aller Vorlesungen, für die es nur Dozenten gibt, welche diese noch nie an der
+            Provadis Hochschule, aber an anderen Hochschulen gehalten haben.
           </q-card-section>
           <q-card-actions align="right">
             <q-btn
