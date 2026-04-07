@@ -168,7 +168,7 @@
               <q-item-label class="text-h6 text-weight-medium"> Nutzer Verwalten </q-item-label>
             </q-item-section>
           </q-item>
-          <q-item class="text-grey-5">
+          <q-item class="text-grey-5" v-if="$route.meta.filters">
             <q-item-section>
               <q-item-label class="text-overline" style="position: relative; top: 9px">
                 Filter & Aktionen

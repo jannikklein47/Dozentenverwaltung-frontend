@@ -23,7 +23,14 @@
             unterrichtet haben.
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn flat label="Auswählen" no-caps class="bg-primary text-white" padding="xs md" />
+            <q-btn
+              flat
+              label="Auswählen"
+              no-caps
+              class="bg-primary text-white"
+              padding="xs md"
+              @click="$router.push('/reporting/report/1')"
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -44,7 +51,14 @@
             Hochschule getan haben.
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn flat label="Auswählen" no-caps class="bg-primary text-white" padding="xs md" />
+            <q-btn
+              flat
+              label="Auswählen"
+              no-caps
+              class="bg-primary text-white"
+              padding="xs md"
+              @click="$router.push('/reporting/report/2')"
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -64,7 +78,14 @@
             Liste aller Lehrveranstaltungen ohne bekannte Dozierende.
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn flat label="Auswählen" no-caps class="bg-primary text-white" padding="xs md" />
+            <q-btn
+              flat
+              label="Auswählen"
+              no-caps
+              class="bg-primary text-white"
+              padding="xs md"
+              @click="$router.push('/reporting/report/3')"
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -85,7 +106,14 @@
             sind.
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn flat label="Auswählen" no-caps class="bg-primary text-white" padding="xs md" />
+            <q-btn
+              flat
+              label="Auswählen"
+              no-caps
+              class="bg-primary text-white"
+              padding="xs md"
+              @click="$router.push('/reporting/report/4')"
+            />
           </q-card-actions>
         </q-card>
       </div>
