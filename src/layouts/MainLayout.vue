@@ -635,8 +635,6 @@ const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
 
-const userStore = useUserStore()
-
 //const professorFilters = professorStore.filters
 
 const leftDrawerOpen = ref(true)
