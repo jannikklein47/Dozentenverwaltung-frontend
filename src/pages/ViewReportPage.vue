@@ -35,7 +35,11 @@
       }"
     >
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr
+          :props="props"
+          @click="$router.push(`/professors/details/${props.row.id}`)"
+          class="cursor-pointer"
+        >
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <q-badge
               v-if="col.name === 'status'"
@@ -73,6 +77,7 @@
                 :columns="columns2"
                 hide-pagination
                 :pagination="{ rowsPerPage: 0 }"
+                @row-click="(evt, row) => $router.push(`/lectures/details/${row.id}`)"
               >
               </q-table>
             </div>
@@ -248,6 +253,7 @@
       :pagination="{ rowsPerPage: 0 }"
       hide-pagination
       bordered
+      @row-click="(evt, row) => router.push(`/lectures/details/${row.id}`)"
     >
       <template v-slot:body-cell-offen="props">
         <q-td :props="props">
@@ -291,8 +297,9 @@ onMounted(async () => {
   report.value = router.currentRoute.value.params.id
   if (report.value === '1') {
     try {
-      await professorStore.loadProfessors()
-      rows.value = professorStore.professors
+      const result = await api.get('/app/reports/professors/with-provadis-lectures')
+      const data = result.data
+      rows.value = data.professors
       columns.value = [
         { name: 'title', align: 'left', label: 'Titel', field: 'titel', sortable: true },
         {
@@ -414,7 +421,7 @@ onMounted(async () => {
   }
   if (report.value === '4') {
     try {
-      const result = await api.get('/app/reports/lectures/without-professor')
+      const result = await api.get('/app/reports/lectures/without-provadis-experience')
       const data = result.data
       rows.value = data.lectures
       columns.value = [
