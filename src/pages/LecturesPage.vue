@@ -34,43 +34,65 @@
 
       <template v-slot:body-cell-dozenten="props">
         <q-td :props="props">
-          <div class="row q-gutter-x-xs no-wrap">
-            <q-avatar
-              v-for="dozent in props.value"
-              :key="dozent.id"
-              size="28px"
-              :style="{
-                'background-color': getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0)),
-              }"
-              class="text-white text-caption text-weight-bold"
-              @click.stop="$router.push(`/professors/details/${dozent.id}`)"
-            >
-              {{ dozent.vorname.at(0) + dozent.name.at(0) }}
-              <q-tooltip class="q-pa-none" style="max-width: none">
-                <q-card flat bordered style="min-width: 200px">
-                  <q-bar
-                    :style="{
-                      'background-color': getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0)),
-                    }"
-                    >{{ dozent.vorname }} {{ dozent.name }}</q-bar
-                  >
-                  <q-card-section class="text-black">
-                    <div class="text-body2 text-weight-bold">
-                      <span class="text-weight-medium"> Vorlaufzeit:</span>
-                      {{
-                        dozent.Vorlesung_Dozent.vorlaufzeit === 'S'
-                          ? 'Sofort'
-                          : dozent.Vorlesung_Dozent.vorlaufzeit === 'M'
-                            ? 'Mehr als 4 Wochen'
-                            : '4 Wochen'
-                      }}
-                    </div>
-                    <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
-                  </q-card-section>
-                </q-card>
-              </q-tooltip>
-            </q-avatar>
-          </div>
+          <q-avatar
+            v-for="(dozent, index) in props.value"
+            v-show="index < 2"
+            :key="dozent.id"
+            size="36px"
+            :style="{
+              'background-color': getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0)),
+              'margin-right': '-10px',
+            }"
+            class="text-white text-caption text-weight-bold shadow-3"
+            @click.stop="$router.push(`/professors/details/${dozent.id}`)"
+          >
+            {{ dozent.vorname.at(0) + dozent.name.at(0) }}
+            <q-tooltip class="q-pa-none" style="max-width: none">
+              <q-card flat bordered style="min-width: 200px">
+                <q-bar
+                  :style="{
+                    'background-color': getAvatarColor(dozent.vorname.at(0) + dozent.name.at(0)),
+                  }"
+                  >{{ dozent.vorname }} {{ dozent.name }}</q-bar
+                >
+                <q-card-section class="text-black">
+                  <div class="text-body2 text-weight-bold">
+                    <span class="text-weight-medium"> Vorlaufzeit:</span>
+                    {{
+                      dozent.Vorlesung_Dozent.vorlaufzeit === 'S'
+                        ? 'Sofort'
+                        : dozent.Vorlesung_Dozent.vorlaufzeit === 'M'
+                          ? 'Mehr als 4 Wochen'
+                          : '4 Wochen'
+                    }}
+                  </div>
+                  <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
+                </q-card-section>
+              </q-card>
+            </q-tooltip>
+          </q-avatar>
+
+          <q-avatar
+            size="36px"
+            font-size="10px"
+            :style="{
+              fontFamily: 'Inter, sans-serif',
+            }"
+            v-if="props.value.length > 2"
+            color="grey-3"
+            text-color="black"
+            class="text-weight-bold shadow-3"
+          >
+            +{{ props.value.length - 2 }}
+            <q-tooltip class="q-pa-none" style="max-width: none">
+              <q-card flat bordered>
+                <q-bar class="bg-grey-9">{{ props.value.length - 2 }} weitere Dozenten</q-bar>
+                <q-card-section class="text-black">
+                  <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
+                </q-card-section>
+              </q-card>
+            </q-tooltip>
+          </q-avatar>
         </q-td>
       </template>
     </q-table>

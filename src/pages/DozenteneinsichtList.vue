@@ -49,7 +49,8 @@
             v-show="index < 3"
             :key="index"
             text-color="white"
-            class="text-weight-bold q-mr-xs"
+            class="text-weight-bold shadow-3"
+            style="margin-right: -10px"
             @click.stop="$router.push(`/lectures/details/${lecture.id}`)"
           >
             <svg viewBox="0 0 100 100" width="90%" height="90%">
@@ -94,11 +95,24 @@
               fontFamily: 'Inter, sans-serif',
             }"
             v-if="props.value.length > 3"
-            color="light-blue-1"
+            color="grey-3"
             text-color="black"
-            class="text-weight-bold q-mr-xs"
+            class="text-weight-bold shadow-3"
           >
-            ...
+            +{{ props.value.length - 3 }}
+            <q-tooltip class="q-pa-none" style="max-width: none">
+              <q-card flat bordered>
+                <q-bar
+                  style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+                  class="bg-grey-9"
+                >
+                  {{ props.value.length - 3 }} Weitere Vorlesungen</q-bar
+                >
+                <q-card-section class="text-black">
+                  <div class="text-subtitle2 q-mt-md text-grey-5">Klicken für Details</div>
+                </q-card-section>
+              </q-card>
+            </q-tooltip>
           </q-avatar>
         </q-td>
       </template>
