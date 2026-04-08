@@ -41,7 +41,7 @@
               <q-icon name="book" class="q-ma-md" size="md" />
               <q-item-section>
                 <q-item-label class="text-h6 text-weight-bold q-py-sm">
-                  Externe Vorlesungen
+                  Externe Erfahrung
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -96,7 +96,7 @@
               <q-icon name="book" class="q-ma-md" size="md" />
               <q-item-section>
                 <q-item-label class="text-h6 text-weight-bold q-py-sm">
-                  Externe Erfahrung ohne Provadis
+                  Ausschließlich Extern gehaltene Vorlesungen
                 </q-item-label>
               </q-item-section>
             </q-item>
