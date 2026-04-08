@@ -1,22 +1,24 @@
 <template>
   <q-page class="flex flex-center bg-grey-3">
     <form class="q-pa-xl bg-white shadow-5" style="border-radius: 30px" @submit.prevent="login">
-      <img alt="Quasar logo" src="~assets/provadis-logo.png" />
       <div class="text-h4 text-weight-bold full-width text-center q-mb-xl q-mt-md text-primary">
-        Dozentenverwaltung
+        Noch ein Schritt
+      </div>
+      <div class="text-subtitle2 q-mb-lg text-grey-8">
+        Dein Konto wurde freigeschaltet. Bitte vergib ein neues Passwort.
       </div>
       <q-input
         label="Email"
         outlined
         rounded
         class="q-mb-md"
-        autofocus
-        v-model="email"
+        readonly
+        v-model="userStore.user.username"
         autocomplete="email"
         :disable="loading"
       />
       <q-input
-        label="Passwort"
+        label="Neues Passwort"
         outlined
         rounded
         class="q-mb-md"
@@ -25,50 +27,30 @@
         autocomplete="password"
         :disable="loading"
       />
-      <div
-        class="full-width flex q-mb-md text-grey-7"
-        style="text-decoration: underline"
-        @click="showResetPasswordDialog = true"
-      >
-        <q-space /><q-btn label="Passwort vergessen?" flat dense no-caps />
-      </div>
-
+      <q-input
+        label="Neues Passwort bestätigen"
+        outlined
+        rounded
+        class="q-mb-md"
+        type="password"
+        v-model="repeatPassword"
+        autocomplete="repeatpassword"
+        :disable="loading"
+        :error="repeatPassword !== password"
+        error-message="Die Passwörter müssen übereinstimmen."
+      />
       <q-btn
-        label="Login"
+        label="Bestätigen"
         class="q-mb-md full-width bg-primary text-white q-py-sm"
         flat
         rounded
         no-caps
         icon="login"
         type="submit"
-        :disable="!email || !password || loading"
+        :disable="!password || repeatPassword !== password || loading"
         :loading="loading"
       />
-      <q-btn
-        label="Account erstellen"
-        class="full-width bg-primary text-white q-py-sm"
-        flat
-        rounded
-        no-caps
-        icon="person_add"
-        @click="$router.push({ name: 'register' })"
-        :disable="loading"
-      />
     </form>
-
-    <q-dialog v-model="showResetPasswordDialog">
-      <q-card>
-        <q-bar>
-          <div class="text-h6">Passwort zurücksetzen</div>
-        </q-bar>
-        <q-card-section>
-          Bitte kontaktiere einen Administrator, um dein Passwort zurückzusetzen.
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Schliessen" v-close-popup no-caps />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 <script setup>
@@ -79,15 +61,14 @@ import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const quasar = useQuasar()
 const router = useRouter()
-const email = ref('')
 const password = ref('')
+const repeatPassword = ref('')
 const loading = ref(false)
-const showResetPasswordDialog = ref(false)
 
 async function login() {
   loading.value = true
   try {
-    const result = await userStore.login(email.value, password.value)
+    const result = await userStore.changeInitialPassword(password.value)
     loading.value = false
     if (result === true) {
       quasar.notify({

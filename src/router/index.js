@@ -39,6 +39,18 @@ export default defineRouter(function ({ store }) {
     const userStore = useUserStore(store)
     const isAuthenticated = userStore.isAuthenticated
 
+    console.log(to)
+
+    if (
+      isAuthenticated &&
+      userStore.user.initialPassword === true &&
+      to.matched.some((record) => record.meta.noInitialPassword) &&
+      to.matched.some((record) => record.meta.requiresAuth)
+    ) {
+      next('/initial-password')
+      return
+    }
+
     // 1. If the route requires auth and user is NOT logged in -> Redirect to Login
     if (to.matched.some((record) => record.meta.requiresAuth) && !isAuthenticated) {
       next('/login')

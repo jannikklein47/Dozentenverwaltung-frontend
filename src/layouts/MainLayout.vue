@@ -157,9 +157,10 @@
           <q-item
             clickable
             tag="a"
-            to="/manage"
+            to="/users"
             class="text-grey-5"
             :active-class="'gradient-bg force-white'"
+            v-if="userStore.user?.role === 'Admin'"
           >
             <q-item-section avatar>
               <q-icon name="person_search" />
@@ -633,6 +634,8 @@ const professorLectureFilters = professorStore.lectureFilters
 const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
+
+const userStore = useUserStore()
 
 //const professorFilters = professorStore.filters
 
