@@ -593,6 +593,14 @@
               <q-item-label class="text-h6 text-weight-medium"> Einstellungen </q-item-label>
             </q-item-section>
           </q-item>
+          <q-item clickable class="text-grey-5" @click="logout">
+            <q-item-section avatar>
+              <q-icon name="logout" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-h6 text-weight-medium"> Abmelden </q-item-label>
+            </q-item-section>
+          </q-item>
         </div>
       </q-list>
     </q-drawer>
@@ -610,9 +618,11 @@ import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { useRoute } from 'vue-router'
 import { debounce } from 'quasar'
+import { useUserStore } from 'src/stores/user-store'
 
 const lectureStore = useLectureStore()
 const professorStore = useProfessorStore()
+const userStore = useUserStore()
 
 const lectureFilters = lectureStore.filters
 const lectureProfessorFilters = lectureStore.dozentFilters
@@ -664,6 +674,10 @@ const debounceApplyFilterToProfessorLectures = debounce(applyFilterToProfessorLe
 const debounceApplyFilterToProfessors = debounce(applyFilterToProfessors, 500)
 const debounceApplyFilterToLectureProfessors = debounce(applyFilterToLectureProfessors, 500)
 
+const logout = async () => {
+  await userStore.logout()
+  window.location.href = '/'
+}
 function resetLectureFilters() {
   lectureFilters.term = null
   lectureFilters.vorlesung_statusId = null
