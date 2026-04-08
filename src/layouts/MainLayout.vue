@@ -157,9 +157,10 @@
           <q-item
             clickable
             tag="a"
-            to="/manage"
+            to="/users"
             class="text-grey-5"
             :active-class="'gradient-bg force-white'"
+            v-if="userStore.user?.role === 'Admin'"
           >
             <q-item-section avatar>
               <q-icon name="person_search" />
@@ -610,6 +611,7 @@ import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { useRoute } from 'vue-router'
 import { debounce } from 'quasar'
+import { useUserStore } from 'src/stores/user-store'
 
 const lectureStore = useLectureStore()
 const professorStore = useProfessorStore()
@@ -623,6 +625,8 @@ const professorLectureFilters = professorStore.lectureFilters
 const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
+
+const userStore = useUserStore()
 
 //const professorFilters = professorStore.filters
 
