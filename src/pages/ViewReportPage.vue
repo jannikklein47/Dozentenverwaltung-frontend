@@ -1,5 +1,6 @@
 <template>
   <q-page class="q-pa-md bg-grey-2" v-if="report === '1'">
+    <q-btn label="download" @click="exportToPDF" />
     <div class="q-mb-lg">
       <q-card flat bordered>
         <q-card-section class="q-pa-none">
@@ -19,6 +20,7 @@
       </q-card>
     </div>
     <q-table
+      id="reportTable"
       flat
       bordered
       :rows="rows"
@@ -38,7 +40,7 @@
         <q-tr
           :props="props"
           @click="$router.push(`/professors/details/${props.row.id}`)"
-          class="cursor-pointer"
+          class="cursor-pointer report-row"
         >
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <q-badge
@@ -61,7 +63,7 @@
             <span v-else>{{ col.value }}</span>
           </q-td>
         </q-tr>
-        <q-tr :props="props">
+        <q-tr :props="props" class="report-row">
           <q-td colspan="100%">
             <div class="q-pa-sm">
               <div class="q-mb-sm text-weight-medium">
@@ -107,6 +109,7 @@
       </q-card>
     </div>
     <q-table
+      id="reportTable"
       flat
       bordered
       :rows="rows"
@@ -190,6 +193,7 @@
     </div>
 
     <q-table
+      id="reportTable"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -243,6 +247,7 @@
     </div>
 
     <q-table
+      id="reportTable"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -283,6 +288,7 @@ import { api } from 'src/boot/axios'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import jsPDF from 'jspdf'
 
 const router = useRouter()
 
@@ -292,6 +298,78 @@ const columns2 = ref([])
 const report = ref(null)
 
 const professorStore = useProfessorStore()
+
+import autoTable from 'jspdf-autotable'
+
+const exportToPDF = () => {
+  const data = rows.value
+
+  const flattened = []
+  data.forEach((row) => {
+    flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
+  })
+
+  const doc = new jsPDF()
+
+  let currentY = 10 // starting position
+
+  flattened.forEach((entry, index) => {
+    const { professor, lectures } = entry
+
+    const showHeader = index === 0
+
+    // --- 1. PROFESSOR TABLE ---
+    autoTable(doc, {
+      startY: currentY,
+
+      head: showHeader ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']] : undefined,
+
+      body: [
+        [
+          professor.titel,
+          professor.vorname + ' ' + professor.name,
+          professor.professorStatus.name,
+          professor.email,
+          professor.telefonnummer,
+          professor.preference.name,
+        ],
+      ],
+
+      styles: {
+        fontStyle: 'bold',
+      },
+    })
+
+    // Update Y position after professor table
+    currentY = doc.lastAutoTable.finalY + 3
+
+    // --- 2. LECTURES TABLE ---
+    autoTable(doc, {
+      startY: currentY,
+
+      head: [['Kürzel', 'Name']],
+
+      body: lectures.map((l) => [l.kuerzel, l.name]),
+
+      styles: {
+        cellPadding: 2,
+      },
+
+      margin: { left: 30 }, // indentation for hierarchy
+    })
+
+    // Update Y position after lectures
+    currentY = doc.lastAutoTable.finalY + 10
+
+    // Optional: page break safety
+    if (currentY > 270) {
+      doc.addPage()
+      currentY = 10
+    }
+  })
+
+  doc.save('professors.pdf')
+}
 
 onMounted(async () => {
   report.value = router.currentRoute.value.params.id
