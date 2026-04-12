@@ -113,7 +113,148 @@
       Du hast das Ende der Tabelle erreicht. {{ totalLectures }} / {{ totalLectures }} Einträge
       werden angezeigt.
     </div>
+
+    <q-dialog v-model="showDialog" no-backdrop-dismiss>
+      <q-card style="min-width: 480px; border-radius: 20px" class="bg-grey-2">
+        <q-card-section class="q-pt-lg q-pb-md">
+          <div
+            class="text-center text-weight-medium"
+            style="font-size: 16px; font-family: Inter, sans-serif"
+          >
+            Neue Vorlesung Erstellen
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none q-px-lg">
+          <q-form @submit="createLectureAction" class="q-gutter-sm">
+            <!-- Kürzel -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Kürzel:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecture.kuerzel"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Bezeichnung -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Bezeichnung:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecture.name"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Semester -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Semester:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model.number="newLecture.semester"
+                  type="number"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Abschluss -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Abschluss:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="newLecture.abschluss_typId"
+                  :options="completionTypeOptions"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="row items-center q-mb-sm">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Status:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="newLecture.vorlesung_statusId"
+                  :options="statusOptions"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                />
+              </div>
+            </div>
+            <!-- Action Buttons -->
+            <div class="row justify-center q-gutter-md q-mt-md q-mb-sm">
+              <q-btn
+                type="button"
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelForm"
+              />
+              <q-btn
+                type="submit"
+                color="light-blue-9"
+                label="Vorlesung erstellen"
+                icon="menu_book"
+                rounded
+                unelevated
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
+
+  <q-page-sticky position="bottom-right" :offset="[18, 18]">
+    <q-btn fab icon="menu_book" color="light-blue-9" @click="addNewLecture" />
+  </q-page-sticky>
 </template>
 
 <script setup>
@@ -130,6 +271,8 @@ const lectureStore = useLectureStore()
 const lectures = computed(() => lectureStore.lectures)
 const totalLectures = computed(() => lectureStore.totalLectures)
 const lectureFilters = lectureStore.filters
+
+const showDialog = ref(false)
 
 onMounted(async () => {
   lectureStore.clearLectures()
@@ -148,6 +291,53 @@ async function onLoad(index, done) {
 
 const onRowClick = (evt, row) => {
   router.push(`/lectures/details/${row.id}`)
+}
+
+const newLecture = ref({
+  kuerzel: '',
+  name: '',
+  semester: null,
+  abschluss_typId: null,
+  vorlesung_statusId: null,
+})
+
+const cancelForm = () => {
+  showDialog.value = false
+
+  newLecture.value = {
+    kuerzel: '',
+    name: '',
+    semester: null,
+    abschluss_typId: null,
+    vorlesung_statusId: null,
+  }
+}
+
+const statusOptions = [
+  { label: 'Offen', value: 1 },
+  { label: 'Geschlossen', value: 2 },
+]
+
+const completionTypeOptions = [
+  { label: 'Bachelor', value: 1 },
+  { label: 'Master', value: 2 },
+]
+
+const addNewLecture = () => {
+  showDialog.value = true
+}
+
+const createLectureAction = async () => {
+  try {
+    await lectureStore.createLecture(newLecture.value)
+
+    lectureStore.clearLectures()
+    await lectureStore.loadLectures()
+    cancelForm()
+  } catch (error) {
+    console.error('Create failed:', error)
+    // Vielleicht später notification einbauen
+  }
 }
 
 const columns = [
