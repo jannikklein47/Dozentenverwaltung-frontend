@@ -262,7 +262,9 @@ import { useLectureStore } from 'src/stores/lecture-store'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAvatarColor } from 'src/utils/lecturerHelper'
+import { useQuasar } from 'quasar'
 
+const $q = useQuasar()
 const pagination = ref({ rowsPerPage: 0 }) // Show all loaded rows
 
 const router = useRouter()
@@ -334,9 +336,24 @@ const createLectureAction = async () => {
     lectureStore.clearLectures()
     await lectureStore.loadLectures()
     cancelForm()
+
+    // Erfolgs-Benachrichtigung
+    $q.notify({
+      color: 'positive',
+      position: 'top',
+      message: 'Vorlesung erfolgreich erstellt!',
+      icon: 'check_circle',
+    })
   } catch (error) {
     console.error('Create failed:', error)
-    // Vielleicht später notification einbauen
+
+    // Fehler-Benachrichtigung
+    $q.notify({
+      color: 'negative',
+      position: 'top',
+      message: 'Fehler beim Erstellen der Vorlesung. Bitte überprüfe deine Eingaben.',
+      icon: 'report_problem',
+    })
   }
 }
 
