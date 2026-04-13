@@ -200,6 +200,23 @@ export const useLectureStore = defineStore('lecture', {
         console.error(error)
       }
     },
+
+    /**
+     * Creates a new lecture by sending a POST request to the backend API.
+     *
+     * @param {Object} lectureData - The data object containing the details of the new lecture.
+     * @returns {Promise<Object>} A promise that resolves to the response data of the created lecture.
+     * @throws {Error} Throws an error if the API request fails.
+     */
+    async createLecture(lectureData) {
+      try {
+        const response = await api.post('/app/lectures', lectureData)
+        return response.data
+      } catch (error) {
+        console.error('Failed to create lecture:', error)
+        throw error
+      }
+    },
   },
 })
 
