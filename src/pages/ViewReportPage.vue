@@ -10,6 +10,49 @@
                 Gehaltene Vorlesungen an der Provadis
               </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(1)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-item-section>
           </q-item>
         </q-card-section>
         <q-card-section class="text-grey-7 text-weight-medium">
@@ -19,6 +62,7 @@
       </q-card>
     </div>
     <q-table
+      id="reportTable"
       flat
       bordered
       :rows="rows"
@@ -38,7 +82,7 @@
         <q-tr
           :props="props"
           @click="$router.push(`/professors/details/${props.row.id}`)"
-          class="cursor-pointer"
+          class="cursor-pointer report-row"
         >
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <q-badge
@@ -61,7 +105,7 @@
             <span v-else>{{ col.value }}</span>
           </q-td>
         </q-tr>
-        <q-tr :props="props">
+        <q-tr :props="props" class="report-row">
           <q-td colspan="100%">
             <div class="q-pa-sm">
               <div class="q-mb-sm text-weight-medium">
@@ -98,6 +142,49 @@
                 Externe Erfahrung
               </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(2)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-item-section>
           </q-item>
         </q-card-section>
         <q-card-section class="text-grey-7 text-weight-medium">
@@ -107,6 +194,7 @@
       </q-card>
     </div>
     <q-table
+      id="reportTable"
       flat
       bordered
       :rows="rows"
@@ -181,6 +269,49 @@
                 Vorlesungen ohne Dozierende
               </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(3)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-item-section>
           </q-item>
         </q-card-section>
         <q-card-section class="text-grey-7 text-weight-medium">
@@ -190,6 +321,7 @@
     </div>
 
     <q-table
+      id="reportTable"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -233,6 +365,49 @@
                 Ausschließlich Extern gehaltene Vorlesungen
               </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(4)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-item-section>
           </q-item>
         </q-card-section>
         <q-card-section class="text-grey-7 text-weight-medium">
@@ -243,6 +418,7 @@
     </div>
 
     <q-table
+      id="reportTable"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -283,6 +459,7 @@ import { api } from 'src/boot/axios'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import jsPDF from 'jspdf'
 
 const router = useRouter()
 
@@ -292,6 +469,178 @@ const columns2 = ref([])
 const report = ref(null)
 
 const professorStore = useProfessorStore()
+
+import autoTable from 'jspdf-autotable'
+
+const pdfExportLoading = ref(false)
+
+const exportToPDF = async (reportId) => {
+  pdfExportLoading.value = true
+
+  await new Promise((resolve) => setTimeout(resolve, 500)) // fake delay for better UX
+  if (reportId === 1) {
+    const data = rows.value
+
+    const flattened = []
+    data.forEach((row) => {
+      flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
+    })
+
+    const doc = new jsPDF()
+
+    let currentY = 10 // starting position
+
+    flattened.forEach((entry, index) => {
+      const { professor, lectures } = entry
+
+      const showHeader = index === 0
+
+      // --- 1. PROFESSOR TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader
+          ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']]
+          : undefined,
+
+        body: [
+          [
+            professor.titel,
+            professor.vorname + ' ' + professor.name,
+            professor.professorStatus.name,
+            professor.email,
+            professor.telefonnummer,
+            professor.preference.name,
+          ],
+        ],
+
+        styles: {
+          fontStyle: 'bold',
+        },
+      })
+
+      // Update Y position after professor table
+      currentY = doc.lastAutoTable.finalY + 3
+
+      // --- 2. LECTURES TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader ? [['Kürzel', 'Name']] : undefined,
+
+        body: lectures.map((l) => [l.kuerzel, l.name]),
+
+        styles: {
+          cellPadding: 2,
+        },
+
+        margin: { left: 30 }, // indentation for hierarchy
+      })
+
+      // Update Y position after lectures
+      currentY = doc.lastAutoTable.finalY + 10
+
+      // Optional: page break safety
+      if (currentY > 270) {
+        doc.addPage()
+        currentY = 10
+      }
+    })
+
+    doc.save('professors.pdf')
+  } else if (reportId === 2) {
+    const data = rows.value
+
+    const flattened = []
+    data.forEach((row) => {
+      flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
+    })
+
+    const doc = new jsPDF()
+
+    let currentY = 10 // starting position
+
+    flattened.forEach((entry, index) => {
+      const { professor, lectures } = entry
+
+      const showHeader = index === 0
+
+      // --- 1. PROFESSOR TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader
+          ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']]
+          : undefined,
+
+        body: [
+          [
+            professor.titel,
+            professor.vorname + ' ' + professor.name,
+            professor.professorStatus.name,
+            professor.email,
+            professor.telefonnummer,
+            professor.preference.name,
+          ],
+        ],
+
+        styles: {
+          fontStyle: 'bold',
+        },
+      })
+
+      // Update Y position after professor table
+      currentY = doc.lastAutoTable.finalY + 3
+
+      // --- 2. LECTURES TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader ? [['Kürzel', 'Name']] : undefined,
+
+        body: lectures.map((l) => [l.kuerzel, l.name]),
+
+        styles: {
+          cellPadding: 2,
+        },
+
+        margin: { left: 30 }, // indentation for hierarchy
+      })
+
+      // Update Y position after lectures
+      currentY = doc.lastAutoTable.finalY + 10
+
+      // Optional: page break safety
+      if (currentY > 270) {
+        doc.addPage()
+        currentY = 10
+      }
+    })
+
+    doc.save('professors.pdf')
+  } else if (reportId === 3 || reportId === 4) {
+    const data = rows.value
+    const doc = new jsPDF()
+
+    autoTable(doc, {
+      head: [['Kürzel', 'Name', 'Offen', 'Abschluss', 'Semester']],
+      body: data.map((row) => [
+        row.kuerzel,
+        row.name,
+        row.lectureStatus.name,
+        row.completionType.name,
+        row.semester,
+      ]),
+
+      styles: {
+        fontStyle: 'bold',
+      },
+    })
+
+    doc.save('lectures.pdf')
+  }
+  pdfExportLoading.value = false
+}
 
 onMounted(async () => {
   report.value = router.currentRoute.value.params.id
