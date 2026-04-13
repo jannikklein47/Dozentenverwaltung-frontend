@@ -277,6 +277,7 @@ const lectureFilters = lectureStore.filters
 const showDialog = ref(false)
 
 onMounted(async () => {
+  await lectureStore.loadMappings()
   lectureStore.clearLectures()
   await lectureStore.loadLectures()
 })
@@ -315,15 +316,8 @@ const cancelForm = () => {
   }
 }
 
-const statusOptions = [
-  { label: 'Offen', value: 1 },
-  { label: 'Geschlossen', value: 2 },
-]
-
-const completionTypeOptions = [
-  { label: 'Bachelor', value: 1 },
-  { label: 'Master', value: 2 },
-]
+const statusOptions = computed(() => lectureStore.mappings.lectureStatus || [])
+const completionTypeOptions = computed(() => lectureStore.mappings.completionType || [])
 
 const addNewLecture = () => {
   showDialog.value = true
