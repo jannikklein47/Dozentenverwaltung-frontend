@@ -23,8 +23,15 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(1)">
-                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                      <q-item clickable @click="exportToPDF(1)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
@@ -148,8 +155,15 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(2)">
-                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                      <q-item clickable @click="exportToPDF(2)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
@@ -268,8 +282,15 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(3)">
-                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                      <q-item clickable @click="exportToPDF(3)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
@@ -357,8 +378,15 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(4)">
-                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                      <q-item clickable @click="exportToPDF(4)" :disable="pdfExportLoading">
+                        <q-icon
+                          name="picture_as_pdf"
+                          size="md"
+                          class="q-mr-md"
+                          color="blue"
+                          v-if="!pdfExportLoading"
+                        />
+                        <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
@@ -444,7 +472,12 @@ const professorStore = useProfessorStore()
 
 import autoTable from 'jspdf-autotable'
 
-const exportToPDF = (reportId) => {
+const pdfExportLoading = ref(false)
+
+const exportToPDF = async (reportId) => {
+  pdfExportLoading.value = true
+
+  await new Promise((resolve) => setTimeout(resolve, 500)) // fake delay for better UX
   if (reportId === 1) {
     const data = rows.value
 
@@ -606,6 +639,7 @@ const exportToPDF = (reportId) => {
 
     doc.save('lectures.pdf')
   }
+  pdfExportLoading.value = false
 }
 
 onMounted(async () => {
