@@ -345,7 +345,10 @@ const createLectureAction = async () => {
     $q.notify({
       color: 'negative',
       position: 'top',
-      message: 'Fehler beim Erstellen der Vorlesung. Bitte überprüfe deine Eingaben.',
+      message:
+        'Fehler beim Erstellen der Vorlesung: ' +
+        (error.response?.data?.title + ' | ' + error.response?.data?.message ||
+          'Unbekannter Fehler'),
       icon: 'report_problem',
     })
   }
