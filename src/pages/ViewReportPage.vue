@@ -1,6 +1,5 @@
 <template>
   <q-page class="q-pa-md bg-grey-2" v-if="report === '1'">
-    <q-btn label="download" @click="exportToPDF" />
     <div class="q-mb-lg">
       <q-card flat bordered>
         <q-card-section class="q-pa-none">
@@ -10,6 +9,42 @@
               <q-item-label class="text-h6 text-weight-bold q-py-sm">
                 Gehaltene Vorlesungen an der Provadis
               </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(1)">
+                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
             </q-item-section>
           </q-item>
         </q-card-section>
@@ -100,6 +135,42 @@
                 Externe Erfahrung
               </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(2)">
+                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-item-section>
           </q-item>
         </q-card-section>
         <q-card-section class="text-grey-7 text-weight-medium">
@@ -184,6 +255,42 @@
                 Vorlesungen ohne Dozierende
               </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(3)">
+                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-item-section>
           </q-item>
         </q-card-section>
         <q-card-section class="text-grey-7 text-weight-medium">
@@ -236,6 +343,42 @@
               <q-item-label class="text-h6 text-weight-bold q-py-sm">
                 Ausschließlich Extern gehaltene Vorlesungen
               </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                color="primary"
+                label="Export"
+                class="q-mr-md q-my-md"
+                flat
+                no-caps
+                rounded
+                icon="arrow_circle_down"
+              >
+                <q-popup-proxy>
+                  <q-card>
+                    <q-list separator>
+                      <q-item clickable @click="exportToPDF(4)">
+                        <q-icon name="picture_as_pdf" size="md" class="q-mr-md" color="blue" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">PDF</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">JSON</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable>
+                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">CSV</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
             </q-item-section>
           </q-item>
         </q-card-section>
@@ -301,74 +444,168 @@ const professorStore = useProfessorStore()
 
 import autoTable from 'jspdf-autotable'
 
-const exportToPDF = () => {
-  const data = rows.value
+const exportToPDF = (reportId) => {
+  if (reportId === 1) {
+    const data = rows.value
 
-  const flattened = []
-  data.forEach((row) => {
-    flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
-  })
+    const flattened = []
+    data.forEach((row) => {
+      flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
+    })
 
-  const doc = new jsPDF()
+    const doc = new jsPDF()
 
-  let currentY = 10 // starting position
+    let currentY = 10 // starting position
 
-  flattened.forEach((entry, index) => {
-    const { professor, lectures } = entry
+    flattened.forEach((entry, index) => {
+      const { professor, lectures } = entry
 
-    const showHeader = index === 0
+      const showHeader = index === 0
 
-    // --- 1. PROFESSOR TABLE ---
-    autoTable(doc, {
-      startY: currentY,
+      // --- 1. PROFESSOR TABLE ---
+      autoTable(doc, {
+        startY: currentY,
 
-      head: showHeader ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']] : undefined,
+        head: showHeader
+          ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']]
+          : undefined,
 
-      body: [
-        [
-          professor.titel,
-          professor.vorname + ' ' + professor.name,
-          professor.professorStatus.name,
-          professor.email,
-          professor.telefonnummer,
-          professor.preference.name,
+        body: [
+          [
+            professor.titel,
+            professor.vorname + ' ' + professor.name,
+            professor.professorStatus.name,
+            professor.email,
+            professor.telefonnummer,
+            professor.preference.name,
+          ],
         ],
-      ],
+
+        styles: {
+          fontStyle: 'bold',
+        },
+      })
+
+      // Update Y position after professor table
+      currentY = doc.lastAutoTable.finalY + 3
+
+      // --- 2. LECTURES TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader ? [['Kürzel', 'Name']] : undefined,
+
+        body: lectures.map((l) => [l.kuerzel, l.name]),
+
+        styles: {
+          cellPadding: 2,
+        },
+
+        margin: { left: 30 }, // indentation for hierarchy
+      })
+
+      // Update Y position after lectures
+      currentY = doc.lastAutoTable.finalY + 10
+
+      // Optional: page break safety
+      if (currentY > 270) {
+        doc.addPage()
+        currentY = 10
+      }
+    })
+
+    doc.save('professors.pdf')
+  } else if (reportId === 2) {
+    const data = rows.value
+
+    const flattened = []
+    data.forEach((row) => {
+      flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
+    })
+
+    const doc = new jsPDF()
+
+    let currentY = 10 // starting position
+
+    flattened.forEach((entry, index) => {
+      const { professor, lectures } = entry
+
+      const showHeader = index === 0
+
+      // --- 1. PROFESSOR TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader
+          ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']]
+          : undefined,
+
+        body: [
+          [
+            professor.titel,
+            professor.vorname + ' ' + professor.name,
+            professor.professorStatus.name,
+            professor.email,
+            professor.telefonnummer,
+            professor.preference.name,
+          ],
+        ],
+
+        styles: {
+          fontStyle: 'bold',
+        },
+      })
+
+      // Update Y position after professor table
+      currentY = doc.lastAutoTable.finalY + 3
+
+      // --- 2. LECTURES TABLE ---
+      autoTable(doc, {
+        startY: currentY,
+
+        head: showHeader ? [['Kürzel', 'Name']] : undefined,
+
+        body: lectures.map((l) => [l.kuerzel, l.name]),
+
+        styles: {
+          cellPadding: 2,
+        },
+
+        margin: { left: 30 }, // indentation for hierarchy
+      })
+
+      // Update Y position after lectures
+      currentY = doc.lastAutoTable.finalY + 10
+
+      // Optional: page break safety
+      if (currentY > 270) {
+        doc.addPage()
+        currentY = 10
+      }
+    })
+
+    doc.save('professors.pdf')
+  } else if (reportId === 3) {
+    const data = rows.value
+    const doc = new jsPDF()
+
+    autoTable(doc, {
+      head: [['Kürzel', 'Name', 'Offen', 'Abschluss', 'Semester']],
+      body: data.map((row) => [
+        row.kuerzel,
+        row.name,
+        row.lectureStatus.name,
+        row.completionType.name,
+        row.semester,
+      ]),
 
       styles: {
         fontStyle: 'bold',
       },
     })
 
-    // Update Y position after professor table
-    currentY = doc.lastAutoTable.finalY + 3
-
-    // --- 2. LECTURES TABLE ---
-    autoTable(doc, {
-      startY: currentY,
-
-      head: [['Kürzel', 'Name']],
-
-      body: lectures.map((l) => [l.kuerzel, l.name]),
-
-      styles: {
-        cellPadding: 2,
-      },
-
-      margin: { left: 30 }, // indentation for hierarchy
-    })
-
-    // Update Y position after lectures
-    currentY = doc.lastAutoTable.finalY + 10
-
-    // Optional: page break safety
-    if (currentY > 270) {
-      doc.addPage()
-      currentY = 10
-    }
-  })
-
-  doc.save('professors.pdf')
+    doc.save('lectures.pdf')
+  }
 }
 
 onMounted(async () => {
