@@ -157,9 +157,10 @@
           <q-item
             clickable
             tag="a"
-            to="/manage"
+            to="/users"
             class="text-grey-5"
             :active-class="'gradient-bg force-white'"
+            v-if="userStore.user?.role === 'Admin'"
           >
             <q-item-section avatar>
               <q-icon name="person_search" />
@@ -509,6 +510,52 @@
             </q-item-section>
           </q-item>
 
+          <!-- Reset Buttons -->
+
+          <q-item
+            v-if="$route.name === 'lectures' && lectureFilterActive"
+            clickable
+            @click="resetLectureFilters"
+          >
+            <q-item-section avatar>
+              <q-icon name="close" color="grey-5" />
+            </q-item-section>
+            <q-item-section class="q-pa-sm text-grey-4"> Filter zurücksetzen</q-item-section>
+          </q-item>
+
+          <q-item
+            v-if="$route.name === 'lectureDetails' && lectureDetailsFilterActive"
+            clickable
+            @click="resetLectureDetailsFilters"
+          >
+            <q-item-section avatar>
+              <q-icon name="close" color="grey-5" />
+            </q-item-section>
+            <q-item-section class="q-pa-sm text-grey-4"> Filter zurücksetzen</q-item-section>
+          </q-item>
+
+          <q-item
+            v-if="$route.name === 'professors' && professorFilterActive"
+            clickable
+            @click="resetProfessorFilters"
+          >
+            <q-item-section avatar>
+              <q-icon name="close" color="grey-5" />
+            </q-item-section>
+            <q-item-section class="q-pa-sm text-grey-4"> Filter zurücksetzen</q-item-section>
+          </q-item>
+
+          <q-item
+            v-if="$route.name === 'professorDetails' && professorDetailsFilterActive"
+            clickable
+            @click="resetProfessorDetailsFilters"
+          >
+            <q-item-section avatar>
+              <q-icon name="close" color="grey-5" />
+            </q-item-section>
+            <q-item-section class="q-pa-sm text-grey-4"> Filter zurücksetzen</q-item-section>
+          </q-item>
+
           <q-space />
 
           <q-item class="text-grey-5">
@@ -547,6 +594,14 @@
               <q-item-label class="text-h6 text-weight-medium"> Einstellungen </q-item-label>
             </q-item-section>
           </q-item>
+          <q-item clickable class="text-grey-5" @click="logout">
+            <q-item-section avatar>
+              <q-icon name="logout" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-h6 text-weight-medium"> Abmelden </q-item-label>
+            </q-item-section>
+          </q-item>
         </div>
       </q-list>
     </q-drawer>
@@ -564,9 +619,11 @@ import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { useRoute } from 'vue-router'
 import { debounce } from 'quasar'
+import { useUserStore } from 'src/stores/user-store'
 
 const lectureStore = useLectureStore()
 const professorStore = useProfessorStore()
+const userStore = useUserStore()
 
 const lectureFilters = lectureStore.filters
 const lectureProfessorFilters = lectureStore.dozentFilters
@@ -617,6 +674,83 @@ const debounceApplyFilterToLectures = debounce(applyFilterToLectures, 500)
 const debounceApplyFilterToProfessorLectures = debounce(applyFilterToProfessorLectures, 500)
 const debounceApplyFilterToProfessors = debounce(applyFilterToProfessors, 500)
 const debounceApplyFilterToLectureProfessors = debounce(applyFilterToLectureProfessors, 500)
+
+const logout = async () => {
+  await userStore.logout()
+  window.location.href = '/'
+}
+function resetLectureFilters() {
+  lectureFilters.term = null
+  lectureFilters.vorlesung_statusId = null
+  lectureFilters.abschluss_typId = null
+  lectureFilters.gehalten_anId = null
+  lectureFilters.semester = null
+  lectureFilters.vorlaufzeit = null
+  applyFilterToLectures()
+}
+const lectureFilterActive = computed(() => {
+  return (
+    lectureFilters.term !== null ||
+    lectureFilters.vorlesung_statusId !== null ||
+    lectureFilters.abschluss_typId !== null ||
+    lectureFilters.gehalten_anId !== null ||
+    lectureFilters.semester !== null ||
+    lectureFilters.vorlaufzeit !== null
+  )
+})
+
+function resetLectureDetailsFilters() {
+  professorLectureFilters.term = null
+  professorLectureFilters.dozenten_statusId = null
+  professorLectureFilters.vorliebeId = null
+  applyFilterToLectureProfessors()
+}
+
+const lectureDetailsFilterActive = computed(() => {
+  return (
+    professorLectureFilters.term !== null ||
+    professorLectureFilters.dozenten_statusId !== null ||
+    professorLectureFilters.vorliebeId !== null
+  )
+})
+
+function resetProfessorFilters() {
+  professorFilters.term = null
+  professorFilters.dozenten_statusId = null
+  professorFilters.vorliebeId = null
+  applyFilterToProfessors()
+}
+
+const professorFilterActive = computed(() => {
+  return (
+    professorFilters.term !== null ||
+    professorFilters.dozenten_statusId !== null ||
+    professorFilters.vorliebeId !== null
+  )
+})
+
+function resetProfessorDetailsFilters() {
+  lectureProfessorFilters.term = null
+  lectureProfessorFilters.vorlesung_statusId = null
+  lectureProfessorFilters.abschluss_typId = null
+  lectureProfessorFilters.vorliebeId = null
+  lectureProfessorFilters.semester = null
+  lectureProfessorFilters.gehalten_anId = null
+  lectureProfessorFilters.vorlaufzeit = null
+  applyFilterToProfessorLectures()
+}
+
+const professorDetailsFilterActive = computed(() => {
+  return (
+    lectureProfessorFilters.term !== null ||
+    lectureProfessorFilters.vorlesung_statusId !== null ||
+    lectureProfessorFilters.abschluss_typId !== null ||
+    lectureProfessorFilters.vorliebeId !== null ||
+    lectureProfessorFilters.semester !== null ||
+    lectureProfessorFilters.gehalten_anId !== null ||
+    lectureProfessorFilters.vorlaufzeit !== null
+  )
+})
 </script>
 
 <style scoped lang="scss">

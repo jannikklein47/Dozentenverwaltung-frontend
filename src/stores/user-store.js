@@ -66,6 +66,29 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    async changeInitialPassword(password) {
+      try {
+        const result = await api.post('/auth/changeinitialpassword', {
+          newPassword: password,
+          refreshToken: this.refresh,
+        })
+
+        if (result.status === 200) {
+          //const { accessToken, refreshToken, refreshTokenExp } = result.data
+
+          this.setTokens(result.data)
+
+          return true
+        } else {
+          return result.status
+        }
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else return error.message
+      }
+    },
+
     setTokens(payload) {
       this.token = payload.accessToken
       this.refresh = payload.refreshToken
@@ -75,7 +98,10 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('auth_data', JSON.stringify(payload))
     },
 
-    logout() {
+    async logout() {
+      await api.post('/auth/logout?all=true', {
+        refreshToken: this.refresh,
+      })
       this.$reset()
       localStorage.removeItem('auth_data')
     },

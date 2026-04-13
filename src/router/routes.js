@@ -32,6 +32,22 @@ const routes = [
     ],
   },
   {
+    path: '/initial-password',
+    component: () => import('layouts/LoginLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/ChangeInitialPasswordPage.vue'),
+        name: 'initial-password',
+        meta: {
+          title: 'Passwort Erstellen',
+          requiresAuth: true,
+          initialPassword: true,
+        },
+      },
+    ],
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -40,6 +56,7 @@ const routes = [
         component: () => import('pages/IndexPage.vue'),
         meta: {
           requiresAuth: true,
+          noInitialPassword: true,
         },
       },
 
@@ -51,6 +68,7 @@ const routes = [
           title: 'Vorlesungen',
           requiresAuth: true,
           filters: true,
+          noInitialPassword: true,
         },
       },
       {
@@ -62,6 +80,7 @@ const routes = [
           title: 'Vorlesungsdetails',
           requiresAuth: true,
           filters: true,
+          noInitialPassword: true,
         },
       },
 
@@ -73,6 +92,7 @@ const routes = [
           title: 'Dozenten',
           requiresAuth: true,
           filters: true,
+          noInitialPassword: true,
         },
       },
       {
@@ -84,6 +104,7 @@ const routes = [
           title: 'Dozentendetails',
           requiresAuth: true,
           filters: true,
+          noInitialPassword: true,
         },
       },
       {
@@ -93,6 +114,7 @@ const routes = [
         meta: {
           title: 'Reports',
           requiresAuth: true,
+          noInitialPassword: true,
         },
       },
       {
@@ -102,6 +124,17 @@ const routes = [
         meta: {
           title: 'Report',
           requiresAuth: true,
+          noInitialPassword: true,
+        },
+      },
+      {
+        path: 'users',
+        component: () => import('pages/ManageUsersPage.vue'),
+        name: 'users',
+        meta: {
+          title: 'Benutzer Verwalten',
+          requiresAuth: true,
+          noInitialPassword: true,
         },
       },
     ],

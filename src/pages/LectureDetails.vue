@@ -68,7 +68,7 @@
             <q-card-section class="row items-center">
               <q-avatar
                 size="48px"
-                class="text-weight-bold text-white"
+                class="text-weight-bold text-white shadow-3"
                 :style="{
                   backgroundColor: getAvatarColor(d_item.vorname?.at(0) + d_item.name?.at(0) || 0),
                 }"
@@ -128,7 +128,7 @@
                   v-for="(lecture, index) in d_item.lectures"
                   :key="index"
                   text-color="white"
-                  class="text-weight-bold q-mr-xs q-mt-sm"
+                  class="text-weight-bold q-mr-xs q-mt-sm shadow-3"
                   @click.stop="$router.push(`/lectures/details/${lecture.id}`)"
                 >
                   <svg viewBox="0 0 100 100" width="90%" height="90%">

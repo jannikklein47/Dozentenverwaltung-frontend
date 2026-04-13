@@ -38,6 +38,10 @@
         autocomplete="password"
         :disable="loading"
       />
+      <div class="text-subtitle2 q-mb-lg text-grey-6">
+        Hinweis: Eine Registrierung ist kein direkter Zugriff auf das System. Ein Administrator muss
+        deine Registrierung bestätigen.
+      </div>
       <q-btn
         label="Account erstellen"
         class="q-mb-md full-width bg-primary text-white q-py-sm"
