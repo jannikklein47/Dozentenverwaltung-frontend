@@ -68,6 +68,7 @@ const routes = [
           title: 'Vorlesungen',
           requiresAuth: true,
           noInitialPassword: true,
+          filters: true,
         },
       },
       {
@@ -79,6 +80,7 @@ const routes = [
           title: 'Vorlesungsdetails',
           requiresAuth: true,
           noInitialPassword: true,
+          filters: true,
         },
       },
 
@@ -90,6 +92,7 @@ const routes = [
           title: 'Dozenten',
           requiresAuth: true,
           noInitialPassword: true,
+          filters: true,
         },
       },
       {
