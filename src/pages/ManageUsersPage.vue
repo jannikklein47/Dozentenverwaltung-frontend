@@ -23,7 +23,8 @@
               'background-color': getAvatarColor(props.row.username),
             }"
             class="text-white text-caption text-weight-bold q-mr-sm shadow-3"
-            >{{ props.row.username.at(0).toUpperCase() }}
+          >
+            {{ props.row.username.at(0).toUpperCase() }}
           </q-avatar>
           {{ props.row.username }}
         </q-td>
@@ -90,7 +91,7 @@
             rounded
             icon="lock_reset"
             color="primary"
-            @click="resetUserPassword(props.row.id)"
+            @click="resetUserPassword(props.row.id, props.row.username)"
             v-if="props.row.username !== userStore.user.username"
           >
             <q-tooltip class="text-body2"> Passwort zurücksetzen </q-tooltip>
@@ -215,7 +216,7 @@ const deleteUser = async (id) => {
   }
 }
 
-const resetUserPassword = async (id) => {
+const resetUserPassword = async (id, username) => {
   $q.loading.show({
     message: 'Passwort wird zurückgesetzt...',
   })
@@ -225,10 +226,16 @@ const resetUserPassword = async (id) => {
       $q.dialog({
         title: 'Passwort zurückgesetzt',
         message:
-          'Das Passwort wurde erfolgreich zurückgesetzt.Es lautet wie folgt: ' +
+          '<div>Das Passwort wurde erfolgreich zurückgesetzt.Es lautet wie folgt: ' +
           result.data.password +
-          ' - Dieses Passwort ist ein Mal gültig und muss an den Nutzer weitergegeben werden.',
+          ' - Dieses Passwort ist ein Mal gültig und muss an den Nutzer weitergegeben werden.</div><div><a href="mailto:' +
+          username +
+          '?subject=Passwort zurückgesetzt&body=Guten Tag, das neue Passwort lautet: ' +
+          result.data.password +
+          '. Es ist nur ein Mal gültig. Du kannst ein neues Passwort wählen, sobald du dich angemeldet hast."">Nutzer benachrichtigen</a></div>',
+
         color: 'positive',
+        html: true,
       })
     }
   } catch (error) {
