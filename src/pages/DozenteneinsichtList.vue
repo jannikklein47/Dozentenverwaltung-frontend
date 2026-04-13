@@ -164,7 +164,7 @@
         <q-card-section class="q-pt-none q-px-lg">
           <q-form @submit="createLecturer" class="q-gutter-sm">
             <!-- Titel -->
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Titel:
               </div>
@@ -176,13 +176,32 @@
                   dense
                   bg-color="white"
                   color="light-blue-9"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <!-- Nachname -->
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Name:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="newLecturer.name"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
                   :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
                 />
               </div>
             </div>
 
             <!-- Vorname -->
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Vorname:
               </div>
@@ -190,35 +209,18 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.firstName"
+                  v-model="newLecturer.vorname"
                   dense
                   bg-color="white"
                   color="light-blue-9"
                   :rules="[(val) => !!val || 'Erforderlich']"
-                />
-              </div>
-            </div>
-
-            <!-- Nachname -->
-            <div class="row items-center q-mb-sm">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
-                Nachname:
-              </div>
-              <div class="col-7">
-                <q-input
-                  outlined
-                  rounded
-                  v-model="newLecturer.lastName"
-                  dense
-                  bg-color="white"
-                  color="light-blue-9"
-                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
                 />
               </div>
             </div>
 
             <!-- Email-Adresse -->
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Email-Adresse:
               </div>
@@ -235,12 +237,13 @@
                     (val) => !!val || 'Erforderlich',
                     (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültig',
                   ]"
+                  hide-bottom-space
                 />
               </div>
             </div>
 
             <!-- Telefonnummer -->
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Telefonnummer:
               </div>
@@ -248,17 +251,21 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.phone"
+                  v-model="newLecturer.telefonnummer"
                   dense
                   bg-color="white"
                   color="light-blue-9"
-                  :rules="[(val) => !!val || 'Erforderlich']"
+                  :rules="[
+                    (val) => !!val || 'Erforderlich',
+                    (val) => /^\+[1-9][0-9]{7,14}$/.test(val) || 'Ungültig',
+                  ]"
+                  hide-bottom-space
                 />
               </div>
             </div>
 
             <!-- Vorliebe -->
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Vorliebe:
               </div>
@@ -266,19 +273,21 @@
                 <q-select
                   outlined
                   rounded
-                  v-model="newLecturer.preferenceID"
+                  v-model="newLecturer.vorliebeId"
                   :options="preferenceOptions"
                   dense
                   bg-color="white"
                   color="light-blue-9"
                   emit-value
                   map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
                 />
               </div>
             </div>
 
             <!-- Status -->
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Status:
               </div>
@@ -286,19 +295,21 @@
                 <q-select
                   outlined
                   rounded
-                  v-model="newLecturer.dozStatusID"
+                  v-model="newLecturer.dozenten_statusId"
                   :options="statusOptions"
                   dense
                   bg-color="white"
                   color="light-blue-9"
                   emit-value
                   map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
                 />
               </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="row justify-center q-gutter-md q-mt-md q-mb-sm">
+            <div class="row justify-center q-gutter-md q-mt-md q-mb-md">
               <q-btn
                 type="button"
                 outline
@@ -333,14 +344,15 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, createProfessor, getAvatarColor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor, getAvatarColor } from 'src/utils/lecturerHelper'
 import { useProfessorStore } from 'src/stores/professor-store'
 
+const quasar = useQuasar()
 const router = useRouter()
 const showDialog = ref(false)
-
 const professorStore = useProfessorStore()
 
 const professors = computed(() => professorStore.professors)
@@ -350,6 +362,7 @@ const professorFilters = professorStore.filters
 onMounted(async () => {
   professorStore.clearProfessors()
   await professorStore.loadProfessors()
+  await professorStore.loadMappings()
   console.log(professors.value)
 })
 
@@ -363,29 +376,21 @@ async function onLoad(index, done) {
   done()
 }
 
-// Form data
-const newLecturer = ref({
+const defaultLecturer = () => ({
   title: '',
-  firstName: '',
-  lastName: '',
+  vorname: '',
+  name: '',
   email: '',
-  phone: '',
-  preferenceID: null,
-  dozStatusID: null,
+  telefonnummer: '',
+  vorliebeId: null,
+  dozenten_statusId: null,
 })
 
-// Options for dropdowns
-const statusOptions = [
-  { label: 'Intern', value: 1 },
-  { label: 'Extern', value: 2 },
-  // Add more from actual backend response
-]
+const newLecturer = ref(defaultLecturer())
 
-const preferenceOptions = [
-  { label: 'Bachelor', value: 1, prioBachelor: 1, prioMaster: 0 },
-  { label: 'Master', value: 2, prioBachelor: 0, prioMaster: 1 },
-  { label: 'Alle Vorlesungen', value: 3, prioBachelor: 1, prioMaster: 1 },
-]
+const statusOptions = computed(() => professorStore.mappings.professor_status ?? [])
+
+const preferenceOptions = computed(() => professorStore.mappings.preference ?? [])
 
 const addNewLecturer = () => {
   showDialog.value = true
@@ -393,26 +398,26 @@ const addNewLecturer = () => {
 
 const cancelForm = () => {
   showDialog.value = false
-  // Reset form
-  newLecturer.value = {
-    title: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    preferenceID: null,
-    dozStatusID: null,
-  }
+  newLecturer.value = defaultLecturer()
 }
 
 const createLecturer = async () => {
-  try {
-    await createProfessor(newLecturer.value)
+  const result = await professorStore.createProfessor(newLecturer.value)
+
+  if (result === true) {
+    cancelForm()
     professorStore.clearProfessors()
     await professorStore.loadProfessors()
-    cancelForm()
-  } catch (error) {
-    console.error('Create failed:', error)
+    quasar.notify({
+      message: 'Dozent erfolgreich erstellt',
+      color: 'positive',
+    })
+  } else {
+    console.error('Create failed:', result)
+    quasar.notify({
+      message: `Fehler beim Erstellen des Dozenten: ${result}`,
+      color: 'negative',
+    })
   }
 }
 
