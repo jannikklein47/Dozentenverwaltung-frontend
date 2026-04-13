@@ -585,7 +585,7 @@ const exportToPDF = (reportId) => {
     })
 
     doc.save('professors.pdf')
-  } else if (reportId === 3) {
+  } else if (reportId === 3 || reportId === 4) {
     const data = rows.value
     const doc = new jsPDF()
 
