@@ -172,7 +172,7 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.title"
+                  v-model="newLecturer.titel"
                   dense
                   bg-color="white"
                   color="light-blue-9"
@@ -377,7 +377,7 @@ async function onLoad(index, done) {
 }
 
 const defaultLecturer = () => ({
-  title: '',
+  titel: '',
   vorname: '',
   name: '',
   email: '',
