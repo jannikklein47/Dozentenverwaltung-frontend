@@ -105,6 +105,29 @@ export const useProfessorStore = defineStore('professor', {
     },
 
     /**
+     * Create a new professor using the API.
+     * The function will send a POST request to the API with the new professor data.
+     * If the request fails, an error will be logged to the console.
+     */
+    async createProfessor(newProfessor) {
+      try {
+        const response = await api.post('/app/professors', newProfessor)
+
+        if (response.status === 201) {
+          return true
+        } else {
+          return response.status
+        }
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else {
+          return error.message
+        }
+      }
+    },
+
+    /**
      * Load professors from the API.
      * The function will fetch the professors with all filters applied.
      * The total professors will be updated and the professors array will be replaced after the offset with new data.

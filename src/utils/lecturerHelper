@@ -58,15 +58,3 @@ export function getPreference(prioBachelor, prioMaster) {
   if (prioMaster === 1 && prioBachelor === 0) return ['1. Master', '2. Bachelor']
   return ['Präferenz unbekannt']
 }
-
-const baseAPI = '/api/v1.0/app'
-
-export const createProfessor = async (professorData) => {
-  try {
-    const { data } = await api.post(`${baseAPI}/professors`, professorData)
-    return data
-  } catch (error) {
-    console.error('Failed to create professor:', error)
-    throw error
-  }
-}
