@@ -15,16 +15,24 @@
         autocomplete="email"
         :disable="loading"
       />
-      <q-input
-        label="Passwort"
-        outlined
-        rounded
-        class="q-mb-md"
-        type="password"
-        v-model="password"
-        autocomplete="password"
-        :disable="loading"
-      />
+    <q-input
+  label="Passwort"
+  outlined
+  rounded
+  class="q-mb-md"
+  :type="showPassword ? 'text' : 'password'"
+  v-model="password"
+  autocomplete="password"
+  :disable="loading"
+>
+  <template v-slot:append>
+    <q-icon
+      :name="showPassword ? 'visibility_off' : 'visibility'"
+      class="cursor-pointer"
+      @click="showPassword = !showPassword"
+    />
+  </template>
+</q-input>
       <div
         class="full-width flex q-mb-md text-grey-7"
         style="text-decoration: underline"
@@ -83,6 +91,7 @@ const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const showResetPasswordDialog = ref(false)
+const showPassword = ref(false)
 
 async function login() {
   loading.value = true
