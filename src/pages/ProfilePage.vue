@@ -122,28 +122,58 @@
           <form>
             <q-input
               label="Altes Passwort"
-              type="password"
+              :type="showOldPassword ? 'text' : 'password'"
               v-model="oldPassword"
               autocomplete="password"
               :disabled="passwordLoading"
+              rounded
+              outlined
               autofocus
-            />
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="showOldPassword ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="showOldPassword = !showOldPassword"
+                />
+              </template>
+            </q-input>
             <q-input
               label="Neues Passwort"
-              type="password"
+              :type="showNewPassword ? 'text' : 'password'"
               v-model="newPassword"
               class="q-mt-md"
               autocomplete="none"
+              rounded
+              outlined
               :disabled="passwordLoading"
-            />
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="showNewPassword ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="showNewPassword = !showNewPassword"
+                />
+              </template>
+            </q-input>
             <q-input
               label="Neues Passwort wiederholen"
-              type="password"
+              :type="showRepeatPassword ? 'text' : 'password'"
               v-model="repeatPassword"
               class="q-mt-md"
               autocomplete="none"
+              rounded
+              outlined
               :disabled="passwordLoading"
-            />
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="showRepeatPassword ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="showRepeatPassword = !showRepeatPassword"
+                />
+              </template>
+            </q-input>
           </form>
         </q-card-section>
         <q-separator />
@@ -199,6 +229,9 @@ const oldPassword = ref('')
 const newPassword = ref('')
 const repeatPassword = ref('')
 const passwordLoading = ref(false)
+const showOldPassword = ref(false)
+const showNewPassword = ref(false)
+const showRepeatPassword = ref(false)
 
 onMounted(async () => {
   const profile = await userStore.getUserProfile()
