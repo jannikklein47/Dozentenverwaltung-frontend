@@ -569,7 +569,7 @@
           <q-item
             clickable
             tag="a"
-            to="/profil"
+            to="/profile"
             :active-class="'gradient-bg force-white'"
             class="text-grey-5"
           >
@@ -578,20 +578,6 @@
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-h6 text-weight-medium"> Profil </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            tag="a"
-            to="/einstellungen"
-            :active-class="'gradient-bg force-white'"
-            class="text-grey-5"
-          >
-            <q-item-section avatar>
-              <q-icon name="settings" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-h6 text-weight-medium"> Einstellungen </q-item-label>
             </q-item-section>
           </q-item>
           <q-item clickable class="text-grey-5" @click="logout">
