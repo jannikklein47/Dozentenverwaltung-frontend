@@ -18,45 +18,45 @@
         autocomplete="email"
         :disable="loading"
       />
-     <q-input
-  label="Passwort"
-  outlined
-  rounded
-  class="q-mb-md"
-  :type="showPassword ? 'text' : 'password'"
-  v-model="password"
-  autocomplete="password"
-  :disable="loading"
->
-  <template v-slot:append>
-    <q-icon
-      :name="showPassword ? 'visibility_off' : 'visibility'"
-      class="cursor-pointer"
-      @click="showPassword = !showPassword"
-    />
-  </template>
-</q-input>
       <q-input
-  label="Passwort wiederholen"
-  outlined
-  rounded
-  class="q-mb-md"
-  :type="showPasswordRepeat ? 'text' : 'password'"
-  v-model="passwordRepeat"
-  autocomplete="password"
-  :disable="loading"
->
-  <template v-slot:append>
-    <q-icon
-      :name="showPasswordRepeat ? 'visibility_off' : 'visibility'"
-      class="cursor-pointer"
-      @click="showPasswordRepeat = !showPasswordRepeat"
-    />
-  </template>
-</q-input>
+        label="Passwort"
+        outlined
+        rounded
+        class="q-mb-md"
+        :type="showPassword ? 'text' : 'password'"
+        v-model="password"
+        autocomplete="password"
+        :disable="loading"
+      >
+        <template v-slot:append>
+          <q-icon
+            :name="showPassword ? 'visibility_off' : 'visibility'"
+            class="cursor-pointer"
+            @click="showPassword = !showPassword"
+          />
+        </template>
+      </q-input>
+      <q-input
+        label="Passwort wiederholen"
+        outlined
+        rounded
+        class="q-mb-md"
+        :type="showPasswordRepeat ? 'text' : 'password'"
+        v-model="passwordRepeat"
+        autocomplete="password"
+        :disable="loading"
+      >
+        <template v-slot:append>
+          <q-icon
+            :name="showPasswordRepeat ? 'visibility_off' : 'visibility'"
+            class="cursor-pointer"
+            @click="showPasswordRepeat = !showPasswordRepeat"
+          />
+        </template>
+      </q-input>
       <div class="text-caption text-grey-7 q-mb-md">
-  {{ passwordRulesText }}
-</div>
+        {{ passwordRulesText }}
+      </div>
       <div class="text-subtitle2 q-mb-lg text-grey-6">
         Hinweis: Eine Registrierung ist kein direkter Zugriff auf das System. Ein Administrator muss
         deine Registrierung bestätigen.
@@ -97,7 +97,7 @@ const email = ref('')
 const password = ref('')
 const passwordRepeat = ref('')
 const loading = ref(false)
-  const showPassword = ref(false)
+const showPassword = ref(false)
 const showPasswordRepeat = ref(false)
 
 const passwordRulesText =
