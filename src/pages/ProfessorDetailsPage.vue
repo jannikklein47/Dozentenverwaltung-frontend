@@ -373,33 +373,45 @@
             </template>
           </q-table>
 
-          <div class="text-caption text-grey-6 q-mt-sm q-ml-sm">
-            {{ selectedLectures.length }} Vorlesung(en) ausgewählt
+          <div class="row items-center q-px-lg q-py-md">
+            <!-- Left: caption -->
+            <div class="col column q-ml-sm">
+              <div class="text-caption text-grey-6">
+                <span class="text-green-7 text-weight-bold">{{ newlyAdded.length }}</span> Neu
+                hinzugefügt
+              </div>
+              <div class="text-caption text-grey-6">
+                <span class="text-red-7 text-weight-bold">{{ newlyRemoved.length }}</span> Entfernt
+              </div>
+            </div>
+            <!-- Center: buttons -->
+            <div class="col-auto row q-gutter-md">
+              <q-btn
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelForm"
+              />
+              <q-btn
+                color="light-blue-9"
+                label="Zuweisen"
+                icon="check"
+                rounded
+                unelevated
+                padding="10px 30px"
+                :disable="!hasChanges"
+                style="font-family: Inter, sans-serif"
+                @click="submitAssignment"
+              />
+            </div>
+
+            <!-- Right: spacer to balance the caption -->
+            <div class="col" />
           </div>
         </q-card-section>
-
-        <q-card-actions align="center" class="q-pb-lg q-gutter-md">
-          <q-btn
-            outline
-            color="grey-7"
-            label="Abbrechen"
-            rounded
-            padding="10px 30px"
-            style="font-family: Inter, sans-serif"
-            @click="cancelForm"
-          />
-          <q-btn
-            color="light-blue-9"
-            label="Zuweisen"
-            icon="check"
-            rounded
-            unelevated
-            padding="10px 30px"
-            :disable="!hasChanges"
-            style="font-family: Inter, sans-serif"
-            @click="submitAssignment"
-          />
-        </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
@@ -424,7 +436,7 @@ const lectureStore = useLectureStore()
 const professor = ref({})
 
 const lectures = computed(() => lectureStore.dozentLectures)
-const assignedIds = computed(() => new Set(lectures.value.map((l) => l.id))) // to quickly check which lectures are already assigned to the professor
+const assignedIds = ref(new Set())
 const totalLectures = computed(() => lectureStore.totalDozentLectures)
 const lectureFilters = lectureStore.dozentFilters
 const selectedLectures = ref([])
@@ -530,20 +542,16 @@ const onRowClick = (evt, row) => {
   router.push(`/lectures/details/${row.id}`)
 }
 
+const newlyAdded = computed(() => {
+  return selectedLectures.value.filter((l) => !assignedIds.value.has(l.id))
+})
+
+const newlyRemoved = computed(() => {
+  return [...assignedIds.value].filter((id) => !selectedLectures.value.some((l) => l.id === id))
+})
+
 const hasChanges = computed(() => {
-  const selectedIds = new Set(selectedLectures.value.map((l) => l.id))
-  const originalIds = assignedIds.value
-
-  // Something was added
-  for (const id of selectedIds) {
-    if (!originalIds.has(id)) return true
-  }
-
-  // Something was removed
-  for (const id of originalIds) {
-    if (!selectedIds.has(id)) return true
-  }
-
+  if (newlyAdded.value.length > 0 || newlyRemoved.value.length > 0) return true
   return false
 })
 
@@ -645,15 +653,20 @@ const assignToLecture = async () => {
 
   await Promise.all([lectureStore.loadLectures(), lectureStore.loadMappings()])
 
-  lectures.value.forEach((lecture) => {
+  const dozentLectureMap = new Map(lectureStore.dozentLectures.map((l) => [l.id, l]))
+
+  const matchedAssigned = lectureStore.lectures.filter((l) => dozentLectureMap.has(l.id))
+  assignedIds.value = new Set(matchedAssigned.map((l) => l.id))
+
+  matchedAssigned.forEach((lecture) => {
+    const dozentData = dozentLectureMap.get(lecture.id)
     rowAssignData[lecture.id] = {
-      gehalten_anId: lecture.gehalten_anId ?? null, // use the real value
-      vorliebeId: lecture.vorliebeId ?? lockedPreferenceId.value,
-      vorlaufzeit: lecture.vorlaufzeit ?? null,
+      gehalten_anId: dozentData.gehalten_anId ?? null,
+      vorliebeId: dozentData.vorliebeId ?? lockedPreferenceId.value,
+      vorlaufzeit: dozentData.vorlaufzeit ?? null,
     }
   })
 
-  // Then fill in defaults for unassigned ones (won't overwrite assigned)
   lectureStore.lectures.forEach((lecture) => {
     if (!rowAssignData[lecture.id]) {
       rowAssignData[lecture.id] = {
@@ -664,12 +677,9 @@ const assignToLecture = async () => {
     }
   })
 
-  const assignedIdSet = new Set(lectures.value.map((l) => l.id))
-  selectedLectures.value = lectureStore.lectures.filter((l) => assignedIdSet.has(l.id))
-
+  selectedLectures.value = matchedAssigned
   showDialog.value = true
 }
-
 const cancelForm = () => {
   showDialog.value = false
   selectedLectures.value = []
