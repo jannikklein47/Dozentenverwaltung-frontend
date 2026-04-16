@@ -62,12 +62,20 @@
       <q-separator />
       <q-card-section class="q-pl-lg">
         <q-btn
+          label="Auf diesem Gerät abmelden"
+          no-caps
+          flat
+          rounded
+          class="bg-red-1 text-black q-mr-md"
+          @click="logout"
+        />
+        <q-btn
           label="Von allen Geräten abmelden"
           no-caps
           flat
           rounded
           class="bg-red-1 text-black"
-          @click="logout"
+          @click="logoutAll"
         />
       </q-card-section>
     </q-card>
@@ -207,6 +215,11 @@ onMounted(async () => {
 
 const logout = async () => {
   await userStore.logout()
+  window.location.href = '/'
+}
+
+const logoutAll = async () => {
+  await userStore.logoutAll()
   window.location.href = '/'
 }
 
