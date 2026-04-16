@@ -37,13 +37,27 @@
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportJSON(1)" :disable="exportLoading">
-                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-icon
+                          name="code"
+                          size="md"
+                          class="q-mr-md"
+                          color="orange"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="orange" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportCSV(1)" :disable="exportLoading">
-                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-icon
+                          name="table_chart"
+                          size="md"
+                          class="q-mr-md"
+                          color="green"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="green" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
                         </q-item-section>
@@ -169,13 +183,27 @@
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportJSON(2)" :disable="exportLoading">
-                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-icon
+                          name="code"
+                          size="md"
+                          class="q-mr-md"
+                          color="orange"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="orange" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportCSV(2)" :disable="exportLoading">
-                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-icon
+                          name="table_chart"
+                          size="md"
+                          class="q-mr-md"
+                          color="green"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="green" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
                         </q-item-section>
@@ -296,13 +324,27 @@
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportJSON(3)" :disable="exportLoading">
-                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-icon
+                          name="code"
+                          size="md"
+                          class="q-mr-md"
+                          color="orange"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="orange" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportCSV(3)" :disable="exportLoading">
-                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-icon
+                          name="table_chart"
+                          size="md"
+                          class="q-mr-md"
+                          color="green"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="green" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
                         </q-item-section>
@@ -392,13 +434,27 @@
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportJSON(4)" :disable="exportLoading">
-                        <q-icon name="code" size="md" class="q-mr-md" color="orange" />
+                        <q-icon
+                          name="code"
+                          size="md"
+                          class="q-mr-md"
+                          color="orange"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="orange" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="exportCSV(4)" :disable="exportLoading">
-                        <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
+                        <q-icon
+                          name="table_chart"
+                          size="md"
+                          class="q-mr-md"
+                          color="green"
+                          v-if="!exportLoading"
+                        />
+                        <q-spinner-dots color="green" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
                         </q-item-section>
@@ -580,6 +636,7 @@ const exportToPDF = async (reportId) => {
 
 const exportJSON = async (reportId) => {
   exportLoading.value = true
+  await new Promise((resolve) => setTimeout(resolve, 500)) // fake delay for better UX
   let url = '/'
   if (reportId === 1) {
     url += 'app/reports/professors/with-provadis-lectures'
@@ -612,6 +669,7 @@ const exportJSON = async (reportId) => {
 }
 
 const exportCSV = async (reportId) => {
+  await new Promise((resolve) => setTimeout(resolve, 500)) // fake delay for better UX
   exportLoading.value = true
   let url = '/'
   if (reportId === 1) {
