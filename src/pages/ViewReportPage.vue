@@ -23,26 +23,26 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(1)" :disable="pdfExportLoading">
+                      <q-item clickable @click="exportToPDF(1)" :disable="exportLoading">
                         <q-icon
                           name="picture_as_pdf"
                           size="md"
                           class="q-mr-md"
                           color="blue"
-                          v-if="!pdfExportLoading"
+                          v-if="!exportLoading"
                         />
                         <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportJSON(1)" :disable="exportLoading">
                         <q-icon name="code" size="md" class="q-mr-md" color="orange" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportCSV(1)" :disable="exportLoading">
                         <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
@@ -155,26 +155,26 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(2)" :disable="pdfExportLoading">
+                      <q-item clickable @click="exportToPDF(2)" :disable="exportLoading">
                         <q-icon
                           name="picture_as_pdf"
                           size="md"
                           class="q-mr-md"
                           color="blue"
-                          v-if="!pdfExportLoading"
+                          v-if="!exportLoading"
                         />
                         <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportJSON(2)" :disable="exportLoading">
                         <q-icon name="code" size="md" class="q-mr-md" color="orange" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportCSV(2)" :disable="exportLoading">
                         <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
@@ -282,26 +282,26 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(3)" :disable="pdfExportLoading">
+                      <q-item clickable @click="exportToPDF(3)" :disable="exportLoading">
                         <q-icon
                           name="picture_as_pdf"
                           size="md"
                           class="q-mr-md"
                           color="blue"
-                          v-if="!pdfExportLoading"
+                          v-if="!exportLoading"
                         />
                         <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportJSON(3)" :disable="exportLoading">
                         <q-icon name="code" size="md" class="q-mr-md" color="orange" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportCSV(3)" :disable="exportLoading">
                         <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
@@ -378,26 +378,26 @@
                 <q-popup-proxy>
                   <q-card>
                     <q-list separator>
-                      <q-item clickable @click="exportToPDF(4)" :disable="pdfExportLoading">
+                      <q-item clickable @click="exportToPDF(4)" :disable="exportLoading">
                         <q-icon
                           name="picture_as_pdf"
                           size="md"
                           class="q-mr-md"
                           color="blue"
-                          v-if="!pdfExportLoading"
+                          v-if="!exportLoading"
                         />
                         <q-spinner-dots color="blue" size="md" class="q-mr-md" v-else />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">PDF</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportJSON(4)" :disable="exportLoading">
                         <q-icon name="code" size="md" class="q-mr-md" color="orange" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">JSON</q-item-label>
                         </q-item-section>
                       </q-item>
-                      <q-item clickable>
+                      <q-item clickable @click="exportCSV(4)" :disable="exportLoading">
                         <q-icon name="table_chart" size="md" class="q-mr-md" color="green" />
                         <q-item-section>
                           <q-item-label class="text-weight-bold">CSV</q-item-label>
@@ -459,6 +459,7 @@ import { api } from 'src/boot/axios'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import jsPDF from 'jspdf'
+import { exportFile } from 'quasar'
 
 const router = useRouter()
 
@@ -469,10 +470,10 @@ const report = ref(null)
 
 import autoTable from 'jspdf-autotable'
 
-const pdfExportLoading = ref(false)
+const exportLoading = ref(false)
 
 const exportToPDF = async (reportId) => {
-  pdfExportLoading.value = true
+  exportLoading.value = true
 
   await new Promise((resolve) => setTimeout(resolve, 500)) // fake delay for better UX
   if (reportId === 1 || reportId === 2) {
@@ -574,7 +575,73 @@ const exportToPDF = async (reportId) => {
         : 'Ausschließlich-externe-Vorlesungen-' + getDate() + '.pdf',
     )
   }
-  pdfExportLoading.value = false
+  exportLoading.value = false
+}
+
+const exportJSON = async (reportId) => {
+  exportLoading.value = true
+  let url = '/'
+  if (reportId === 1) {
+    url += 'app/reports/professors/with-provadis-lectures'
+  } else if (reportId === 2) {
+    url += 'app/reports/professors/without-provadis'
+  } else if (reportId === 3) {
+    url += 'app/reports/lectures/without-professor'
+  } else if (reportId === 4) {
+    url += 'app/reports/lectures/without-provadis-experience'
+  }
+
+  url += '?format=json'
+
+  const response = await api.get(url)
+
+  const content = JSON.stringify(response.data, null, 2)
+  const filename =
+    (reportId === 1
+      ? 'Dozenten-mit-Provadis-Vorlesungen-'
+      : reportId === 2
+        ? 'Dozenten-mit-externen-Vorlesungen-'
+        : reportId === 3
+          ? 'Vorlesungen-ohne-Dozenten-'
+          : 'Ausschließlich-externe-Vorlesungen-') +
+    getDate() +
+    '.json'
+
+  exportFile(filename, content, 'application/json')
+  exportLoading.value = false
+}
+
+const exportCSV = async (reportId) => {
+  exportLoading.value = true
+  let url = '/'
+  if (reportId === 1) {
+    url += 'app/reports/professors/with-provadis-lectures'
+  } else if (reportId === 2) {
+    url += 'app/reports/professors/without-provadis'
+  } else if (reportId === 3) {
+    url += 'app/reports/lectures/without-professor'
+  } else if (reportId === 4) {
+    url += 'app/reports/lectures/without-provadis-experience'
+  }
+
+  url += '?format=csv'
+
+  const response = await api.get(url)
+
+  const content = response.data
+  const filename =
+    (reportId === 1
+      ? 'Dozenten-mit-Provadis-Vorlesungen-'
+      : reportId === 2
+        ? 'Dozenten-mit-externen-Vorlesungen-'
+        : reportId === 3
+          ? 'Vorlesungen-ohne-Dozenten-'
+          : 'Ausschließlich-externe-Vorlesungen-') +
+    getDate() +
+    '.csv'
+
+  exportFile(filename, content, 'text/csv')
+  exportLoading.value = false
 }
 
 const getDate = () => {
