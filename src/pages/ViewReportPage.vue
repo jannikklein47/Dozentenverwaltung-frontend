@@ -456,7 +456,6 @@
 <script setup>
 import { getDozStatusColor } from 'src/utils/lecturerHelper'
 import { api } from 'src/boot/axios'
-import { useProfessorStore } from 'src/stores/professor-store'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import jsPDF from 'jspdf'
@@ -468,8 +467,6 @@ const columns = ref([])
 const columns2 = ref([])
 const report = ref(null)
 
-const professorStore = useProfessorStore()
-
 import autoTable from 'jspdf-autotable'
 
 const pdfExportLoading = ref(false)
@@ -478,7 +475,7 @@ const exportToPDF = async (reportId) => {
   pdfExportLoading.value = true
 
   await new Promise((resolve) => setTimeout(resolve, 500)) // fake delay for better UX
-  if (reportId === 1) {
+  if (reportId === 1 || reportId === 2) {
     const data = rows.value
 
     const flattened = []
@@ -547,77 +544,11 @@ const exportToPDF = async (reportId) => {
       }
     })
 
-    doc.save('professors.pdf')
-  } else if (reportId === 2) {
-    const data = rows.value
-
-    const flattened = []
-    data.forEach((row) => {
-      flattened.push({ professor: { ...row, lectures: undefined }, lectures: row.lectures })
-    })
-
-    const doc = new jsPDF()
-
-    let currentY = 10 // starting position
-
-    flattened.forEach((entry, index) => {
-      const { professor, lectures } = entry
-
-      const showHeader = index === 0
-
-      // --- 1. PROFESSOR TABLE ---
-      autoTable(doc, {
-        startY: currentY,
-
-        head: showHeader
-          ? [['Titel', 'Name', 'Status', 'Email', 'Telefon', 'Vorliebe']]
-          : undefined,
-
-        body: [
-          [
-            professor.titel,
-            professor.vorname + ' ' + professor.name,
-            professor.professorStatus.name,
-            professor.email,
-            professor.telefonnummer,
-            professor.preference.name,
-          ],
-        ],
-
-        styles: {
-          fontStyle: 'bold',
-        },
-      })
-
-      // Update Y position after professor table
-      currentY = doc.lastAutoTable.finalY + 3
-
-      // --- 2. LECTURES TABLE ---
-      autoTable(doc, {
-        startY: currentY,
-
-        head: showHeader ? [['Kürzel', 'Name']] : undefined,
-
-        body: lectures.map((l) => [l.kuerzel, l.name]),
-
-        styles: {
-          cellPadding: 2,
-        },
-
-        margin: { left: 30 }, // indentation for hierarchy
-      })
-
-      // Update Y position after lectures
-      currentY = doc.lastAutoTable.finalY + 10
-
-      // Optional: page break safety
-      if (currentY > 270) {
-        doc.addPage()
-        currentY = 10
-      }
-    })
-
-    doc.save('professors.pdf')
+    doc.save(
+      reportId === 1
+        ? 'Dozenten-mit-Provadis-Vorlesungen-' + getDate() + '.pdf'
+        : 'Dozenten-mit-externen-Vorlesungen-' + getDate() + '.pdf',
+    )
   } else if (reportId === 3 || reportId === 4) {
     const data = rows.value
     const doc = new jsPDF()
@@ -637,9 +568,27 @@ const exportToPDF = async (reportId) => {
       },
     })
 
-    doc.save('lectures.pdf')
+    doc.save(
+      reportId === 3
+        ? 'Vorlesungen-ohne-Dozenten-' + getDate() + '.pdf'
+        : 'Ausschließlich-externe-Vorlesungen-' + getDate() + '.pdf',
+    )
   }
   pdfExportLoading.value = false
+}
+
+const getDate = () => {
+  const now = new Date()
+
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0') // Months are 0-indexed
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+
+  const formattedDate = `${year}${month}${day}-${hours}:${minutes}`
+
+  return formattedDate
 }
 
 onMounted(async () => {
@@ -697,8 +646,8 @@ onMounted(async () => {
   }
   if (report.value === '2') {
     try {
-      await professorStore.loadProfessors()
-      rows.value = professorStore.professors
+      const result = await api.get('/app/reports/professors/without-provadis')
+      rows.value = result.data
       columns.value = [
         { name: 'title', align: 'left', label: 'Titel', field: 'titel', sortable: true },
         {
