@@ -10,6 +10,7 @@
                 'background-color': getAvatarColor(user.username),
                 color: 'white',
               }"
+              class="text-white text-caption text-weight-bold shadow-3"
               size="56px"
             >
               {{ user.username?.charAt(0).toUpperCase() || '?' }}

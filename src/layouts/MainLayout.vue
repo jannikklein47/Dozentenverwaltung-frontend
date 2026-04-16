@@ -574,7 +574,15 @@
             class="text-grey-5"
           >
             <q-item-section avatar>
-              <q-icon name="account_circle" />
+              <q-avatar
+                size="sm"
+                :style="{
+                  backgroundColor: getAvatarColor(user.username),
+                }"
+                class="text-white text-caption text-weight-bold shadow-3"
+              >
+                {{ user.username?.charAt(0).toUpperCase() || '?' }}
+              </q-avatar>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-h6 text-weight-medium"> Profil </q-item-label>
@@ -603,9 +611,10 @@ import { computed, onMounted, ref } from 'vue'
 import LogoComponent from 'src/components/LogoComponent.vue'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
+import { useUserStore } from 'src/stores/user-store'
 import { useRoute } from 'vue-router'
 import { debounce } from 'quasar'
-import { useUserStore } from 'src/stores/user-store'
+import { getAvatarColor } from 'src/utils/lecturerHelper'
 
 const lectureStore = useLectureStore()
 const professorStore = useProfessorStore()
@@ -621,7 +630,7 @@ const professorMappings = computed(() => professorStore.mappings)
 
 const route = useRoute()
 
-//const professorFilters = professorStore.filters
+const user = computed(() => userStore.user)
 
 const leftDrawerOpen = ref(true)
 
