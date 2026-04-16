@@ -113,6 +113,16 @@ const routes = [
           noInitialPassword: true,
         },
       },
+      {
+        path: 'profile',
+        component: () => import('pages/ProfilePage.vue'),
+        name: 'profile',
+        meta: {
+          title: 'Profil',
+          requiresAuth: true,
+          noInitialPassword: true,
+        },
+      },
     ],
   },
 

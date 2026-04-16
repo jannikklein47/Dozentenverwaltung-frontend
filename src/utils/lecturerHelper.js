@@ -1,5 +1,3 @@
-import { api } from 'src/boot/axios'
-
 //Function for getting the color of the avatar based on the lecturer ID (Deterministic so same ID always gets same color)
 export function getAvatarColor(id) {
   if (!id) return '#9a9a9aff' // default color

@@ -99,11 +99,64 @@ export const useUserStore = defineStore('user', {
     },
 
     async logout() {
+      await api.post('/auth/logout', {
+        refreshToken: this.refresh,
+      })
+      this.$reset()
+      localStorage.removeItem('auth_data')
+    },
+
+    async logoutAll() {
       await api.post('/auth/logout?all=true', {
         refreshToken: this.refresh,
       })
       this.$reset()
       localStorage.removeItem('auth_data')
+    },
+
+    async getUserProfile() {
+      try {
+        const response = await api.get('/app/user')
+        return response.data
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else return error.message
+      }
+    },
+
+    async changeUsername(username) {
+      try {
+        const response = await api.patch('/app/user/change-username', { username })
+        if (response.status === 200) {
+          this.user.username = response.data.username
+          return true
+        } else {
+          return response.status
+        }
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else return error.message
+      }
+    },
+
+    async changePassword(oldpassword, password) {
+      try {
+        const response = await api.patch('/app/user/change-password', {
+          oldpassword,
+          password,
+        })
+        if (response.status === 200) {
+          return true
+        } else {
+          return response.status
+        }
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else return error.message
+      }
     },
   },
 })
