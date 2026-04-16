@@ -39,8 +39,6 @@ export default defineRouter(function ({ store }) {
     const userStore = useUserStore(store)
     const isAuthenticated = userStore.isAuthenticated
 
-    console.log(to)
-
     if (
       isAuthenticated &&
       userStore.user.initialPassword === true &&
