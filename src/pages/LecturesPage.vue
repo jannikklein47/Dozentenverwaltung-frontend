@@ -129,7 +129,10 @@
           <q-form @submit="createLectureAction" class="q-gutter-sm">
             <!-- Kürzel -->
             <div class="row items-center q-mb-sm">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+              <div
+                class="col-5 text-grey-8 text-left q-pb-md"
+                style="font-family: Inter, sans-serif"
+              >
                 Kürzel:
               </div>
               <div class="col-7">
@@ -147,7 +150,10 @@
 
             <!-- Bezeichnung -->
             <div class="row items-center q-mb-sm">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+              <div
+                class="col-5 text-grey-8 text-left q-pb-md"
+                style="font-family: Inter, sans-serif"
+              >
                 Bezeichnung:
               </div>
               <div class="col-7">
@@ -165,7 +171,10 @@
 
             <!-- Semester -->
             <div class="row items-center q-mb-sm">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+              <div
+                class="col-5 text-grey-8 text-left q-pb-md"
+                style="font-family: Inter, sans-serif"
+              >
                 Semester:
               </div>
               <div class="col-7">
@@ -184,7 +193,10 @@
 
             <!-- Abschluss -->
             <div class="row items-center q-mb-sm">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+              <div
+                class="col-5 text-grey-8 text-left q-pb-md"
+                style="font-family: Inter, sans-serif"
+              >
                 Abschluss:
               </div>
               <div class="col-7">
@@ -205,7 +217,10 @@
 
             <!-- Status -->
             <div class="row items-center q-mb-sm">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+              <div
+                class="col-5 text-grey-8 text-left q-pb-md"
+                style="font-family: Inter, sans-serif"
+              >
                 Status:
               </div>
               <div class="col-7">

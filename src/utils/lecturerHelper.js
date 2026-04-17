@@ -1,5 +1,3 @@
-import { api } from 'src/boot/axios'
-
 //Function for getting the color of the avatar based on the lecturer ID (Deterministic so same ID always gets same color)
 export function getAvatarColor(id) {
   if (!id) return '#9a9a9aff' // default color
@@ -57,16 +55,4 @@ export function getPreference(prioBachelor, prioMaster) {
   if (prioBachelor === 1 && prioMaster === 0) return ['1. Bachelor', '2. Master']
   if (prioMaster === 1 && prioBachelor === 0) return ['1. Master', '2. Bachelor']
   return ['Präferenz unbekannt']
-}
-
-const baseAPI = '/api/v1.0/app'
-
-export const createProfessor = async (professorData) => {
-  try {
-    const { data } = await api.post(`${baseAPI}/professors`, professorData)
-    return data
-  } catch (error) {
-    console.error('Failed to create professor:', error)
-    throw error
-  }
 }
