@@ -772,7 +772,7 @@ onMounted(async () => {
   if (report.value === '2') {
     try {
       const result = await api.get('/app/reports/professors/without-provadis')
-      rows.value = result.data
+      rows.value = result.data.professors
       columns.value = [
         { name: 'title', align: 'left', label: 'Titel', field: 'titel', sortable: true },
         {
