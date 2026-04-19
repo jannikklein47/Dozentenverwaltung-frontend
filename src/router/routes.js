@@ -67,6 +67,7 @@ const routes = [
         meta: {
           title: 'Vorlesungen',
           requiresAuth: true,
+          filters: true,
           noInitialPassword: true,
         },
       },
@@ -78,6 +79,7 @@ const routes = [
         meta: {
           title: 'Vorlesungsdetails',
           requiresAuth: true,
+          filters: true,
           noInitialPassword: true,
         },
       },
@@ -89,6 +91,7 @@ const routes = [
         meta: {
           title: 'Dozenten',
           requiresAuth: true,
+          filters: true,
           noInitialPassword: true,
         },
       },
@@ -99,6 +102,27 @@ const routes = [
         name: 'professorDetails',
         meta: {
           title: 'Dozentendetails',
+          requiresAuth: true,
+          filters: true,
+          noInitialPassword: true,
+        },
+      },
+      {
+        path: 'reporting',
+        component: () => import('pages/SelectReportPage.vue'),
+        name: 'reporting',
+        meta: {
+          title: 'Reports',
+          requiresAuth: true,
+          noInitialPassword: true,
+        },
+      },
+      {
+        path: 'reporting/report/:id',
+        component: () => import('pages/ViewReportPage.vue'),
+        name: 'report',
+        meta: {
+          title: 'Report',
           requiresAuth: true,
           noInitialPassword: true,
         },
