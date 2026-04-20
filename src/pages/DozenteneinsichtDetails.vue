@@ -435,12 +435,14 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 import { getDozStatusColor, getAvatarColor, getDozentenInitials } from 'src/utils/lecturerHelper'
 import { reactive, ref, watch, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+const quasar = useQuasar()
 const router = useRouter()
 
 const professorStore = useProfessorStore()
@@ -753,11 +755,55 @@ const submitAssignment = async () => {
     lectureId: id,
   }))
 
-  console.log('To assign:', toAssign)
-  console.log('To remove:', toRemove)
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+  const errors = []
+
+  // Process assigns sequentially with a delay between each request
+  for (const assignment of toAssign) {
+    try {
+      await professorStore.assignLectureToProfessor(assignment)
+      await delay(150)
+    } catch (error) {
+      console.error('Failed to assign lecture:', assignment.lectureId, error)
+      errors.push({ type: 'assign', lectureId: assignment.lectureId })
+    }
+  }
+
+  // Process removals sequentially with a delay between each request
+  for (const removal of toRemove) {
+    try {
+      await professorStore.removeLectureFromProfessor(removal.professorId, removal.lectureId)
+      await delay(150)
+    } catch (error) {
+      console.error('Failed to remove lecture:', removal.lectureId, error)
+      errors.push({ type: 'remove', lectureId: removal.lectureId })
+    }
+  }
+
+  // Reload fresh data to reflect the new assignments
+  lectureStore.clearDozentLectures()
+  await lectureStore.loadDozentLectures(professorId)
+
+  if (errors.length > 0) {
+    console.warn(`${errors.length} operation(s) failed:`, errors)
+    // TODO: show a user-facing error notification here
+    quasar.notify({
+      type: 'negative',
+      message: 'Fehler beim Zuweisen/Entfernen von Vorlesungen!',
+      timeout: 3000,
+    })
+  } else {
+    quasar.notify({
+      type: 'positive',
+      message: 'Vorlesungen erfolgreich zugewiesen/entfernt!',
+      timeout: 3000,
+    })
+  }
 
   showDialog.value = false
   selectedLectures.value = []
   lectureStore.filters.vorliebeId = null
+  lectureStore.filters.offset = 0
 }
 </script>

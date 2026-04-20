@@ -193,6 +193,45 @@ export const useProfessorStore = defineStore('professor', {
         console.error(error)
       }
     },
+
+    /**
+     * Assigns a lecture to a professor by sending a POST request to the backend API.
+     * This creates a new Vorlesung_Dozent join record.
+     * The error is re-thrown for the caller to handle UI feedback.
+     */
+    async assignLectureToProfessor(assignData) {
+      try {
+        const response = await api.post('/app/professors/assign', assignData)
+        return response.data
+      } catch (error) {
+        console.error('Failed to assign lecture to professor:', error)
+        throw error
+      }
+    },
+
+    /**
+     * Removes the assignment between a professor and a lecture by sending a DELETE
+     * request to the backend API. This only deletes the Vorlesung_Dozent join record —
+     * neither the professor nor the lecture itself is deleted.
+     * The error is re-thrown for the caller to handle UI feedback.
+     */
+    async removeLectureFromProfessor(professorId, lectureId) {
+      try {
+        const response = await api.delete('/app/professors/assign', {
+          params: { professorId, lectureId },
+        })
+        if (response.status === 200 || response.status === 204) {
+          const index = this.lectureProfessors.findIndex((p) => p.id === professorId)
+          if (index !== -1) {
+            this.lectureProfessors.splice(index, 1)
+            this.totalLectureProfessors--
+          }
+        }
+      } catch (error) {
+        console.error('Failed to remove lecture assignment:', error)
+        throw error
+      }
+    },
   },
 })
 
