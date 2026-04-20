@@ -595,7 +595,8 @@ const canSubmitAssignment = computed(() => {
 
 const assignDisabledReason = computed(() => {
   if (!hasChanges.value) return 'Keine Änderungen vorgenommen'
-  if (!canSubmitAssignment.value) return 'Bitte fülle alle Pflichtfelder für neue Vorlesungen aus'
+  if (!canSubmitAssignment.value)
+    return 'Alle Pflichtfelder für neue Vorlesungen müssen ausgefüllt sein!'
   return ''
 })
 
