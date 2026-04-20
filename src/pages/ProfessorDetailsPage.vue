@@ -217,60 +217,87 @@
             Vorlesung(en) zuweisen
           </div>
 
-          <q-table
-            flat
-            bordered
-            :rows="allLectures"
-            :columns="assignColumns"
-            row-key="id"
-            hide-bottom
-            :pagination="{ rowsPerPage: 0 }"
-            class="text-grey-8"
-            style="
-              max-height: 55vh;
-              overflow-y: auto;
-              font-family: Inter, sans-serif;
-              table-layout: fixed;
-            "
+          <div
+            ref="dialogScrollRef"
+            style="max-height: 55vh; overflow-y: auto; font-family: Inter, sans-serif"
           >
-            <!-- Checkbox column — pre-checked if already assigned -->
-            <template #body-cell-selected="props">
-              <q-td :props="props" auto-width @click.stop>
-                <q-checkbox
-                  dense
-                  :model-value="isSelected(props.row.id)"
-                  @update:model-value="toggleRow(props.row)"
-                />
-              </q-td>
-            </template>
+            <q-table
+              flat
+              bordered
+              :rows="allLectures"
+              :columns="assignColumns"
+              row-key="id"
+              hide-bottom
+              :pagination="{ rowsPerPage: 0 }"
+              class="text-grey-8"
+              style="table-layout: fixed"
+            >
+              <!-- Checkbox column — pre-checked if already assigned -->
+              <template #body-cell-selected="props">
+                <q-td :props="props" auto-width @click.stop>
+                  <q-checkbox
+                    dense
+                    :model-value="isSelected(props.row.id)"
+                    @update:model-value="toggleRow(props.row)"
+                  />
+                </q-td>
+              </template>
 
-            <!-- Vorliebe dropdown -->
-            <template #body-cell-vorliebe="props">
-              <q-td :props="props" @click.stop>
-                <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
-                  <template v-if="assignedIds.has(props.row.id)">
-                    <!-- Already assigned: show locked badge -->
-                    <q-badge
-                      :color="getEffectiveColor(props.row.id, 'grey-6')"
-                      text-color="white"
-                      rounded
-                      class="q-px-md q-py-xs text-weight-bold justify-center"
-                      :label="
-                        rowAssignData[props.row.id]?.vorliebeId
-                          ? lectureStore.mappings.preference?.find(
-                              (p) => p.value === rowAssignData[props.row.id].vorliebeId,
-                            )?.label
-                          : professor.preference?.name || '—'
-                      "
-                    />
-                  </template>
-                  <template v-else>
-                    <!-- Show dropdown only when professor preference is 'Alles' -->
+              <!-- Vorliebe dropdown -->
+              <template #body-cell-vorliebe="props">
+                <q-td :props="props" @click.stop>
+                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
+                    <template v-if="assignedIds.has(props.row.id)">
+                      <q-badge
+                        :color="getEffectiveColor(props.row.id, 'grey-6')"
+                        text-color="white"
+                        rounded
+                        class="q-px-md q-py-xs text-weight-bold justify-center"
+                        :label="
+                          rowAssignData[props.row.id]?.vorliebeId
+                            ? lectureStore.mappings.preference?.find(
+                                (p) => p.value === rowAssignData[props.row.id].vorliebeId,
+                              )?.label
+                            : professor.preference?.name || '—'
+                        "
+                      />
+                    </template>
+                    <template v-else>
+                      <q-select
+                        v-if="lockedPreferenceId === null"
+                        :model-value="getRowData(props.row.id).vorliebeId"
+                        @update:model-value="(val) => setRowField(props.row.id, 'vorliebeId', val)"
+                        :options="lectureStore.mappings.preference"
+                        option-label="label"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        dense
+                        outlined
+                        style="min-width: 140px"
+                      />
+                      <q-badge
+                        v-else
+                        color="grey-6"
+                        text-color="white"
+                        rounded
+                        class="q-px-md q-py-xs text-weight-bold"
+                        :label="professor.preference?.name"
+                      />
+                    </template>
+                  </div>
+                </q-td>
+              </template>
+
+              <!-- Vorlauf dropdown -->
+              <template #body-cell-vorlauf="props">
+                <q-td :props="props" @click.stop>
+                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
                     <q-select
-                      v-if="lockedPreferenceId === null"
-                      :model-value="ensureRowData(props.row.id).vorliebeId"
-                      @update:model-value="(val) => setRowField(props.row.id, 'vorliebeId', val)"
-                      :options="lectureStore.mappings.preference"
+                      v-if="!assignedIds.has(props.row.id)"
+                      :model-value="getRowData(props.row.id).vorlaufzeit"
+                      @update:model-value="(val) => setRowField(props.row.id, 'vorlaufzeit', val)"
+                      :options="vorlaufOptions"
                       option-label="label"
                       option-value="value"
                       emit-value
@@ -279,99 +306,87 @@
                       outlined
                       style="min-width: 140px"
                     />
-                    <!-- Otherwise show a locked badge with the forced value -->
                     <q-badge
                       v-else
-                      color="grey-6"
-                      text-color="white"
                       rounded
-                      class="q-px-md q-py-xs text-weight-bold"
-                      :label="professor.preference?.name"
+                      :color="
+                        getEffectiveColor(
+                          props.row.id,
+                          getVorlaufColor(rowAssignData[props.row.id]?.vorlaufzeit),
+                        )
+                      "
+                      text-color="white"
+                      class="q-px-sm q-py-xs"
+                      :label="
+                        vorlaufOptions.find(
+                          (o) => o.value === rowAssignData[props.row.id]?.vorlaufzeit,
+                        )?.label || '—'
+                      "
                     />
-                  </template>
-                </div>
-              </q-td>
-            </template>
+                  </div>
+                </q-td>
+              </template>
 
-            <!-- Vorlauf dropdown -->
-            <template #body-cell-vorlauf="props">
-              <q-td :props="props" @click.stop>
-                <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
-                  <q-select
-                    v-if="!assignedIds.has(props.row.id)"
-                    v-model="getRowData(props.row.id).vorlaufzeit"
-                    :options="vorlaufOptions"
-                    option-label="label"
-                    option-value="value"
-                    emit-value
-                    map-options
-                    dense
-                    outlined
-                    style="min-width: 140px"
-                  />
-                  <q-badge
-                    v-else
-                    rounded
-                    :color="
-                      getEffectiveColor(
-                        props.row.id,
-                        getVorlaufColor(rowAssignData[props.row.id]?.vorlaufzeit),
-                      )
-                    "
-                    text-color="white"
-                    class="q-px-sm q-py-xs"
-                    :label="
-                      vorlaufOptions.find(
-                        (o) => o.value === rowAssignData[props.row.id]?.vorlaufzeit,
-                      )?.label || '—'
-                    "
-                  />
-                </div>
-              </q-td>
-            </template>
+              <!-- Gehalten dropdown -->
+              <template #body-cell-gehalten="props">
+                <q-td :props="props" @click.stop>
+                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
+                    <q-select
+                      v-if="isSelected(props.row.id) && !assignedIds.has(props.row.id)"
+                      :model-value="getRowData(props.row.id).gehalten_anId"
+                      @update:model-value="(val) => setRowField(props.row.id, 'gehalten_anId', val)"
+                      :options="lectureStore.mappings.gehalten_an"
+                      option-label="label"
+                      option-value="value"
+                      emit-value
+                      map-options
+                      dense
+                      outlined
+                      style="min-width: 140px"
+                    />
+                    <q-badge
+                      v-else
+                      rounded
+                      :color="
+                        getEffectiveColor(
+                          props.row.id,
+                          getGehaltenColor(
+                            lectureStore.mappings.gehalten_an?.find(
+                              (g) => g.value === rowAssignData[props.row.id]?.gehalten_anId,
+                            )?.label || '',
+                          ),
+                        )
+                      "
+                      class="q-px-md q-py-xs text-weight-bold justify-center"
+                      style="min-width: 120px; text-align: center"
+                      :label="
+                        lectureStore.mappings.gehalten_an?.find(
+                          (g) => g.value === rowAssignData[props.row.id]?.gehalten_anId,
+                        )?.label || '—'
+                      "
+                    />
+                  </div>
+                </q-td>
+              </template>
+            </q-table>
 
-            <!-- Gehalten dropdown -->
-            <template #body-cell-gehalten="props">
-              <q-td :props="props" @click.stop>
-                <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
-                  <q-select
-                    v-if="isSelected(props.row.id) && !assignedIds.has(props.row.id)"
-                    :model-value="ensureRowData(props.row.id).gehalten_anId"
-                    @update:model-value="(val) => setRowField(props.row.id, 'gehalten_anId', val)"
-                    :options="lectureStore.mappings.gehalten_an"
-                    option-label="label"
-                    option-value="value"
-                    emit-value
-                    map-options
-                    dense
-                    outlined
-                    style="min-width: 140px"
-                  />
-                  <q-badge
-                    v-else
-                    rounded
-                    :color="
-                      getEffectiveColor(
-                        props.row.id,
-                        getGehaltenColor(
-                          lectureStore.mappings.gehalten_an?.find(
-                            (g) => g.value === rowAssignData[props.row.id]?.gehalten_anId,
-                          )?.label || '',
-                        ),
-                      )
-                    "
-                    class="q-px-md q-py-xs text-weight-bold justify-center"
-                    style="min-width: 120px; text-align: center"
-                    :label="
-                      lectureStore.mappings.gehalten_an?.find(
-                        (g) => g.value === rowAssignData[props.row.id]?.gehalten_anId,
-                      )?.label || '—'
-                    "
-                  />
+            <!-- Lazy loading for the dialog -->
+            <q-infinite-scroll
+              v-if="totalAllLectures !== allLectures.length"
+              :scroll-target="dialogScrollRef"
+              :offset="250"
+              @load="onLoadDialog"
+            >
+              <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="40px" />
                 </div>
-              </q-td>
-            </template>
-          </q-table>
+              </template>
+            </q-infinite-scroll>
+            <div v-else class="full-width text-center text-body2 text-grey-6 q-my-sm">
+              {{ allLectures.length }} / {{ totalAllLectures }} Einträge
+            </div>
+          </div>
 
           <div class="row items-center q-px-lg q-py-md">
             <!-- Left: caption -->
@@ -384,7 +399,6 @@
                 <span class="text-red-7 text-weight-bold">{{ newlyRemoved.length }}</span> Entfernt
               </div>
             </div>
-            <!-- Center: buttons -->
             <div class="col-auto row q-gutter-md">
               <q-btn
                 outline
@@ -407,8 +421,6 @@
                 @click="submitAssignment"
               />
             </div>
-
-            <!-- Right: spacer to balance the caption -->
             <div class="col" />
           </div>
         </q-card-section>
@@ -418,7 +430,7 @@
 
   <!-- Floating Action Button -->
   <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="menu_book" color="light-blue-9" @click="assignToLecture" />
+    <q-btn fab icon="menu_book" color="light-blue-9" @click="openDialog" />
   </q-page-sticky>
 </template>
 
@@ -444,6 +456,8 @@ const isSelected = (id) => selectedLectures.value.some((l) => l.id === id)
 const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
 
 const showDialog = ref(false)
+const dialogScrollRef = ref(null)
+const totalAllLectures = computed(() => lectureStore.totalLectures)
 // TODO only consider allgeme Vorliebe, to only load ones that can fulfill the preference
 const allLectures = computed(() => lectureStore.lectures)
 const rowAssignData = reactive({})
@@ -551,20 +565,8 @@ const newlyRemoved = computed(() => {
 })
 
 const hasChanges = computed(() => {
-  if (newlyAdded.value.length > 0 || newlyRemoved.value.length > 0) return true
-  return false
+  return newlyAdded.value.length > 0 || newlyRemoved.value.length > 0
 })
-
-const getRowData = (id) => {
-  if (!rowAssignData[id]) {
-    rowAssignData[id] = {
-      gehalten_anId: null,
-      vorliebeId: null,
-      vorlaufzeit: null,
-    }
-  }
-  return rowAssignData[id]
-}
 
 const getEffectiveColor = (id, normalColor) => {
   if (assignedIds.value.has(id) && !isSelected(id)) return 'grey-5'
@@ -578,24 +580,20 @@ const toggleRow = (row) => {
   } else {
     selectedLectures.value.push(row)
     if (lockedPreferenceId.value !== null) {
-      ensureRowData(row.id).vorliebeId = lockedPreferenceId.value
+      getRowData(row.id).vorliebeId = lockedPreferenceId.value
     }
   }
 }
 
-function ensureRowData(id) {
+function getRowData(id) {
   if (!rowAssignData[id]) {
-    rowAssignData[id] = {
-      gehalten_anId: null,
-      vorliebeId: null,
-      vorlaufzeit: null,
-    }
+    rowAssignData[id] = makeRowData()
   }
   return rowAssignData[id]
 }
 
 function setRowField(id, field, value) {
-  ensureRowData(id)[field] = value
+  getRowData(id)[field] = value
 }
 
 const vorlaufOptions = [
@@ -647,54 +645,117 @@ const assignColumns = [
   },
 ]
 
-const assignToLecture = async () => {
+async function onLoadDialog(index, done) {
+  const beforeCount = lectureStore.lectures.length
+  lectureStore.filters.offset += lectureStore.filters.limit
+  await lectureStore.loadLectures()
+  const newlyLoaded = lectureStore.lectures.slice(beforeCount)
+  syncNewlyLoadedLectures(newlyLoaded)
+  done()
+}
+
+const makeRowData = (overrides = {}) => ({
+  gehalten_anId: null,
+  vorliebeId: lockedPreferenceId.value, // default; overrides take precedence
+  vorlaufzeit: null,
+  ...overrides,
+})
+
+function syncNewlyLoadedLectures(newLectures) {
+  const dozentLectureMap = new Map(lectureStore.dozentLectures.map((l) => [l.id, l]))
+  const newIds = []
+
+  newLectures.forEach((lecture) => {
+    const dozentData = dozentLectureMap.get(lecture.id)
+
+    if (dozentData) {
+      newIds.push(lecture.id)
+
+      rowAssignData[lecture.id] = makeRowData({
+        gehalten_anId: dozentData.gehalten_anId ?? null,
+        vorliebeId: dozentData.vorliebeId ?? lockedPreferenceId.value,
+        vorlaufzeit: dozentData.vorlaufzeit ?? null,
+      })
+
+      if (!selectedLectures.value.some((l) => l.id === lecture.id)) {
+        selectedLectures.value.push(lecture)
+      }
+    } else {
+      if (!rowAssignData[lecture.id]) {
+        rowAssignData[lecture.id] = makeRowData()
+      }
+    }
+  })
+
+  if (newIds.length) {
+    assignedIds.value = new Set([...assignedIds.value, ...newIds])
+  }
+}
+
+const completionTypeFilterId = computed(() => {
+  const pref = professor.value.preference?.name
+
+  if (pref === 'Bachelor') return 1
+  if (pref === 'Master') return 2
+  return null // Alles => no filter
+})
+
+const openDialog = async () => {
   lectureStore.clearLectures()
-  lectureStore.filters.abschluss_typId = lockedPreferenceId.value
+  lectureStore.filters.offset = 0
+  lectureStore.filters.abschluss_typId = completionTypeFilterId.value
 
   await Promise.all([lectureStore.loadLectures(), lectureStore.loadMappings()])
 
   const dozentLectureMap = new Map(lectureStore.dozentLectures.map((l) => [l.id, l]))
-
   const matchedAssigned = lectureStore.lectures.filter((l) => dozentLectureMap.has(l.id))
   assignedIds.value = new Set(matchedAssigned.map((l) => l.id))
 
   matchedAssigned.forEach((lecture) => {
     const dozentData = dozentLectureMap.get(lecture.id)
-    rowAssignData[lecture.id] = {
+    rowAssignData[lecture.id] = makeRowData({
       gehalten_anId: dozentData.gehalten_anId ?? null,
-      vorliebeId: dozentData.vorliebeId ?? lockedPreferenceId.value,
+      vorliebeId: dozentData.vorliebeId ?? null,
       vorlaufzeit: dozentData.vorlaufzeit ?? null,
-    }
+    })
   })
 
   lectureStore.lectures.forEach((lecture) => {
     if (!rowAssignData[lecture.id]) {
-      rowAssignData[lecture.id] = {
-        gehalten_anId: null,
-        vorliebeId: lockedPreferenceId.value,
-        vorlaufzeit: null,
-      }
+      rowAssignData[lecture.id] = makeRowData()
     }
   })
 
   selectedLectures.value = matchedAssigned
   showDialog.value = true
 }
+
 const cancelForm = () => {
   showDialog.value = false
   selectedLectures.value = []
   lectureStore.filters.vorliebeId = null
+  lectureStore.filters.offset = 0
+  // The selected options in the dialog are intentionally not reset. So the user could open it again!
+  // However the selected and unselected lectures are still reset!
 }
 
 const submitAssignment = async () => {
-  const payload = selectedLectures.value.map((l) => ({
+  const toAssign = newlyAdded.value.map((l) => ({
     professorId: Number(professorId),
     lectureId: l.id,
     gehalten_anId: rowAssignData[l.id]?.gehalten_anId ?? null,
     vorliebeId: rowAssignData[l.id]?.vorliebeId ?? null,
     vorlaufzeit: rowAssignData[l.id]?.vorlaufzeit ?? null,
   }))
-  console.log('Payload:', payload)
+
+  const toRemove = newlyRemoved.value.map((id) => ({
+    professorId: Number(professorId),
+    lectureId: id,
+  }))
+
+  console.log('To assign:', toAssign)
+  console.log('To remove:', toRemove)
+
   showDialog.value = false
   selectedLectures.value = []
   lectureStore.filters.vorliebeId = null
