@@ -219,7 +219,7 @@
 
           <div
             ref="dialogScrollRef"
-            style="max-height: 55vh; overflow-y: auto; font-family: Inter, sans-serif"
+            style="max-height: 66vh; overflow-y: auto; font-family: Inter, sans-serif"
           >
             <q-table
               flat
@@ -409,19 +409,35 @@
                 style="font-family: Inter, sans-serif"
                 @click="cancelForm"
               />
+              <div>
+                <q-btn
+                  color="light-blue-9"
+                  label="Zuweisen"
+                  icon="check"
+                  rounded
+                  unelevated
+                  padding="10px 30px"
+                  :disable="!hasChanges || !canSubmitAssignment"
+                  style="font-family: Inter, sans-serif"
+                  @click="submitAssignment"
+                />
+                <q-tooltip v-if="assignDisabledReason">
+                  {{ assignDisabledReason }}
+                </q-tooltip>
+              </div>
+            </div>
+            <div class="col row justify-end">
               <q-btn
-                color="light-blue-9"
-                label="Zuweisen"
-                icon="check"
-                rounded
-                unelevated
-                padding="10px 30px"
-                :disable="!hasChanges"
+                flat
+                dense
+                size="sm"
+                color="grey-7"
+                icon="restart_alt"
+                label="Reset"
                 style="font-family: Inter, sans-serif"
-                @click="submitAssignment"
+                @click="confirmReset"
               />
             </div>
-            <div class="col" />
           </div>
         </q-card-section>
       </q-card>
@@ -570,6 +586,19 @@ const hasChanges = computed(() => {
   return newlyAdded.value.length > 0 || newlyRemoved.value.length > 0
 })
 
+const canSubmitAssignment = computed(() => {
+  return newlyAdded.value.every((lecture) => {
+    const row = rowAssignData[lecture.id]
+    return row && row.gehalten_anId !== null && row.vorliebeId !== null && row.vorlaufzeit !== null
+  })
+})
+
+const assignDisabledReason = computed(() => {
+  if (!hasChanges.value) return 'Keine Änderungen vorgenommen'
+  if (!canSubmitAssignment.value) return 'Bitte fülle alle Pflichtfelder für neue Vorlesungen aus'
+  return ''
+})
+
 const getEffectiveColor = (id, normalColor) => {
   if (assignedIds.value.has(id) && !isSelected(id)) return 'grey-5'
   return normalColor
@@ -646,6 +675,45 @@ const assignColumns = [
     style: 'width: 180px; min-width: 180px',
   },
 ]
+
+function resetAssignmentForm() {
+  const dozentLectureMap = new Map(lectureStore.dozentLectures.map((l) => [l.id, l]))
+
+  selectedLectures.value = lectureStore.lectures.filter((lecture) =>
+    dozentLectureMap.has(lecture.id),
+  )
+
+  lectureStore.lectures.forEach((lecture) => {
+    const dozentData = dozentLectureMap.get(lecture.id)
+
+    rowAssignData[lecture.id] = makeRowData({
+      gehalten_anId: dozentData?.gehalten_anId ?? null,
+      vorliebeId: dozentData?.vorliebeId ?? lockedPreferenceId.value,
+      vorlaufzeit: dozentData?.vorlaufzeit ?? null,
+    })
+  })
+}
+
+function confirmReset() {
+  quasar
+    .dialog({
+      title: 'Reset bestätigen',
+      message: 'Möchtest du alle Änderungen im Dialog zurücksetzen?',
+      cancel: {
+        label: 'Abbrechen',
+        flat: true,
+        color: 'grey-7',
+      },
+      ok: {
+        label: 'Reset',
+        color: 'negative',
+      },
+      persistent: true,
+    })
+    .onOk(() => {
+      resetAssignmentForm()
+    })
+}
 
 async function onLoadDialog(index, done) {
   const beforeCount = lectureStore.lectures.length
