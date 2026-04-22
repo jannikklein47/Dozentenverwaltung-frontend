@@ -73,7 +73,7 @@ const routes = [
       },
       {
         path: 'lectures/details/:id',
-        component: () => import('pages/LectureDetails.vue'),
+        component: () => import('pages/LectureDetailsPage.vue'),
         props: true,
         name: 'lectureDetails',
         meta: {
@@ -86,7 +86,7 @@ const routes = [
 
       {
         path: 'professors',
-        component: () => import('pages/DozenteneinsichtList.vue'),
+        component: () => import('pages/ProfessorsPage.vue'),
         name: 'professors',
         meta: {
           title: 'Dozenten',
@@ -97,7 +97,7 @@ const routes = [
       },
       {
         path: 'professors/details/:id',
-        component: () => import('pages/DozenteneinsichtDetails.vue'),
+        component: () => import('pages/ProfessorDetailsPage.vue'),
         props: true,
         name: 'professorDetails',
         meta: {
