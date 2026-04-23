@@ -90,19 +90,19 @@
               <div style="display: flex">
                 <span class="text-weight-medium text-grey-7">Vorliebe:</span>
                 <q-space />
-                <q-badge color="grey-6" :label="d_item.preference?.name" />
+                <q-badge color="grey-6" :label="formatPreference(d_item.preference?.name)" />
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
                 <span class="text-weight-medium text-grey-7">Vorlaufzeit für diese Vorlesung:</span>
                 <q-space />
-                <q-badge color="grey-6" :label="d_item.lectureVorlaufzeit" />
+                <q-badge color="grey-6" :label="formatVorlaufzeit(d_item.lectureVorlaufzeit)" />
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
                 <span class="text-weight-medium text-grey-7">Erfahrung in dieser Vorlesung:</span>
                 <q-space />
-                <q-badge color="grey-6" :label="d_item.lectureGehalten_anName" />
+                <q-badge color="grey-6" :label="d_item.lectureGehalten_anName || '—'" />
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
@@ -199,17 +199,225 @@
       <q-icon name="error_outline" color="red" size="4rem" />
       <div class="text-h6 q-mt-md">Vorlesung mit ID {{ $route.params.id }} nicht gefunden.</div>
     </div>
+
+    <q-dialog v-model="showDialog" no-backdrop-dismiss>
+      <q-card style="min-width: 500px; max-width: 1650px; border-radius: 20px" class="bg-grey-2">
+        <q-card-section class="q-pt-lg q-pb-sm">
+          <div
+            class="text-center text-weight-medium q-mb-md"
+            style="font-size: 16px; font-family: Inter, sans-serif"
+          >
+            Dozent(en) zuweisen
+          </div>
+
+          <div
+            ref="dialogScrollRef"
+            style="max-height: 66vh; overflow-y: auto; font-family: Inter, sans-serif"
+          >
+            <q-table
+              flat
+              bordered
+              :rows="allProfessors"
+              :columns="assignColumns"
+              row-key="id"
+              hide-bottom
+              :pagination="{ rowsPerPage: 0 }"
+              class="text-grey-8"
+              style="table-layout: fixed"
+            >
+              <template #body-cell-selected="props">
+                <q-td :props="props" auto-width @click.stop>
+                  <q-checkbox
+                    dense
+                    :model-value="isSelected(props.row.id)"
+                    @update:model-value="toggleRow(props.row)"
+                  />
+                </q-td>
+              </template>
+
+              <template #body-cell-status="props">
+                <q-td :props="props">
+                  <q-badge
+                    rounded
+                    :color="getDozStatusColor(props.value?.name)"
+                    :label="props.value?.name || 'N/A'"
+                    class="q-px-sm q-py-xs"
+                  />
+                </q-td>
+              </template>
+
+              <template #body-cell-vorliebe="props">
+                <q-td :props="props" @click.stop>
+                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
+                    <template v-if="assignedIds.has(props.row.id)">
+                      <q-badge
+                        color="grey-6"
+                        :label="formatPreference(props.row.preference?.name)"
+                      />
+                    </template>
+                    <template v-else-if="isSelected(props.row.id)">
+                      <q-select
+                        :model-value="getRowData(props.row.id).vorliebeId"
+                        @update:model-value="(val) => setRowField(props.row.id, 'vorliebeId', val)"
+                        :options="lectureStore.mappings.preference"
+                        option-label="label"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        dense
+                        outlined
+                        style="min-width: 140px"
+                      />
+                    </template>
+                  </div>
+                </q-td>
+              </template>
+
+              <template #body-cell-vorlauf="props">
+                <q-td :props="props" @click.stop>
+                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
+                    <template v-if="assignedIds.has(props.row.id)">
+                      <q-badge
+                        :label="
+                          vorlaufOptions.find(
+                            (o) => o.value === rowAssignData[props.row.id]?.lectureVorlaufzeit,
+                          )?.label || '—'
+                        "
+                      />
+                    </template>
+                    <template v-else>
+                      <q-select
+                        v-if="isSelected(props.row.id)"
+                        :model-value="getRowData(props.row.id).vorlaufzeit"
+                        @update:model-value="(val) => setRowField(props.row.id, 'vorlaufzeit', val)"
+                        :options="vorlaufOptions"
+                        option-label="label"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        dense
+                        outlined
+                        style="min-width: 140px"
+                      />
+                    </template>
+                  </div>
+                </q-td>
+              </template>
+
+              <template #body-cell-gehalten="props">
+                <q-td :props="props" @click.stop>
+                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
+                    <template v-if="assignedIds.has(props.row.id)">
+                      <q-badge
+                        :label="rowAssignData[props.row.id]?.lectureGehalten_anName || '—'"
+                      />
+                    </template>
+                    <template v-else>
+                      <q-select
+                        v-if="isSelected(props.row.id)"
+                        :model-value="getRowData(props.row.id).gehalten_anId"
+                        @update:model-value="
+                          (val) => setRowField(props.row.id, 'gehalten_anId', val)
+                        "
+                        :options="lectureStore.mappings.gehalten_an"
+                        option-label="label"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        dense
+                        outlined
+                        style="min-width: 140px"
+                      />
+                    </template>
+                  </div>
+                </q-td>
+              </template>
+            </q-table>
+
+            <q-infinite-scroll
+              v-if="totalAllProfessors !== allProfessors.length"
+              :scroll-target="dialogScrollRef"
+              :offset="250"
+              @load="onLoadDialog"
+            >
+              <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="40px" />
+                </div>
+              </template>
+            </q-infinite-scroll>
+            <div v-else class="full-width text-center text-body2 text-grey-6 q-my-sm">
+              {{ allProfessors.length }} / {{ totalAllProfessors }} Einträge
+            </div>
+          </div>
+
+          <div class="row items-center q-px-lg q-py-md">
+            <div class="col column q-ml-sm">
+              <div class="text-caption text-grey-6">
+                <span class="text-green-7 text-weight-bold">{{ newlyAdded.length }}</span> Neu
+                hinzugefügt
+              </div>
+              <div class="text-caption text-grey-6">
+                <span class="text-red-7 text-weight-bold">{{ newlyRemoved.length }}</span> Entfernt
+              </div>
+            </div>
+            <div class="col-auto row q-gutter-md">
+              <q-btn
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelForm"
+              />
+              <div>
+                <q-btn
+                  color="light-blue-9"
+                  label="Zuweisen"
+                  icon="check"
+                  rounded
+                  unelevated
+                  padding="10px 30px"
+                  :disable="!hasChanges"
+                  style="font-family: Inter, sans-serif"
+                  @click="submitAssignment"
+                />
+              </div>
+            </div>
+            <div class="col row justify-end">
+              <q-btn
+                flat
+                dense
+                size="sm"
+                color="grey-7"
+                icon="restart_alt"
+                label="Reset"
+                style="font-family: Inter, sans-serif"
+                @click="confirmReset"
+              />
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
+
+  <q-page-sticky position="bottom-right" :offset="[18, 18]">
+    <q-btn fab icon="person_add" color="light-blue-9" @click="openDialog" />
+  </q-page-sticky>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { getAvatarColor } from 'src/utils/lecturerHelper'
+import { useQuasar } from 'quasar'
+import { getAvatarColor, getDozStatusColor } from 'src/utils/lecturerHelper'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 
 const route = useRoute()
+const quasar = useQuasar()
 const loading = ref(false)
 
 let lectureId = route.params.id
@@ -222,6 +430,38 @@ const totalLectureProfessors = computed(() => professorStore.totalLectureProfess
 const professorFilters = professorStore.lectureFilters
 
 const lecture = ref({})
+
+// --- Dialog State ---
+const showDialog = ref(false)
+const dialogScrollRef = ref(null)
+const allProfessors = computed(() => professorStore.professors)
+const totalAllProfessors = computed(() => professorStore.totalProfessors)
+const selectedProfessors = ref([])
+const assignedIds = ref(new Set())
+const rowAssignData = reactive({})
+
+const isSelected = (id) => selectedProfessors.value.some((p) => p.id === id)
+const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
+
+const formatPreference = (pref) => {
+  if (!pref) return 'Alles' // Fallback
+  const p = String(pref).toUpperCase()
+  if (p === 'A' || p === 'ALLES') return 'Alles'
+  if (p === 'B' || p === 'BACHELOR') return 'Bachelor'
+  if (p === 'M' || p === 'MASTER') return 'Master'
+  return pref
+}
+
+const vorlaufOptions = [
+  { label: 'Sofort Bereit', value: 'S' },
+  { label: 'Bis 4 Wochen', value: '4' },
+  { label: '4 Wochen +', value: 'M' },
+]
+
+const formatVorlaufzeit = (val) => {
+  const opt = vorlaufOptions.find((o) => o.value === val)
+  return opt ? opt.label : val || '—'
+}
 
 watch(
   () => route.params.id,
@@ -251,12 +491,229 @@ async function loadLecture() {
 
 async function loadMore() {
   professorFilters.offset += professorFilters.limit
-  await professorStore.loadLectureProfessors()
+  await professorStore.loadLectureProfessors(lectureId)
 }
 
 async function onLoad(index, done) {
   await loadMore()
   done()
+}
+
+// --- Dialog Logic ---
+const openDialog = async () => {
+  professorStore.clearProfessors()
+  professorStore.filters.offset = 0
+
+  // load professors and mappings in parallel
+  await Promise.all([professorStore.loadProfessors(), lectureStore.loadMappings()])
+
+  // use a map for efficient lookups of assigned professors
+  const assignedProfMap = new Map(professorStore.lectureProfessors.map((p) => [p.id, p]))
+  assignedIds.value = new Set(assignedProfMap.keys())
+
+  // pre-select already assigned professors
+  selectedProfessors.value = [...professorStore.lectureProfessors]
+
+  // Pre-fill row data for already assigned professors from the detailed data
+  professorStore.lectureProfessors.forEach((prof) => {
+    rowAssignData[prof.id] = makeRowData({
+      lectureGehalten_anName: prof.lectureGehalten_anName,
+      lectureVorlaufzeit: prof.lectureVorlaufzeit,
+    })
+  })
+
+  // Ensure a row data object exists for all professors loaded into the dialog table
+  allProfessors.value.forEach((prof) => {
+    if (!rowAssignData[prof.id]) {
+      rowAssignData[prof.id] = makeRowData()
+    }
+  })
+
+  showDialog.value = true
+}
+
+const assignColumns = [
+  {
+    name: 'selected',
+    align: 'center',
+    label: '',
+    field: 'id',
+    style: 'width: 48px; min-width: 48px',
+  },
+  {
+    name: 'name',
+    align: 'left',
+    label: 'Name',
+    field: (row) => `${row.vorname} ${row.name}`,
+    sortable: true,
+  },
+  {
+    name: 'status',
+    align: 'center',
+    label: 'Status',
+    field: 'professorStatus',
+    sortable: true,
+  },
+  {
+    name: 'vorliebe',
+    align: 'center',
+    label: 'Vorliebe',
+    field: 'preference',
+    style: 'width: 180px; min-width: 180px',
+  },
+  {
+    name: 'vorlauf',
+    align: 'center',
+    label: 'Vorlauf',
+    field: 'vorlaufzeit',
+    style: 'width: 180px; min-width: 180px',
+  },
+  {
+    name: 'gehalten',
+    align: 'center',
+    label: 'Bereits gehalten',
+    field: 'gehalten_anName',
+    style: 'width: 180px; min-width: 180px',
+  },
+]
+
+function getRowData(id) {
+  if (!rowAssignData[id]) {
+    rowAssignData[id] = makeRowData()
+  }
+  return rowAssignData[id]
+}
+
+function setRowField(id, field, value) {
+  getRowData(id)[field] = value
+}
+
+const makeRowData = (overrides = {}) => ({
+  gehalten_anId: null,
+  vorliebeId: null,
+  vorlaufzeit: null,
+  lectureGehalten_anName: '',
+  lectureVorlaufzeit: '',
+  ...overrides,
+})
+
+const toggleRow = (row) => {
+  const idx = selectedProfessors.value.findIndex((p) => p.id === row.id)
+  if (idx >= 0) {
+    selectedProfessors.value.splice(idx, 1)
+  } else {
+    selectedProfessors.value.push(row)
+  }
+}
+
+async function onLoadDialog(index, done) {
+  professorStore.filters.offset += professorStore.filters.limit
+  await professorStore.loadProfessors()
+  // Ensure new professors have a rowData entry
+  allProfessors.value.forEach((prof) => {
+    if (!rowAssignData[prof.id]) {
+      rowAssignData[prof.id] = makeRowData()
+    }
+  })
+  done()
+}
+
+const newlyAdded = computed(() => {
+  return selectedProfessors.value.filter((p) => !assignedIds.value.has(p.id))
+})
+
+const newlyRemoved = computed(() => {
+  return [...assignedIds.value].filter((id) => !selectedProfessors.value.some((p) => p.id === id))
+})
+
+const hasChanges = computed(() => {
+  return newlyAdded.value.length > 0 || newlyRemoved.value.length > 0
+})
+
+function resetAssignmentForm() {
+  selectedProfessors.value = [...professorStore.lectureProfessors]
+  Object.keys(rowAssignData).forEach((key) => delete rowAssignData[key])
+
+  professorStore.lectureProfessors.forEach((prof) => {
+    rowAssignData[prof.id] = makeRowData({
+      lectureGehalten_anName: prof.lectureGehalten_anName,
+      lectureVorlaufzeit: prof.lectureVorlaufzeit,
+    })
+  })
+
+  allProfessors.value.forEach((prof) => {
+    if (!rowAssignData[prof.id]) {
+      rowAssignData[prof.id] = makeRowData()
+    }
+  })
+}
+
+function confirmReset() {
+  quasar
+    .dialog({
+      title: 'Reset bestätigen',
+      message: 'Möchtest du alle Änderungen im Dialog zurücksetzen?',
+      cancel: { label: 'Abbrechen', flat: true, color: 'grey-7' },
+      ok: { label: 'Reset', color: 'negative' },
+      persistent: true,
+    })
+    .onOk(() => {
+      resetAssignmentForm()
+    })
+}
+
+const cancelForm = () => {
+  showDialog.value = false
+}
+
+const submitAssignment = async () => {
+  const toAssign = newlyAdded.value.map((p) => ({
+    professorId: p.id,
+    lectureId: Number(lectureId),
+    gehalten_anId: rowAssignData[p.id]?.gehalten_anId ?? null,
+    vorliebeId: rowAssignData[p.id]?.vorliebeId ?? null,
+    vorlaufzeit: rowAssignData[p.id]?.vorlaufzeit ?? null,
+  }))
+
+  const toRemove = newlyRemoved.value.map((id) => ({
+    professorId: id,
+    lectureId: Number(lectureId),
+  }))
+
+  const errors = []
+
+  for (const assignment of toAssign) {
+    try {
+      await professorStore.assignLectureToProfessor(assignment)
+    } catch {
+      errors.push({ type: 'assign', professorId: assignment.professorId })
+    }
+  }
+
+  for (const removal of toRemove) {
+    try {
+      await professorStore.removeLectureFromProfessor(removal.professorId, removal.lectureId)
+    } catch {
+      errors.push({ type: 'remove', professorId: removal.professorId })
+    }
+  }
+
+  professorStore.clearLectureProfessors()
+  await professorStore.loadLectureProfessors(lectureId)
+
+  if (errors.length > 0) {
+    quasar.notify({
+      type: 'negative',
+      message: 'Fehler beim Zuweisen/Entfernen von Dozenten!',
+    })
+  } else {
+    quasar.notify({
+      type: 'positive',
+      message: 'Dozenten erfolgreich zugewiesen/entfernt!',
+    })
+  }
+
+  showDialog.value = false
 }
 </script>
 
