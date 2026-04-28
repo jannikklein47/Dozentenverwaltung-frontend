@@ -90,13 +90,24 @@
               <div style="display: flex">
                 <span class="text-weight-medium text-grey-7">Vorliebe:</span>
                 <q-space />
-                <q-badge color="grey-6" :label="formatPreference(d_item.preference?.name)" />
+                <q-badge
+                  color="grey-6"
+                  :label="
+                    formatPreference(
+                      d_item.lectureVorliebeName || d_item.preference?.name,
+                      d_item,
+                    ) || '—'
+                  "
+                />
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
                 <span class="text-weight-medium text-grey-7">Vorlaufzeit für diese Vorlesung:</span>
                 <q-space />
-                <q-badge color="grey-6" :label="formatVorlaufzeit(d_item.lectureVorlaufzeit)" />
+                <q-badge
+                  color="grey-6"
+                  :label="formatVorlaufzeit(d_item.lectureVorlaufzeit) || '—'"
+                />
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
@@ -247,29 +258,19 @@
               </template>
 
               <template #body-cell-vorliebe="props">
-                <q-td :props="props" @click.stop>
-                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
-                    <template v-if="assignedIds.has(props.row.id)">
-                      <q-badge
-                        color="grey-6"
-                        :label="formatPreference(props.row.preference?.name)"
-                      />
-                    </template>
-                    <template v-else-if="isSelected(props.row.id)">
-                      <q-select
-                        :model-value="getRowData(props.row.id).vorliebeId"
-                        @update:model-value="(val) => setRowField(props.row.id, 'vorliebeId', val)"
-                        :options="lectureStore.mappings.preference"
-                        option-label="label"
-                        option-value="value"
-                        emit-value
-                        map-options
-                        dense
-                        outlined
-                        style="min-width: 140px"
-                      />
-                    </template>
-                  </div>
+                <q-td :props="props">
+                  <q-badge
+                    color="grey-6"
+                    :label="
+                      assignedIds.has(props.row.id)
+                        ? formatPreference(
+                            rowAssignData[props.row.id]?.lectureVorliebeName ||
+                              props.row.preference?.name,
+                            props.row,
+                          ) || '—'
+                        : formatPreference(props.row.preference?.name, props.row) || '—'
+                    "
+                  />
                 </q-td>
               </template>
 
@@ -443,12 +444,26 @@ const rowAssignData = reactive({})
 const isSelected = (id) => selectedProfessors.value.some((p) => p.id === id)
 const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
 
-const formatPreference = (pref) => {
+// Erkennt "Alles" und wertet die Prioritäten des Dozenten aus, falls verfügbar
+const formatPreference = (pref, prof = null) => {
   if (!pref) return 'Alles' // Fallback
   const p = String(pref).toUpperCase()
-  if (p === 'A' || p === 'ALLES') return 'Alles'
+
+  if (p === 'A' || p === 'ALLES') {
+    if (prof) {
+      // Nimmt camelCase oder snake_case an, je nachdem was das Backend liefert
+      const prioB = prof.prioBachelor !== undefined ? prof.prioBachelor : prof.prio_bachelor
+      const prioM = prof.prioMaster !== undefined ? prof.prioMaster : prof.prio_master
+
+      if (prioB === 1 && prioM === 0) return '1. Bachelor, 2. Master'
+      if (prioM === 1 && prioB === 0) return '1. Master, 2. Bachelor'
+    }
+    return 'Alles'
+  }
+
   if (p === 'B' || p === 'BACHELOR') return 'Bachelor'
   if (p === 'M' || p === 'MASTER') return 'Master'
+
   return pref
 }
 
@@ -518,6 +533,7 @@ const openDialog = async () => {
   professorStore.lectureProfessors.forEach((prof) => {
     rowAssignData[prof.id] = makeRowData({
       lectureGehalten_anName: prof.lectureGehalten_anName,
+      lectureVorliebeName: prof.lectureVorliebeName,
       lectureVorlaufzeit: prof.lectureVorlaufzeit,
     })
   })
@@ -593,6 +609,7 @@ const makeRowData = (overrides = {}) => ({
   vorliebeId: null,
   vorlaufzeit: null,
   lectureGehalten_anName: '',
+  lectureVorliebeName: '',
   lectureVorlaufzeit: '',
   ...overrides,
 })
@@ -603,6 +620,18 @@ const toggleRow = (row) => {
     selectedProfessors.value.splice(idx, 1)
   } else {
     selectedProfessors.value.push(row)
+
+    // Auto-fill der Vorliebe beim Auswählen eines Dozenten
+    if (!getRowData(row.id).vorliebeId && row.preference?.name) {
+      const match = lectureStore.mappings.preference?.find(
+        (p) =>
+          p.label === row.preference.name ||
+          formatPreference(p.label) === formatPreference(row.preference.name),
+      )
+      if (match) {
+        setRowField(row.id, 'vorliebeId', match.value)
+      }
+    }
   }
 }
 
@@ -637,6 +666,7 @@ function resetAssignmentForm() {
   professorStore.lectureProfessors.forEach((prof) => {
     rowAssignData[prof.id] = makeRowData({
       lectureGehalten_anName: prof.lectureGehalten_anName,
+      lectureVorliebeName: prof.lectureVorliebeName,
       lectureVorlaufzeit: prof.lectureVorlaufzeit,
     })
   })
