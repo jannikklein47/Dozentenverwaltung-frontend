@@ -40,19 +40,12 @@ export function getDozStatusColor(status) {
   return 'Unbekannt'
 }
 
-//Function for getting the preference array based on its ID
-export function getPreference(prioBachelor, prioMaster) {
-  //Temporary function until we have the actual preference from the backend
-  //TODO: adjust the return values
-  console.log(
-    'getPreference called with:',
-    prioBachelor,
-    typeof prioBachelor,
-    prioMaster,
-    typeof prioMaster,
-  )
-  if (prioBachelor === 1 && prioMaster === 1) return ['Alle Vorlesungen']
-  if (prioBachelor === 1 && prioMaster === 0) return ['1. Bachelor', '2. Master']
-  if (prioMaster === 1 && prioBachelor === 0) return ['1. Master', '2. Bachelor']
-  return ['Präferenz unbekannt']
+//Function for getting the preference array based on its name and priority numbers
+export function getPreference(generalPreferenceName, prioBachelor, prioMaster) {
+  if (generalPreferenceName === 'Alles') {
+    if (prioBachelor === 1 && prioMaster === 1) return ['Keine Präferenz']
+    if (prioBachelor === 1 && prioMaster === 0) return ['1. Bachelor', '2. Master']
+    if (prioMaster === 1 && prioBachelor === 0) return ['1. Master', '2. Bachelor']
+  }
+  return [generalPreferenceName]
 }
