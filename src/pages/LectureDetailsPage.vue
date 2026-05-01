@@ -255,7 +255,9 @@
                 <q-td :props="props">
                   <q-badge
                     rounded
-                    :color="getDozStatusColor(props.value?.name)"
+                    :color="
+                      isRemoved(props.row.id) ? 'grey-6' : getDozStatusColor(props.value?.name)
+                    "
                     :label="props.value?.name || 'N/A'"
                     class="q-px-sm q-py-xs"
                   />
@@ -286,7 +288,11 @@
                       <q-badge
                         rounded
                         class="q-px-sm q-py-xs text-weight-bold"
-                        :color="getVorlaufColor(rowAssignData[props.row.id]?.lectureVorlaufzeit)"
+                        :color="
+                          isRemoved(props.row.id)
+                            ? 'grey-6'
+                            : getVorlaufColor(rowAssignData[props.row.id]?.lectureVorlaufzeit)
+                        "
                         :label="
                           vorlaufOptions.find(
                             (o) => o.value === rowAssignData[props.row.id]?.lectureVorlaufzeit,
@@ -321,7 +327,9 @@
                         rounded
                         class="q-px-sm q-py-xs text-weight-bold"
                         :color="
-                          getGehaltenColor(rowAssignData[props.row.id]?.lectureGehalten_anName)
+                          isRemoved(props.row.id)
+                            ? 'grey-6'
+                            : getGehaltenColor(rowAssignData[props.row.id]?.lectureGehalten_anName)
                         "
                         :label="rowAssignData[props.row.id]?.lectureGehalten_anName || '—'"
                       />
@@ -393,7 +401,7 @@
                   rounded
                   unelevated
                   padding="10px 30px"
-                  :disable="!hasChanges"
+                  :disable="!canSubmit"
                   style="font-family: Inter, sans-serif"
                   @click="submitAssignment"
                 />
@@ -481,6 +489,7 @@ const rowAssignData = reactive({})
 
 const isSelected = (id) => selectedProfessors.value.some((p) => p.id === id)
 const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
+const isRemoved = (id) => assignedIds.value.has(id) && !isSelected(id)
 
 // Erkennt "Alles" und wertet die Prioritäten des Dozenten aus, falls verfügbar
 const formatPreference = (pref, prof = null) => {
@@ -712,6 +721,25 @@ const newlyRemoved = computed(() => {
 
 const hasChanges = computed(() => {
   return newlyAdded.value.length > 0 || newlyRemoved.value.length > 0
+})
+
+const canSubmit = computed(() => {
+  if (!hasChanges.value) return false
+
+  // Validierung: Wenn neu ausgewählte Dozenten dabei sind,
+  // müssen die Dropdowns 'vorlaufzeit' und 'gehalten_anId' ausgefüllt sein.
+  for (const p of newlyAdded.value) {
+    const data = getRowData(p.id)
+    const hasVorlauf =
+      data.vorlaufzeit !== null && data.vorlaufzeit !== undefined && data.vorlaufzeit !== ''
+    const hasGehalten =
+      data.gehalten_anId !== null && data.gehalten_anId !== undefined && data.gehalten_anId !== ''
+
+    if (!hasVorlauf || !hasGehalten) {
+      return false
+    }
+  }
+  return true
 })
 
 function resetAssignmentForm() {
