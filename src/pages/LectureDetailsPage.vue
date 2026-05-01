@@ -105,7 +105,8 @@
                 <span class="text-weight-medium text-grey-7">Vorlaufzeit für diese Vorlesung:</span>
                 <q-space />
                 <q-badge
-                  color="grey-6"
+                  rounded
+                  :color="getVorlaufColor(d_item.lectureVorlaufzeit)"
                   :label="formatVorlaufzeit(d_item.lectureVorlaufzeit) || '—'"
                 />
               </div>
@@ -113,7 +114,11 @@
               <div style="display: flex">
                 <span class="text-weight-medium text-grey-7">Erfahrung in dieser Vorlesung:</span>
                 <q-space />
-                <q-badge color="grey-6" :label="d_item.lectureGehalten_anName || '—'" />
+                <q-badge
+                  rounded
+                  :color="getGehaltenColor(d_item.lectureGehalten_anName)"
+                  :label="d_item.lectureGehalten_anName || '—'"
+                />
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
@@ -279,6 +284,9 @@
                   <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
                     <template v-if="assignedIds.has(props.row.id)">
                       <q-badge
+                        rounded
+                        class="q-px-sm q-py-xs text-weight-bold"
+                        :color="getVorlaufColor(rowAssignData[props.row.id]?.lectureVorlaufzeit)"
                         :label="
                           vorlaufOptions.find(
                             (o) => o.value === rowAssignData[props.row.id]?.lectureVorlaufzeit,
@@ -310,6 +318,11 @@
                   <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
                     <template v-if="assignedIds.has(props.row.id)">
                       <q-badge
+                        rounded
+                        class="q-px-sm q-py-xs text-weight-bold"
+                        :color="
+                          getGehaltenColor(rowAssignData[props.row.id]?.lectureGehalten_anName)
+                        "
                         :label="rowAssignData[props.row.id]?.lectureGehalten_anName || '—'"
                       />
                     </template>
@@ -336,7 +349,7 @@
             </q-table>
 
             <q-infinite-scroll
-              v-if="totalAllProfessors !== allProfessors.length"
+              v-if="totalAllProfessors !== professorStore.professors.length"
               :scroll-target="dialogScrollRef"
               :offset="250"
               @load="onLoadDialog"
@@ -348,7 +361,7 @@
               </template>
             </q-infinite-scroll>
             <div v-else class="full-width text-center text-body2 text-grey-6 q-my-sm">
-              {{ allProfessors.length }} / {{ totalAllProfessors }} Einträge
+              {{ allProfessors.length }} Einträge angezeigt ({{ totalAllProfessors }} gesamt)
             </div>
           </div>
 
@@ -435,7 +448,32 @@ const lecture = ref({})
 // --- Dialog State ---
 const showDialog = ref(false)
 const dialogScrollRef = ref(null)
-const allProfessors = computed(() => professorStore.professors)
+
+const allProfessors = computed(() => {
+  // Den Studienstufentyp der aktuellen Vorlesung ermitteln (z.B. 'Bachelor' oder 'Master')
+  const lectureType = lecture.value?.completionType?.name?.toUpperCase() || ''
+
+  return professorStore.professors.filter((prof) => {
+    // Vorliebe des Dozenten auslesen
+    const prefName = prof.preference?.name?.toUpperCase() || 'A'
+    const isBachelorProf = prefName === 'B' || prefName === 'BACHELOR'
+    const isMasterProf = prefName === 'M' || prefName === 'MASTER'
+
+    // Wenn die Vorlesung "Bachelor" ist, schließe reine "Master"-Dozenten aus
+    if (lectureType.includes('BACHELOR') && isMasterProf) {
+      return false
+    }
+
+    // Wenn die Vorlesung "Master" ist, schließe reine "Bachelor"-Dozenten aus
+    if (lectureType.includes('MASTER') && isBachelorProf) {
+      return false
+    }
+
+    // Dozenten mit Vorliebe "Alles" oder passender Vorliebe werden angezeigt
+    return true
+  })
+})
+
 const totalAllProfessors = computed(() => professorStore.totalProfessors)
 const selectedProfessors = ref([])
 const assignedIds = ref(new Set())
@@ -476,6 +514,23 @@ const vorlaufOptions = [
 const formatVorlaufzeit = (val) => {
   const opt = vorlaufOptions.find((o) => o.value === val)
   return opt ? opt.label : val || '—'
+}
+
+// Farb-Helfer für "Vorlauf"
+const getVorlaufColor = (val) => {
+  if (val === 'S') return 'green'
+  if (val === '4') return 'orange'
+  if (val === 'M') return 'red'
+  return 'grey-6'
+}
+
+// Farb-Helfer für "Bereits gehalten"
+const getGehaltenColor = (name) => {
+  if (!name) return 'grey-6'
+  const lowerName = name.toLowerCase()
+  if (lowerName.includes('provadis')) return 'blue'
+  if (lowerName.includes('extern')) return 'orange'
+  return 'grey-6'
 }
 
 watch(
