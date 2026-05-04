@@ -405,6 +405,9 @@
                   style="font-family: Inter, sans-serif"
                   @click="submitAssignment"
                 />
+                <q-tooltip v-if="assignDisabledReason">
+                  {{ assignDisabledReason }}
+                </q-tooltip>
               </div>
             </div>
             <div class="col row justify-end">
@@ -778,6 +781,12 @@ function confirmReset() {
 const cancelForm = () => {
   showDialog.value = false
 }
+
+const assignDisabledReason = computed(() => {
+  if (!hasChanges.value) return 'Keine Änderungen vorgenommen'
+  if (!canSubmit.value) return 'Alle Pflichtfelder für neue Vorlesungen müssen ausgefüllt sein!'
+  return ''
+})
 
 const submitAssignment = async () => {
   const toAssign = newlyAdded.value.map((p) => ({
