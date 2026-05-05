@@ -87,18 +87,24 @@
             </q-card-section>
             <q-separator />
             <q-card-section>
-              <div style="display: flex">
+              <div style="display: flex; align-items: center">
                 <span class="text-weight-medium text-grey-7">Vorliebe:</span>
                 <q-space />
-                <q-badge
-                  color="grey-6"
-                  :label="
-                    formatPreference(
-                      d_item.lectureVorliebeName || d_item.preference?.name,
-                      d_item,
-                    ) || '—'
-                  "
-                />
+                <div>
+                  <q-badge
+                    v-for="(preference, index) in getPreference(
+                      d_item.preference?.name,
+                      d_item.prio_bachelor,
+                      d_item.prio_master,
+                    )"
+                    :key="index"
+                    color="grey-6"
+                    text-color="white"
+                    rounded
+                    class="q-px-md q-py-xs text-weight-bold q-mr-xs"
+                    :label="preference"
+                  />
+                </div>
               </div>
               <q-separator class="q-my-md" />
               <div style="display: flex">
@@ -436,8 +442,9 @@
 <script setup>
 import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
+import { getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
 import { useQuasar } from 'quasar'
-import { getAvatarColor, getDozStatusColor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor } from 'src/utils/lecturerHelper'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 
