@@ -56,3 +56,7 @@ export function getPreference(prioBachelor, prioMaster) {
   if (prioMaster === 1 && prioBachelor === 0) return ['1. Master', '2. Bachelor']
   return ['Präferenz unbekannt']
 }
+
+export function validatePhoneNumber(phoneNumber) {
+  return /^\+[1-9][0-9]{7,14}$/.test(phoneNumber)
+}

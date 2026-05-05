@@ -557,7 +557,9 @@
                   color="light-blue-9"
                   :rules="[
                     (val) => !!val || 'Erforderlich',
-                    (val) => /^\+[1-9][0-9]{7,14}$/.test(val) || 'Ungültig',
+                    (val) =>
+                      validatePhoneNumber(val) ||
+                      'Ungültig (Start mit +, erste Ziffer 1-9, Danach 7-14 Ziffern, keine Leerzeichen)',
                   ]"
                   hide-bottom-space
                 />
@@ -670,6 +672,7 @@ import {
   getAvatarColor,
   getDozentenInitials,
   getPreference,
+  validatePhoneNumber,
 } from 'src/utils/lecturerHelper'
 import { reactive, ref, watch, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
