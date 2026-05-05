@@ -521,7 +521,7 @@
                 <q-select
                   outlined
                   rounded
-                  v-model="editedLecture.vorlesungs_statusId"
+                  v-model="editedLecture.vorlesung_statusId"
                   :options="statusOptions"
                   option-label="label"
                   option-value="value"
@@ -633,7 +633,7 @@ const defaultEditedLecture = () => ({
   kuerzel: '',
   name: '',
   semester: null,
-  vorlesungs_statusId: null,
+  vorlesung_statusId: null,
   abschluss_typId: null,
 })
 
@@ -644,7 +644,7 @@ const statusOptions = computed(() => {
 })
 
 const completionTypeOptions = computed(() => {
-  return lectureStore.mappings?.completionTyp || []
+  return lectureStore.mappings?.completionType || []
 })
 
 const editLecture = async () => {
@@ -666,7 +666,7 @@ const editLecture = async () => {
     kuerzel: lecture.value.kuerzel ?? '',
     name: lecture.value.name ?? '',
     semester: lecture.value.semester ?? null,
-    vorlesungs_statusId: lecture.value.vorlesungs_statusId ?? matchedStatusId,
+    vorlesung_statusId: lecture.value.vorlesung_statusId ?? matchedStatusId,
     abschluss_typId: lecture.value.abschluss_typId ?? matchedCompletionId,
   }
 
