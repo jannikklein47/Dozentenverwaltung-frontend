@@ -217,6 +217,30 @@ export const useLectureStore = defineStore('lecture', {
         throw error
       }
     },
+    /**
+     * Updates an existing lecture using the API.
+     *
+     * @param {number} id The ID of the lecture to update.
+     * @param {Object} updatedData The data to update.
+     * @returns {Promise<boolean|string>} True if successful, otherwise the error message.
+     */
+    async updateLecture(id, updatedData) {
+      try {
+        const response = await api.patch(`/app/lectures/${id}`, updatedData)
+
+        if (response.status === 200 || response.status === 204) {
+          return true
+        } else {
+          return response.status
+        }
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else {
+          return error.message
+        }
+      }
+    },
   },
 })
 
