@@ -444,7 +444,7 @@ import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
 import { useQuasar } from 'quasar'
-import { getAvatarColor, getDozStatusColor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor } from 'src/utils/lecturerHelper'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 
