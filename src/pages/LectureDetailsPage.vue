@@ -301,13 +301,11 @@
                   <q-badge
                     color="grey-6"
                     :label="
-                      assignedIds.has(props.row.id)
-                        ? formatPreference(
-                            rowAssignData[props.row.id]?.lectureVorliebeName ||
-                              props.row.preference?.name,
-                            props.row,
-                          ) || '—'
-                        : formatPreference(props.row.preference?.name, props.row) || '—'
+                      getPreference(
+                        props.row.preference?.name,
+                        props.row.prio_bachelor ?? props.row.prioBachelor,
+                        props.row.prio_master ?? props.row.prioMaster,
+                      ).join(', ')
                     "
                   />
                 </q-td>
@@ -722,18 +720,14 @@
 <script setup>
 import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
-import { useQuasar } from 'quasar'
-
-// Helfer importieren
-import { getDozStatusColor } from 'src/utils/lecturerHelper'
+import { getAvatarColor, getPreference, getDozStatusColor } from 'src/utils/professor-helper'
 import {
-  formatPreference,
   formatVorlaufzeit,
   getVorlaufColor,
   getGehaltenColor,
   getVorlaufOptions,
 } from 'src/utils/lecture-helper'
+import { useQuasar } from 'quasar'
 
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
@@ -1059,11 +1053,7 @@ const toggleRow = (row) => {
     selectedProfessors.value.push(row)
 
     if (!getRowData(row.id).vorliebeId && row.preference?.name) {
-      const match = lectureStore.mappings.preference?.find(
-        (p) =>
-          p.label === row.preference.name ||
-          formatPreference(p.label) === formatPreference(row.preference.name),
-      )
+      const match = lectureStore.mappings.preference?.find((p) => p.label === row.preference.name)
       if (match) {
         setRowField(row.id, 'vorliebeId', match.value)
       }

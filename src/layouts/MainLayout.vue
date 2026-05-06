@@ -614,7 +614,7 @@ import { useProfessorStore } from 'src/stores/professor-store'
 import { useUserStore } from 'src/stores/user-store'
 import { useRoute } from 'vue-router'
 import { debounce } from 'quasar'
-import { getAvatarColor } from 'src/utils/lecturerHelper'
+import { getAvatarColor } from 'src/utils/professor-helper'
 
 const lectureStore = useLectureStore()
 const professorStore = useProfessorStore()

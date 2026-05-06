@@ -1,4 +1,4 @@
-//Function for getting the color of the avatar based on the lecturer ID (Deterministic so same ID always gets same color)
+//Function for getting the color of the avatar based on the professor ID (Deterministic so same ID always gets same color)
 export function getAvatarColor(id) {
   if (!id) return '#9a9a9aff' // default color
   const strId = id.toString()
@@ -25,7 +25,7 @@ export function getAvatarColor(id) {
   return colors[Math.abs(hash) % colors.length]
 }
 
-//Function for getting the initials of the lecturer based on first and last name
+//Function for getting the initials of the professor based on first and last name
 export function getDozentenInitials(firstName, lastName) {
   const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : ''
   const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : ''
