@@ -276,6 +276,25 @@ export const useProfessorStore = defineStore('professor', {
         throw error
       }
     },
+
+    async updateAssignment(professorId, lectureId, newData) {
+      try {
+        const response = await api.patch(`/app/professors/assign`, {
+          ...newData,
+          professorId,
+          lectureId,
+        })
+
+        if (response.status === 200 || response.status === 204) {
+          return true
+        } else {
+          return response.status
+        }
+      } catch (error) {
+        console.error('Failed to update lecture assignment:', error)
+        return false
+      }
+    },
   },
 })
 
