@@ -591,11 +591,11 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-  </q-page>
 
-  <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="person_add" color="light-blue-9" @click="openDialog" />
-  </q-page-sticky>
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn fab icon="person_add" color="light-blue-9" @click="openDialog" />
+    </q-page-sticky>
+  </q-page>
 </template>
 
 <script setup>
