@@ -1120,7 +1120,7 @@ const priorityOptions = [
   { prio_bachelor: 1, prio_master: 0 },
   { prio_bachelor: 0, prio_master: 1 },
 ].map((opt) => ({
-  label: getPreference('Alles', opt.prio_bachelor, opt.prio_master).join(' · '),
+  label: getPreference(opt.prio_bachelor, opt.prio_master).join(' · '),
   value: opt,
 }))
 
