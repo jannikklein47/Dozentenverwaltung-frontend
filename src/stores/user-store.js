@@ -61,8 +61,10 @@ export const useUserStore = defineStore('user', {
         })
 
         this.setTokens(response.data)
-      } catch {
-        //
+      } catch (error) {
+        if (error.response.status === 401) {
+          location.reload()
+        }
       }
     },
 
