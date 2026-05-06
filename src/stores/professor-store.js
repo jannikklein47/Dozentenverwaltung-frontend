@@ -291,8 +291,11 @@ export const useProfessorStore = defineStore('professor', {
           return response.status
         }
       } catch (error) {
-        console.error('Failed to update lecture assignment:', error)
-        return false
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else {
+          return error.message
+        }
       }
     },
   },

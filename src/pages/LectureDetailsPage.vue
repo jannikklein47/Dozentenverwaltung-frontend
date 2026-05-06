@@ -102,13 +102,18 @@
               </div>
               <q-space />
               <q-btn
-                unelevated
-                size="sm"
-                color="grey-7"
-                icon="edit"
                 round
+                unelevated
+                dense
+                size="sm"
+                color="grey-3"
+                text-color="grey-8"
+                icon="edit"
+                class="edit-btn"
                 @click.stop="editAssignment(d_item)"
-              />
+              >
+                <q-tooltip class="text-body2">Details dieser Zuweisung bearbeiten</q-tooltip>
+              </q-btn>
             </q-card-section>
             <q-separator />
             <q-card-section>
@@ -611,6 +616,62 @@
           </div>
         </q-card-section>
 
+        <q-card-section class="q-pb-none">
+          <q-card
+            class="q-pa-md row items-center bg-white"
+            flat
+            bordered
+            style="border-radius: 18px"
+          >
+            <div>
+              <q-avatar
+                size="48px"
+                class="text-weight-bold text-white shadow-3"
+                :style="{
+                  backgroundColor: getAvatarColor(
+                    editedAssignmentProfData.vorname?.at(0) +
+                      editedAssignmentProfData.name?.at(0) || 0,
+                  ),
+                }"
+              >
+                {{ editedAssignmentProfData.vorname?.[0] }}{{ editedAssignmentProfData.name?.[0] }}
+              </q-avatar>
+            </div>
+
+            <div class="q-ml-md">
+              <div class="text-caption text-grey-6 text-weight-bold flex">
+                Dozent{{ editedAssignmentProfData.titel ? ',' : '' }}
+                {{ editedAssignmentProfData.titel }}
+              </div>
+              <div class="text-h6 text-weight-bold">
+                {{ editedAssignmentProfData.vorname }} {{ editedAssignmentProfData.name }}
+                <q-badge color="grey-6" :label="editedAssignmentProfData.professorStatus?.name" />
+              </div>
+            </div>
+          </q-card>
+        </q-card-section>
+
+        <div class="flex justify-center q-ma-md">
+          <q-icon name="sync_alt" size="md" style="color: #00000055; transform: rotate(90deg)" />
+        </div>
+
+        <q-card-section class="q-pt-none">
+          <q-card flat bordered class="q-pa-md bg-white full-width" style="border-radius: 18px">
+            <div class="text-overline text-grey-6">
+              {{ lecture.kuerzel || 'Kein Kürzel' }}
+              <q-badge
+                rounded
+                :color="lecture.lectureStatus?.name === 'Geschlossen' ? 'brown-9' : 'green-8'"
+                :label="lecture.lectureStatus?.name || 'N/A'"
+                class="text-weight-bold"
+              />
+            </div>
+            <div class="text-weight-bold text-h6">
+              {{ lecture.name || 'Kein Name' }}
+            </div>
+          </q-card>
+        </q-card-section>
+
         <q-card-section class="q-pt-none q-px-lg">
           <q-form @submit="updateAssignment" class="q-gutter-sm">
             <div
@@ -866,11 +927,22 @@ const updateLecture = async () => {
 }
 
 const updateAssignment = async () => {
-  /*const payload = { ...editedAssignment.value }
-  const result = updaten
+  const payload = {
+    vorlaufzeit: editedAssignment.value.lectureVorlaufzeit,
+    gehalten_anId: editedAssignment.value.lectureGehalten_anId,
+    vorliebeId: editedAssignment.value.lectureVorliebeId,
+  }
+
+  console.log('Updating assignment with data:', payload)
+
+  const result = await professorStore.updateAssignment(
+    editedAssignmentProfData.value.id,
+    lectureId,
+    payload,
+  )
 
   if (result === true) {
-    await loadLecture() // Neu laden um Änderungen im UI zu sehen
+    await reload() // Neu laden um Änderungen im UI zu sehen
     showEditAssignmentDialog.value = false
 
     quasar.notify({
@@ -884,8 +956,6 @@ const updateAssignment = async () => {
       color: 'negative',
     })
   }
-    */
-  showEditAssignmentDialog.value = false
 }
 
 // --- Dialog State ---
@@ -938,6 +1008,13 @@ async function loadLecture() {
   if (result) {
     lecture.value = result
   }
+}
+
+async function reload() {
+  loading.value = true
+  await loadLecture()
+  await professorStore.loadLectureProfessors(lectureId)
+  loading.value = false
 }
 
 async function loadMore() {
