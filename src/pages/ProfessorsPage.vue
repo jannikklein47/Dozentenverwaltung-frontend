@@ -272,7 +272,9 @@
                   color="light-blue-9"
                   :rules="[
                     (val) => !!val || 'Erforderlich',
-                    (val) => /^\+[1-9][0-9]{7,14}$/.test(val) || 'Ungültig',
+                    (val) =>
+                      validatePhoneNumber(val) ||
+                      'Ungültig (Start mit +, erste Ziffer 1-9, Danach 7-14 Ziffern, keine Leerzeichen)',
                   ]"
                   hide-bottom-space
                 />
@@ -384,7 +386,7 @@
 import { useQuasar } from 'quasar'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
+import { getDozStatusColor, getAvatarColor, validatePhoneNumber, getPreference } from 'src/utils/lecturerHelper'
 import { useProfessorStore } from 'src/stores/professor-store'
 
 const quasar = useQuasar()

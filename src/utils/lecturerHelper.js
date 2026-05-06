@@ -49,3 +49,7 @@ export function getPreference(generalPreferenceName, prioBachelor, prioMaster) {
   }
   return [generalPreferenceName]
 }
+
+export function validatePhoneNumber(phoneNumber) {
+  return /^\+[1-9][0-9]{7,14}$/.test(phoneNumber)
+}
