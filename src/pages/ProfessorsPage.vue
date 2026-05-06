@@ -164,7 +164,7 @@
     </div>
 
     <!-- TODO: Fix text to bubble alignment and make bottom two fields mandatory as well -->
-    <!-- Dialog for creating new lecturer -->
+    <!-- Dialog for creating new professor -->
     <q-dialog v-model="showDialog" no-backdrop-dismiss>
       <q-card style="min-width: 480px; border-radius: 20px" class="bg-grey-2">
         <q-card-section class="q-pt-lg q-pb-md">
@@ -177,7 +177,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none q-px-lg">
-          <q-form @submit="createLecturer" class="q-gutter-sm">
+          <q-form @submit="createProfessor" class="q-gutter-sm">
             <!-- Titel -->
             <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
@@ -187,7 +187,7 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.titel"
+                  v-model="newProfessor.titel"
                   dense
                   bg-color="white"
                   color="light-blue-9"
@@ -205,7 +205,7 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.name"
+                  v-model="newProfessor.name"
                   dense
                   bg-color="white"
                   color="light-blue-9"
@@ -224,7 +224,7 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.vorname"
+                  v-model="newProfessor.vorname"
                   dense
                   bg-color="white"
                   color="light-blue-9"
@@ -243,7 +243,7 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.email"
+                  v-model="newProfessor.email"
                   type="email"
                   dense
                   bg-color="white"
@@ -266,7 +266,7 @@
                 <q-input
                   outlined
                   rounded
-                  v-model="newLecturer.telefonnummer"
+                  v-model="newProfessor.telefonnummer"
                   dense
                   bg-color="white"
                   color="light-blue-9"
@@ -290,7 +290,7 @@
                 <q-select
                   outlined
                   rounded
-                  v-model="newLecturer.vorliebeId"
+                  v-model="newProfessor.vorliebeId"
                   :options="preferenceOptions"
                   dense
                   bg-color="white"
@@ -304,7 +304,7 @@
             </div>
 
             <!-- Preference -->
-            <div class="row items-center q-mb-md" v-if="newLecturer.vorliebeId === 3">
+            <div class="row items-center q-mb-md" v-if="newProfessor.vorliebeId === 3">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Präferenz:
               </div>
@@ -334,7 +334,7 @@
                 <q-select
                   outlined
                   rounded
-                  v-model="newLecturer.dozenten_statusId"
+                  v-model="newProfessor.dozenten_statusId"
                   :options="statusOptions"
                   dense
                   bg-color="white"
@@ -378,7 +378,7 @@
 
   <!-- Floating Action Button -->
   <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="person_add" color="light-blue-9" @click="addNewLecturer" />
+    <q-btn fab icon="person_add" color="light-blue-9" @click="addNewProfessor" />
   </q-page-sticky>
 </template>
 
@@ -386,7 +386,12 @@
 import { useQuasar } from 'quasar'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, getAvatarColor, validatePhoneNumber, getPreference } from 'src/utils/lecturerHelper'
+import {
+  getDozStatusColor,
+  getAvatarColor,
+  validatePhoneNumber,
+  getPreference,
+} from 'src/utils/professor-helper'
 import { useProfessorStore } from 'src/stores/professor-store'
 
 const quasar = useQuasar()
@@ -416,7 +421,7 @@ async function onLoad(index, done) {
   done()
 }
 
-const defaultLecturer = () => ({
+const defaultProfessor = () => ({
   titel: '',
   vorname: '',
   name: '',
@@ -428,7 +433,7 @@ const defaultLecturer = () => ({
   dozenten_statusId: null,
 })
 
-const newLecturer = ref(defaultLecturer())
+const newProfessor = ref(defaultProfessor())
 
 const statusOptions = computed(() => professorStore.mappings.professor_status ?? [])
 
@@ -445,33 +450,33 @@ const priorityOptions = [
 
 watch(selectedPriority, (val) => {
   if (val) {
-    newLecturer.value.prio_bachelor = val.value.prio_bachelor
-    newLecturer.value.prio_master = val.value.prio_master
+    newProfessor.value.prio_bachelor = val.value.prio_bachelor
+    newProfessor.value.prio_master = val.value.prio_master
   }
 })
 
 watch(
-  () => newLecturer.value.vorliebeId,
+  () => newProfessor.value.vorliebeId,
   (val) => {
     if (val !== 3) {
       selectedPriority.value = null
-      newLecturer.value.prio_bachelor = 0
-      newLecturer.value.prio_master = 0
+      newProfessor.value.prio_bachelor = 0
+      newProfessor.value.prio_master = 0
     }
   },
 )
 
-const addNewLecturer = () => {
+const addNewProfessor = () => {
   showDialog.value = true
 }
 
 const cancelForm = () => {
   showDialog.value = false
-  newLecturer.value = defaultLecturer()
+  newProfessor.value = defaultProfessor()
 }
 
-const createLecturer = async () => {
-  const payload = { ...newLecturer.value }
+const createProfessor = async () => {
+  const payload = { ...newProfessor.value }
   //Remove the title from the payload if its empty or else the backend verification will fail since it expects a value in it
   if (!payload.titel?.trim()) {
     delete payload.titel

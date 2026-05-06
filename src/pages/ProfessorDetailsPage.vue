@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
-    <!-- Header for information about lecturer -->
+    <!-- Header for information about professor -->
     <q-card bordered flat class="q-mb-lg">
       <q-card-section class="row no-wrap items-center q-pa-none">
-        <!-- Lecturer -->
+        <!-- Professor -->
         <div class="col q-pa-md">
           <div class="row items-center q-gutter-x-md">
             <!-- Have to use style to set text and background color as quasar does not support hex values by default -->
@@ -623,7 +623,7 @@ import {
   getDozentenInitials,
   getPreference,
   validatePhoneNumber,
-} from 'src/utils/lecturerHelper'
+} from 'src/utils/professor-helper'
 import { reactive, ref, watch, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
