@@ -82,11 +82,13 @@
             Allgemeine Vorliebe
           </div>
           <q-badge
+            v-for="(preference, index) in professorPreferences"
+            :key="index"
             color="grey-6"
             text-color="white"
             rounded
             class="q-px-md q-py-xs text-weight-bold q-mr-xs"
-            :label="professor.preference?.name"
+            :label="preference"
           />
         </div>
 
@@ -150,12 +152,6 @@
       <template v-slot:body-cell-abschluss="props">
         <q-td :props="props">
           {{ props.value.name }}
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-vorliebe="props">
-        <q-td :props="props">
-          {{ props.value || 'Wie im Profil' }}
         </q-td>
       </template>
 
@@ -252,52 +248,6 @@
                     :model-value="isSelected(props.row.id)"
                     @update:model-value="toggleRow(props.row)"
                   />
-                </q-td>
-              </template>
-
-              <!-- Vorliebe dropdown -->
-              <template #body-cell-vorliebe="props">
-                <q-td :props="props" @click.stop>
-                  <div :style="{ visibility: isVisibleRow(props.row.id) ? 'visible' : 'hidden' }">
-                    <template v-if="assignedIds.has(props.row.id)">
-                      <q-badge
-                        :color="getEffectiveColor(props.row.id, 'grey-6')"
-                        text-color="white"
-                        rounded
-                        class="q-px-md q-py-xs text-weight-bold justify-center"
-                        :label="
-                          rowAssignData[props.row.id]?.vorliebeId
-                            ? lectureStore.mappings.preference?.find(
-                                (p) => p.value === rowAssignData[props.row.id].vorliebeId,
-                              )?.label
-                            : professor.preference?.name || '—'
-                        "
-                      />
-                    </template>
-                    <template v-else>
-                      <q-select
-                        v-if="lockedPreferenceId === null"
-                        :model-value="getRowData(props.row.id).vorliebeId"
-                        @update:model-value="(val) => setRowField(props.row.id, 'vorliebeId', val)"
-                        :options="lectureStore.mappings.preference"
-                        option-label="label"
-                        option-value="value"
-                        emit-value
-                        map-options
-                        dense
-                        outlined
-                        style="min-width: 140px"
-                      />
-                      <q-badge
-                        v-else
-                        color="grey-6"
-                        text-color="white"
-                        rounded
-                        class="q-px-md q-py-xs text-weight-bold"
-                        :label="professor.preference?.name"
-                      />
-                    </template>
-                  </div>
                 </q-td>
               </template>
 
@@ -683,6 +633,13 @@ const router = useRouter()
 const professorStore = useProfessorStore()
 const lectureStore = useLectureStore()
 const professor = ref({})
+const professorPreferences = computed(() =>
+  getPreference(
+    professor.value?.preference?.name,
+    professor.value?.prio_bachelor,
+    professor.value?.prio_master,
+  ),
+)
 
 const lectures = computed(() => lectureStore.dozentLectures)
 const assignedIds = ref(new Set())
@@ -750,14 +707,6 @@ const columns = [
     sortable: true,
   },
   { name: 'semester', align: 'center', label: 'Semester', field: 'semester', sortable: true },
-  {
-    name: 'vorliebe',
-    align: 'left',
-    label: 'Vorliebe',
-    style: 'font-weight: bold',
-    field: 'vorliebeName',
-    sortable: true,
-  },
   { name: 'vorlauf', align: 'center', label: 'Vorlauf', field: 'vorlaufzeit' },
   {
     name: 'gehalten',
@@ -811,7 +760,7 @@ const hasChanges = computed(() => {
 const canSubmitAssignment = computed(() => {
   return newlyAdded.value.every((lecture) => {
     const row = rowAssignData[lecture.id]
-    return row && row.gehalten_anId !== null && row.vorliebeId !== null && row.vorlaufzeit !== null
+    return row && row.gehalten_anId !== null && row.vorlaufzeit !== null
   })
 })
 
@@ -833,9 +782,6 @@ const toggleRow = (row) => {
     selectedLectures.value.splice(idx, 1)
   } else {
     selectedLectures.value.push(row)
-    if (lockedPreferenceId.value !== null) {
-      getRowData(row.id).vorliebeId = lockedPreferenceId.value
-    }
   }
 }
 
@@ -856,14 +802,6 @@ const vorlaufOptions = [
   { label: '4 Wochen +', value: 'M' },
 ]
 
-const lockedPreferenceId = computed(() => {
-  if (professor.value.preference?.name === 'Alles') return null // free choice
-  return (
-    lectureStore.mappings.preference?.find((p) => p.label === professor.value.preference?.name)
-      ?.value ?? null
-  )
-})
-
 // Widths are assigned so when new lectures are assigned, the dropdowns don't change the column width.
 const assignColumns = [
   {
@@ -876,13 +814,6 @@ const assignColumns = [
   { name: 'kuerzel', align: 'left', label: 'Kürzel', field: 'kuerzel', sortable: true },
   { name: 'bezeichnung', align: 'left', label: 'Bezeichnung', field: 'name', sortable: true },
   { name: 'semester', align: 'center', label: 'Semester', field: 'semester', sortable: true },
-  {
-    name: 'vorliebe',
-    align: 'center',
-    label: 'Vorliebe',
-    field: 'vorliebeName',
-    style: 'width: 180px; min-width: 180px',
-  },
   {
     name: 'vorlauf',
     align: 'center',
@@ -911,7 +842,6 @@ function resetAssignmentForm() {
 
     rowAssignData[lecture.id] = makeRowData({
       gehalten_anId: dozentData?.gehalten_anId ?? null,
-      vorliebeId: dozentData?.vorliebeId ?? lockedPreferenceId.value,
       vorlaufzeit: dozentData?.vorlaufzeit ?? null,
     })
   })
@@ -949,7 +879,6 @@ async function onLoadDialog(index, done) {
 
 const makeRowData = (overrides = {}) => ({
   gehalten_anId: null,
-  vorliebeId: lockedPreferenceId.value, // default; overrides take precedence
   vorlaufzeit: null,
   ...overrides,
 })
@@ -966,7 +895,6 @@ function syncNewlyLoadedLectures(newLectures) {
 
       rowAssignData[lecture.id] = makeRowData({
         gehalten_anId: dozentData.gehalten_anId ?? null,
-        vorliebeId: dozentData.vorliebeId ?? lockedPreferenceId.value,
         vorlaufzeit: dozentData.vorlaufzeit ?? null,
       })
 
@@ -1008,7 +936,6 @@ const openDialog = async () => {
     const dozentData = dozentLectureMap.get(lecture.id)
     rowAssignData[lecture.id] = makeRowData({
       gehalten_anId: dozentData.gehalten_anId ?? null,
-      vorliebeId: dozentData.vorliebeId ?? null,
       vorlaufzeit: dozentData.vorlaufzeit ?? null,
     })
   })
@@ -1037,7 +964,6 @@ const submitAssignment = async () => {
     professorId: Number(professorId),
     lectureId: l.id,
     gehalten_anId: rowAssignData[l.id]?.gehalten_anId ?? null,
-    vorliebeId: rowAssignData[l.id]?.vorliebeId ?? null,
     vorlaufzeit: rowAssignData[l.id]?.vorlaufzeit ?? null,
   }))
 
@@ -1123,7 +1049,7 @@ const priorityOptions = [
   { prio_bachelor: 1, prio_master: 0 },
   { prio_bachelor: 0, prio_master: 1 },
 ].map((opt) => ({
-  label: getPreference('Alles', opt.prio_bachelor, opt.prio_master).join(' · '),
+  label: getPreference(opt.prio_bachelor, opt.prio_master).join(' · '),
   value: opt,
 }))
 
