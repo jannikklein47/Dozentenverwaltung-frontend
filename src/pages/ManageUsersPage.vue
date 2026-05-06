@@ -163,7 +163,7 @@
 <script setup>
 import { api } from 'src/boot/axios'
 import { onMounted, ref } from 'vue'
-import { getAvatarColor } from 'src/utils/lecturerHelper'
+import { getAvatarColor } from 'src/utils/professor-helper'
 import { useUserStore } from 'src/stores/user-store'
 import { useQuasar } from 'quasar'
 

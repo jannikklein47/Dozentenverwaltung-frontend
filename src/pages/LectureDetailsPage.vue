@@ -601,11 +601,7 @@
 <script setup>
 import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
-import { useQuasar } from 'quasar'
-
-// Helfer importieren
-import { getDozStatusColor } from 'src/utils/lecturerHelper'
+import { getAvatarColor, getPreference, getDozStatusColor } from 'src/utils/professor-helper'
 import {
   formatPreference,
   formatVorlaufzeit,
@@ -613,6 +609,7 @@ import {
   getGehaltenColor,
   getVorlaufOptions,
 } from 'src/utils/lecture-helper'
+import { useQuasar } from 'quasar'
 
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'

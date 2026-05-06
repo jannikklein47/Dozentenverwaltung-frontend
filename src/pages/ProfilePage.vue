@@ -213,7 +213,7 @@
 <script setup>
 import { useQuasar } from 'quasar'
 import { useUserStore } from 'src/stores/user-store'
-import { getAvatarColor } from 'src/utils/lecturerHelper'
+import { getAvatarColor } from 'src/utils/professor-helper'
 import { onMounted, ref } from 'vue'
 
 const $q = useQuasar()

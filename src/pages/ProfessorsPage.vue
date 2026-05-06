@@ -386,7 +386,12 @@
 import { useQuasar } from 'quasar'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, getAvatarColor, validatePhoneNumber, getPreference } from 'src/utils/lecturerHelper'
+import {
+  getDozStatusColor,
+  getAvatarColor,
+  validatePhoneNumber,
+  getPreference,
+} from 'src/utils/professor-helper'
 import { useProfessorStore } from 'src/stores/professor-store'
 
 const quasar = useQuasar()

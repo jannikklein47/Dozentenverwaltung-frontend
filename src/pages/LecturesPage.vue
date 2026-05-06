@@ -276,7 +276,7 @@
 import { useLectureStore } from 'src/stores/lecture-store'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAvatarColor } from 'src/utils/lecturerHelper'
+import { getAvatarColor } from 'src/utils/professor-helper'
 import { useQuasar } from 'quasar'
 
 const $q = useQuasar()

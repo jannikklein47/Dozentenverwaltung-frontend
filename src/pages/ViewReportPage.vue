@@ -510,7 +510,7 @@
 </template>
 
 <script setup>
-import { getDozStatusColor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor } from 'src/utils/professor-helper'
 import { api } from 'src/boot/axios'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'

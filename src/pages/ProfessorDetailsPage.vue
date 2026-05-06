@@ -623,7 +623,7 @@ import {
   getDozentenInitials,
   getPreference,
   validatePhoneNumber,
-} from 'src/utils/lecturerHelper'
+} from 'src/utils/professor-helper'
 import { reactive, ref, watch, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
