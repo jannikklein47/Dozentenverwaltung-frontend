@@ -128,6 +128,27 @@ export const useProfessorStore = defineStore('professor', {
     },
 
     /**
+     * Updates an existing professor using the API.
+     */
+    async updateProfessor(id, updatedData) {
+      try {
+        const response = await api.patch(`/app/professors/${id}`, updatedData)
+
+        if (response.status === 200 || response.status === 204) {
+          return true
+        } else {
+          return response.status
+        }
+      } catch (error) {
+        if (error.response?.data?.message) {
+          return error.response.data.title + ' | ' + error.response.data.message
+        } else {
+          return error.message
+        }
+      }
+    },
+
+    /**
      * Load professors from the API.
      * The function will fetch the professors with all filters applied.
      * The total professors will be updated and the professors array will be replaced after the offset with new data.

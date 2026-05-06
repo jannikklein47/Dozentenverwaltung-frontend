@@ -4,7 +4,7 @@
     <q-card bordered flat class="q-mb-lg">
       <q-card-section class="row no-wrap items-center q-pa-none">
         <!-- Lecturer -->
-        <div class="col-5 q-pa-md">
+        <div class="col q-pa-md">
           <div class="row items-center q-gutter-x-md">
             <!-- Have to use style to set text and background color as quasar does not support hex values by default -->
             <q-avatar
@@ -37,7 +37,19 @@
           </div>
         </div>
 
-        <q-space />
+        <div class="edit-col column justify-end items-center q-pb-sm">
+          <q-btn
+            round
+            unelevated
+            dense
+            size="sm"
+            color="grey-3"
+            text-color="grey-8"
+            icon="edit"
+            class="edit-btn"
+            @click="editProfessor"
+          />
+        </div>
 
         <q-separator vertical />
 
@@ -392,6 +404,205 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showEditDialog" no-backdrop-dismiss>
+      <q-card style="min-width: 480px; border-radius: 20px" class="bg-grey-2">
+        <q-card-section class="q-pt-lg q-pb-md">
+          <div
+            class="text-center text-weight-medium"
+            style="font-size: 16px; font-family: Inter, sans-serif"
+          >
+            Dozenten bearbeiten
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none q-px-lg">
+          <q-form @submit="updateProfessor" class="q-gutter-sm">
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Titel:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedProfessor.titel"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Name:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedProfessor.name"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Vorname:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedProfessor.vorname"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Email-Adresse:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedProfessor.email"
+                  type="email"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[
+                    (val) => !!val || 'Erforderlich',
+                    (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültig',
+                  ]"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Telefonnummer:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedProfessor.telefonnummer"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[
+                    (val) => !!val || 'Erforderlich',
+                    (val) => /^\+[1-9][0-9]{7,14}$/.test(val) || 'Ungültig',
+                  ]"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Vorliebe:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedProfessor.vorliebeId"
+                  :options="preferenceOptions"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md" v-if="editedProfessor.vorliebeId === 3">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Präferenz:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="selectedEditPriority"
+                  :options="priorityOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Status:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedProfessor.dozenten_statusId"
+                  :options="statusOptions"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row justify-center q-gutter-md q-mt-md q-mb-md">
+              <q-btn
+                type="button"
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelEditForm"
+              />
+              <q-btn
+                type="submit"
+                color="light-blue-9"
+                label="Änderungen speichern"
+                icon="save"
+                rounded
+                unelevated
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 
   <!-- Floating Action Button -->
@@ -457,8 +668,11 @@ watch(
 
 // Load data when component mounts
 onMounted(async () => {
-  loadProfessor()
-  await lectureStore.loadDozentLectures(professorId)
+  await Promise.all([
+    loadProfessor(),
+    lectureStore.loadDozentLectures(professorId),
+    professorStore.loadMappings(),
+  ])
 })
 
 async function loadProfessor() {
@@ -806,4 +1020,129 @@ const submitAssignment = async () => {
   lectureStore.filters.vorliebeId = null
   lectureStore.filters.offset = 0
 }
+
+const showEditDialog = ref(false)
+
+const defaultEditedProfessor = () => ({
+  titel: '',
+  vorname: '',
+  name: '',
+  email: '',
+  telefonnummer: '',
+  vorliebeId: null,
+  prio_bachelor: 0,
+  prio_master: 0,
+  dozenten_statusId: null,
+})
+
+const editedProfessor = ref(defaultEditedProfessor())
+const selectedEditPriority = ref(null)
+
+const statusOptions = computed(() => professorStore.mappings.professor_status ?? [])
+const preferenceOptions = computed(() => professorStore.mappings.preference ?? [])
+
+const priorityOptions = [
+  { prio_bachelor: 1, prio_master: 1 },
+  { prio_bachelor: 1, prio_master: 0 },
+  { prio_bachelor: 0, prio_master: 1 },
+].map((opt) => ({
+  label: getPreference(opt.prio_bachelor, opt.prio_master).join(' · '),
+  value: opt,
+}))
+
+watch(selectedEditPriority, (val) => {
+  if (val) {
+    editedProfessor.value.prio_bachelor = val.value.prio_bachelor
+    editedProfessor.value.prio_master = val.value.prio_master
+  }
+})
+
+watch(
+  () => editedProfessor.value.vorliebeId,
+  (val) => {
+    if (val !== 3) {
+      selectedEditPriority.value = null
+      editedProfessor.value.prio_bachelor = 0
+      editedProfessor.value.prio_master = 0
+    }
+  },
+)
+
+function getPrioritySelection(prioBachelor, prioMaster) {
+  return (
+    priorityOptions.find(
+      (opt) => opt.value.prio_bachelor === prioBachelor && opt.value.prio_master === prioMaster,
+    ) ?? null
+  )
+}
+
+const editProfessor = async () => {
+  if (!Object.keys(professorStore.mappings).length) {
+    await professorStore.loadMappings()
+  }
+
+  editedProfessor.value = {
+    titel: professor.value.titel ?? '',
+    vorname: professor.value.vorname ?? '',
+    name: professor.value.name ?? '',
+    email: professor.value.email ?? '',
+    telefonnummer: professor.value.telefonnummer ?? '',
+    vorliebeId: professor.value.vorliebeId ?? professor.value.preference?.id ?? null,
+    prio_bachelor: professor.value.prio_bachelor ?? 0,
+    prio_master: professor.value.prio_master ?? 0,
+    dozenten_statusId:
+      professor.value.dozenten_statusId ?? professor.value.professorStatus?.id ?? null,
+  }
+
+  selectedEditPriority.value =
+    editedProfessor.value.vorliebeId === 3
+      ? getPrioritySelection(editedProfessor.value.prio_bachelor, editedProfessor.value.prio_master)
+      : null
+
+  showEditDialog.value = true
+}
+
+const cancelEditForm = () => {
+  showEditDialog.value = false
+  editedProfessor.value = defaultEditedProfessor()
+  selectedEditPriority.value = null
+}
+
+const updateProfessor = async () => {
+  const payload = { ...editedProfessor.value }
+
+  if (!payload.titel?.trim()) {
+    delete payload.titel
+  }
+
+  const result = await professorStore.updateProfessor(professorId, payload)
+
+  if (result === true) {
+    await loadProfessor()
+    showEditDialog.value = false
+
+    quasar.notify({
+      message: 'Dozent erfolgreich aktualisiert',
+      color: 'positive',
+    })
+  } else {
+    console.error('Update failed:', result)
+    quasar.notify({
+      message: `Fehler beim Aktualisieren des Dozenten: ${result}`,
+      color: 'negative',
+    })
+  }
+}
 </script>
+
+<style scoped>
+.edit-col {
+  width: 44px;
+  min-width: 44px;
+  align-self: stretch;
+}
+
+.edit-btn {
+  margin-bottom: 2px;
+}
+</style>
