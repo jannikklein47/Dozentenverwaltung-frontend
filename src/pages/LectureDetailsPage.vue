@@ -605,7 +605,7 @@ import { getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
 import { useQuasar } from 'quasar'
 
 // Helfer importieren
-import { getAvatarColor, getDozStatusColor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor } from 'src/utils/lecturerHelper'
 import {
   formatPreference,
   formatVorlaufzeit,
