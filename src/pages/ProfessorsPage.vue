@@ -126,7 +126,22 @@
             rounded
             class="q-px-md q-py-xs text-weight-bold q-mr-xs"
             :label="props.value.name"
-          />
+          >
+            <q-tooltip :delay="250" v-if="props.row.preference?.name === 'Alles'">
+              <div class="text-body2">
+                <div
+                  v-for="(pref, index) in getPreference(
+                    props.row.preference?.name,
+                    props.row.prio_bachelor,
+                    props.row.prio_master,
+                  )"
+                  :key="index"
+                >
+                  {{ pref }}
+                </div>
+              </div>
+            </q-tooltip>
+          </q-badge>
         </q-td>
       </template>
     </q-table>
@@ -286,6 +301,28 @@
               </div>
             </div>
 
+            <!-- Preference -->
+            <div class="row items-center q-mb-md" v-if="newLecturer.vorliebeId === 3">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Präferenz:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="selectedPriority"
+                  :options="priorityOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
             <!-- Status -->
             <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
@@ -345,9 +382,9 @@
 
 <script setup>
 import { useQuasar } from 'quasar'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDozStatusColor, getAvatarColor } from 'src/utils/lecturerHelper'
+import { getDozStatusColor, getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
 import { useProfessorStore } from 'src/stores/professor-store'
 
 const quasar = useQuasar()
@@ -358,6 +395,7 @@ const professorStore = useProfessorStore()
 const professors = computed(() => professorStore.professors)
 const totalProfessors = computed(() => professorStore.totalProfessors)
 const professorFilters = professorStore.filters
+const selectedPriority = ref(null)
 
 onMounted(async () => {
   professorStore.clearProfessors()
@@ -383,6 +421,8 @@ const defaultLecturer = () => ({
   email: '',
   telefonnummer: '',
   vorliebeId: null,
+  prio_bachelor: 0,
+  prio_master: 0,
   dozenten_statusId: null,
 })
 
@@ -391,6 +431,33 @@ const newLecturer = ref(defaultLecturer())
 const statusOptions = computed(() => professorStore.mappings.professor_status ?? [])
 
 const preferenceOptions = computed(() => professorStore.mappings.preference ?? [])
+
+const priorityOptions = [
+  { prio_bachelor: 1, prio_master: 1 },
+  { prio_bachelor: 1, prio_master: 0 },
+  { prio_bachelor: 0, prio_master: 1 },
+].map((opt) => ({
+  label: getPreference('Alles', opt.prio_bachelor, opt.prio_master).join(' · '),
+  value: opt,
+}))
+
+watch(selectedPriority, (val) => {
+  if (val) {
+    newLecturer.value.prio_bachelor = val.value.prio_bachelor
+    newLecturer.value.prio_master = val.value.prio_master
+  }
+})
+
+watch(
+  () => newLecturer.value.vorliebeId,
+  (val) => {
+    if (val !== 3) {
+      selectedPriority.value = null
+      newLecturer.value.prio_bachelor = 0
+      newLecturer.value.prio_master = 0
+    }
+  },
+)
 
 const addNewLecturer = () => {
   showDialog.value = true
@@ -402,7 +469,13 @@ const cancelForm = () => {
 }
 
 const createLecturer = async () => {
-  const result = await professorStore.createProfessor(newLecturer.value)
+  const payload = { ...newLecturer.value }
+  //Remove the title from the payload if its empty or else the backend verification will fail since it expects a value in it
+  if (!payload.titel?.trim()) {
+    delete payload.titel
+  }
+
+  const result = await professorStore.createProfessor(payload)
 
   if (result === true) {
     cancelForm()
