@@ -11,8 +11,24 @@
             <div class="text-overline text-grey-6">{{ lecture.kuerzel || 'Kein Kürzel' }}</div>
             <div class="text-weight-bold text-h6">{{ lecture.name || 'Kein Name' }}</div>
           </div>
+
+          <!-- Edit Button column -->
+          <div class="edit-col column justify-end items-center q-pb-sm q-pr-sm">
+            <q-btn
+              round
+              unelevated
+              dense
+              size="sm"
+              color="grey-3"
+              text-color="grey-8"
+              icon="edit"
+              class="edit-btn"
+              @click="editLecture"
+            />
+          </div>
+
           <q-separator vertical />
-          <div class="col-2 text-center">
+          <div class="col-2 text-center q-pa-md">
             <div
               class="text-caption text-grey-6 text-weight-bold q-mb-xs"
               style="letter-spacing: 3px"
@@ -27,7 +43,7 @@
             />
           </div>
           <q-separator vertical />
-          <div class="col-3 text-center">
+          <div class="col-3 text-center q-pa-md">
             <div
               class="text-caption text-grey-6 text-weight-bold q-mb-xs"
               style="letter-spacing: 3px"
@@ -222,6 +238,7 @@
       <div class="text-h6 q-mt-md">Vorlesung mit ID {{ $route.params.id }} nicht gefunden.</div>
     </div>
 
+    <!-- Zuweisungs-Dialog -->
     <q-dialog v-model="showDialog" no-backdrop-dismiss>
       <q-card style="min-width: 500px; max-width: 1650px; border-radius: 20px" class="bg-grey-2">
         <q-card-section class="q-pt-lg q-pb-sm">
@@ -432,11 +449,153 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-  </q-page>
 
-  <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="person_add" color="light-blue-9" @click="openDialog" />
-  </q-page-sticky>
+    <!-- Bearbeiten-Dialog -->
+    <q-dialog v-model="showEditDialog" no-backdrop-dismiss>
+      <q-card style="min-width: 480px; border-radius: 20px" class="bg-grey-2">
+        <q-card-section class="q-pt-lg q-pb-md">
+          <div
+            class="text-center text-weight-medium"
+            style="font-size: 16px; font-family: Inter, sans-serif"
+          >
+            Vorlesung bearbeiten
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none q-px-lg">
+          <q-form @submit="updateLecture" class="q-gutter-sm">
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Kürzel:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedLecture.kuerzel"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Bezeichnung:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model="editedLecture.name"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Semester:
+              </div>
+              <div class="col-7">
+                <q-input
+                  outlined
+                  rounded
+                  v-model.number="editedLecture.semester"
+                  type="number"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Status:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedLecture.vorlesung_statusId"
+                  :options="statusOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Studienstufe:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedLecture.abschluss_typId"
+                  :options="completionTypeOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  emit-value
+                  map-options
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                />
+              </div>
+            </div>
+
+            <div class="row justify-center q-gutter-md q-mt-md q-mb-md">
+              <q-btn
+                type="button"
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelEditForm"
+              />
+              <q-btn
+                type="submit"
+                color="light-blue-9"
+                label="Änderungen speichern"
+                icon="save"
+                rounded
+                unelevated
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn fab icon="person_add" color="light-blue-9" @click="openDialog" />
+    </q-page-sticky>
+  </q-page>
 </template>
 
 <script setup>
@@ -444,7 +603,17 @@ import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { getAvatarColor, getPreference } from 'src/utils/lecturerHelper'
 import { useQuasar } from 'quasar'
+
+// Helfer importieren
 import { getDozStatusColor } from 'src/utils/lecturerHelper'
+import {
+  formatPreference,
+  formatVorlaufzeit,
+  getVorlaufColor,
+  getGehaltenColor,
+  getVorlaufOptions,
+} from 'src/utils/lecture-helper'
+
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 
@@ -462,32 +631,96 @@ const totalLectureProfessors = computed(() => professorStore.totalLectureProfess
 const professorFilters = professorStore.lectureFilters
 
 const lecture = ref({})
+const vorlaufOptions = getVorlaufOptions()
+
+// --- Edit Dialog State ---
+const showEditDialog = ref(false)
+
+const defaultEditedLecture = () => ({
+  kuerzel: '',
+  name: '',
+  semester: null,
+  vorlesung_statusId: null,
+  abschluss_typId: null,
+})
+
+const editedLecture = ref(defaultEditedLecture())
+
+const statusOptions = computed(() => {
+  return lectureStore.mappings?.lectureStatus || []
+})
+
+const completionTypeOptions = computed(() => {
+  return lectureStore.mappings?.completionType || []
+})
+
+const editLecture = async () => {
+  if (!lectureStore.mappings || !Object.keys(lectureStore.mappings).length) {
+    await lectureStore.loadMappings()
+  }
+
+  // Da das Backend bei getLectureById die IDs nicht liefert, suchen wir uns die ID
+  // über den Namen, der als String im lecture-Objekt hängt.
+  const currentStatusName = lecture.value.lectureStatus?.name
+  const currentCompletionName = lecture.value.completionType?.name
+
+  const matchedStatusId =
+    statusOptions.value.find((opt) => opt.label === currentStatusName)?.value || null
+  const matchedCompletionId =
+    completionTypeOptions.value.find((opt) => opt.label === currentCompletionName)?.value || null
+
+  editedLecture.value = {
+    kuerzel: lecture.value.kuerzel ?? '',
+    name: lecture.value.name ?? '',
+    semester: lecture.value.semester ?? null,
+    vorlesung_statusId: lecture.value.vorlesung_statusId ?? matchedStatusId,
+    abschluss_typId: lecture.value.abschluss_typId ?? matchedCompletionId,
+  }
+
+  showEditDialog.value = true
+}
+
+const cancelEditForm = () => {
+  showEditDialog.value = false
+  editedLecture.value = defaultEditedLecture()
+}
+
+const updateLecture = async () => {
+  const payload = { ...editedLecture.value }
+  const result = await lectureStore.updateLecture(lectureId, payload)
+
+  if (result === true) {
+    await loadLecture() // Neu laden um Änderungen im UI zu sehen
+    showEditDialog.value = false
+
+    quasar.notify({
+      message: 'Vorlesung erfolgreich aktualisiert',
+      color: 'positive',
+    })
+  } else {
+    console.error('Update failed:', result)
+    quasar.notify({
+      message: `Fehler beim Aktualisieren der Vorlesung: ${result}`,
+      color: 'negative',
+    })
+  }
+}
 
 // --- Dialog State ---
 const showDialog = ref(false)
 const dialogScrollRef = ref(null)
 
 const allProfessors = computed(() => {
-  // Den Studienstufentyp der aktuellen Vorlesung ermitteln (z.B. 'Bachelor' oder 'Master')
   const lectureType = lecture.value?.completionType?.name?.toUpperCase() || ''
 
   return professorStore.professors.filter((prof) => {
-    // Vorliebe des Dozenten auslesen
     const prefName = prof.preference?.name?.toUpperCase() || 'A'
     const isBachelorProf = prefName === 'B' || prefName === 'BACHELOR'
     const isMasterProf = prefName === 'M' || prefName === 'MASTER'
 
-    // Wenn die Vorlesung "Bachelor" ist, schließe reine "Master"-Dozenten aus
-    if (lectureType.includes('BACHELOR') && isMasterProf) {
-      return false
-    }
+    if (lectureType.includes('BACHELOR') && isMasterProf) return false
+    if (lectureType.includes('MASTER') && isBachelorProf) return false
 
-    // Wenn die Vorlesung "Master" ist, schließe reine "Bachelor"-Dozenten aus
-    if (lectureType.includes('MASTER') && isBachelorProf) {
-      return false
-    }
-
-    // Dozenten mit Vorliebe "Alles" oder passender Vorliebe werden angezeigt
     return true
   })
 })
@@ -501,57 +734,6 @@ const isSelected = (id) => selectedProfessors.value.some((p) => p.id === id)
 const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
 const isRemoved = (id) => assignedIds.value.has(id) && !isSelected(id)
 
-// Erkennt "Alles" und wertet die Prioritäten des Dozenten aus, falls verfügbar
-const formatPreference = (pref, prof = null) => {
-  if (!pref) return 'Alles' // Fallback
-  const p = String(pref).toUpperCase()
-
-  if (p === 'A' || p === 'ALLES') {
-    if (prof) {
-      // Nimmt camelCase oder snake_case an, je nachdem was das Backend liefert
-      const prioB = prof.prioBachelor !== undefined ? prof.prioBachelor : prof.prio_bachelor
-      const prioM = prof.prioMaster !== undefined ? prof.prioMaster : prof.prio_master
-
-      if (prioB === 1 && prioM === 0) return '1. Bachelor, 2. Master'
-      if (prioM === 1 && prioB === 0) return '1. Master, 2. Bachelor'
-    }
-    return 'Alles'
-  }
-
-  if (p === 'B' || p === 'BACHELOR') return 'Bachelor'
-  if (p === 'M' || p === 'MASTER') return 'Master'
-
-  return pref
-}
-
-const vorlaufOptions = [
-  { label: 'Sofort Bereit', value: 'S' },
-  { label: 'Bis 4 Wochen', value: '4' },
-  { label: '4 Wochen +', value: 'M' },
-]
-
-const formatVorlaufzeit = (val) => {
-  const opt = vorlaufOptions.find((o) => o.value === val)
-  return opt ? opt.label : val || '—'
-}
-
-// Farb-Helfer für "Vorlauf"
-const getVorlaufColor = (val) => {
-  if (val === 'S') return 'green'
-  if (val === '4') return 'orange'
-  if (val === 'M') return 'red'
-  return 'grey-6'
-}
-
-// Farb-Helfer für "Bereits gehalten"
-const getGehaltenColor = (name) => {
-  if (!name) return 'grey-6'
-  const lowerName = name.toLowerCase()
-  if (lowerName.includes('provadis')) return 'blue'
-  if (lowerName.includes('extern')) return 'orange'
-  return 'grey-6'
-}
-
 watch(
   () => route.params.id,
   async () => {
@@ -564,10 +746,8 @@ watch(
 
 onMounted(async () => {
   loading.value = true
-
   await loadLecture()
   await professorStore.loadLectureProfessors(lectureId)
-
   loading.value = false
 })
 
@@ -593,17 +773,13 @@ const openDialog = async () => {
   professorStore.clearProfessors()
   professorStore.filters.offset = 0
 
-  // load professors and mappings in parallel
   await Promise.all([professorStore.loadProfessors(), lectureStore.loadMappings()])
 
-  // use a map for efficient lookups of assigned professors
   const assignedProfMap = new Map(professorStore.lectureProfessors.map((p) => [p.id, p]))
   assignedIds.value = new Set(assignedProfMap.keys())
 
-  // pre-select already assigned professors
   selectedProfessors.value = [...professorStore.lectureProfessors]
 
-  // Pre-fill row data for already assigned professors from the detailed data
   professorStore.lectureProfessors.forEach((prof) => {
     rowAssignData[prof.id] = makeRowData({
       lectureGehalten_anName: prof.lectureGehalten_anName,
@@ -612,7 +788,6 @@ const openDialog = async () => {
     })
   })
 
-  // Ensure a row data object exists for all professors loaded into the dialog table
   allProfessors.value.forEach((prof) => {
     if (!rowAssignData[prof.id]) {
       rowAssignData[prof.id] = makeRowData()
@@ -695,7 +870,6 @@ const toggleRow = (row) => {
   } else {
     selectedProfessors.value.push(row)
 
-    // Auto-fill der Vorliebe beim Auswählen eines Dozenten
     if (!getRowData(row.id).vorliebeId && row.preference?.name) {
       const match = lectureStore.mappings.preference?.find(
         (p) =>
@@ -712,7 +886,6 @@ const toggleRow = (row) => {
 async function onLoadDialog(index, done) {
   professorStore.filters.offset += professorStore.filters.limit
   await professorStore.loadProfessors()
-  // Ensure new professors have a rowData entry
   allProfessors.value.forEach((prof) => {
     if (!rowAssignData[prof.id]) {
       rowAssignData[prof.id] = makeRowData()
@@ -736,8 +909,6 @@ const hasChanges = computed(() => {
 const canSubmit = computed(() => {
   if (!hasChanges.value) return false
 
-  // Validierung: Wenn neu ausgewählte Dozenten dabei sind,
-  // müssen die Dropdowns 'vorlaufzeit' und 'gehalten_anId' ausgefüllt sein.
   for (const p of newlyAdded.value) {
     const data = getRowData(p.id)
     const hasVorlauf =
@@ -849,5 +1020,13 @@ const submitAssignment = async () => {
 <style scoped>
 .lecture-card {
   border-radius: 8px;
+}
+.edit-col {
+  width: 44px;
+  min-width: 44px;
+  align-self: stretch;
+}
+.edit-btn {
+  margin-bottom: 2px;
 }
 </style>
