@@ -15,7 +15,7 @@ const api = axios.create({
   baseURL,
 })
 
-export default defineBoot(({ app, store, router }) => {
+export default defineBoot(({ app, store }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
   const userStore = useUserStore(store)
 
