@@ -12,14 +12,15 @@
           @click="toggleLeftDrawer"
           v-if="$route.name !== 'login' && $route.name !== 'register'"
         />
-
-        <LogoComponent
-          fill="var(--q-primary)"
-          class="q-ml-md"
-          style="width: 40px; stroke-width: 10px"
-        />
-        <div class="text-primary text-weight-bolder q-ml-md" style="font-size: 24px">
-          Dozentenverwaltung
+        <div class="row items-center cursor-pointer" @click="$router.push('/')">
+          <LogoComponent
+            fill="var(--q-primary)"
+            class="q-ml-md"
+            style="width: 40px; stroke-width: 10px"
+          />
+          <div class="text-primary text-weight-bolder q-ml-md" style="font-size: 24px">
+            Dozentenverwaltung
+          </div>
         </div>
 
         <q-separator vertical inset class="q-mx-md" />
