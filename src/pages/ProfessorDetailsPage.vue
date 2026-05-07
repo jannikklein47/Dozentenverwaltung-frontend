@@ -186,6 +186,22 @@
           />
         </q-td>
       </template>
+
+      <template #body-cell-edit="props">
+        <q-td :props="props">
+          <q-btn
+            round
+            unelevated
+            dense
+            size="sm"
+            color="grey-3"
+            text-color="grey-8"
+            icon="edit"
+            class="edit-btn"
+            @click.stop="editAssignment(props.row)"
+          />
+        </q-td>
+      </template>
     </q-table>
     <q-infinite-scroll
       @load="onLoad"
@@ -605,12 +621,179 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-  </q-page>
 
-  <!-- Floating Action Button -->
-  <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="menu_book" color="light-blue-9" @click="openDialog" />
-  </q-page-sticky>
+    <q-dialog v-model="showEditAssignmentDialog" no-backdrop-dismiss>
+      <q-card style="min-width: 480px; border-radius: 20px" class="bg-grey-2">
+        <q-card-section class="q-pt-lg q-pb-md">
+          <div
+            class="text-center text-weight-medium"
+            style="font-size: 16px; font-family: Inter, sans-serif"
+          >
+            Zuweisung bearbeiten
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pb-none">
+          <q-card
+            class="q-pa-md row items-center bg-white"
+            flat
+            bordered
+            style="border-radius: 18px"
+          >
+            <div>
+              <q-avatar
+                size="48px"
+                class="text-weight-bold text-white shadow-3"
+                :style="{
+                  backgroundColor: getAvatarColor(
+                    professor.vorname?.at(0) + professor.name?.at(0) || 0,
+                  ),
+                }"
+              >
+                {{ professor.vorname?.[0] }}{{ professor.name?.[0] }}
+              </q-avatar>
+            </div>
+
+            <div class="q-ml-md">
+              <div class="text-caption text-grey-6 text-weight-bold flex">
+                Dozent{{ professor.titel ? ',' : '' }}
+                {{ professor.titel }}
+              </div>
+              <div class="text-h6 text-weight-bold">
+                {{ professor.vorname }} {{ professor.name }}
+                <q-badge color="grey-6" :label="professor.professorStatus?.name" />
+              </div>
+            </div>
+          </q-card>
+        </q-card-section>
+
+        <div class="flex justify-center q-ma-md">
+          <q-icon name="sync_alt" size="md" style="color: #00000055; transform: rotate(90deg)" />
+        </div>
+
+        <q-card-section class="q-pt-none">
+          <q-card flat bordered class="q-pa-md bg-white full-width" style="border-radius: 18px">
+            <div class="text-overline text-grey-6">
+              {{ editedAssignmentLectureData.kuerzel || 'Kein Kürzel' }}
+              <q-badge
+                rounded
+                :color="
+                  editedAssignmentLectureData.lectureStatus?.name === 'Geschlossen'
+                    ? 'brown-9'
+                    : 'green-8'
+                "
+                :label="editedAssignmentLectureData.lectureStatus?.name || 'N/A'"
+                class="text-weight-bold"
+              />
+            </div>
+            <div class="text-weight-bold text-h6">
+              {{ editedAssignmentLectureData.name || 'Kein Name' }}
+            </div>
+          </q-card>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none q-px-lg">
+          <q-form @submit="updateAssignment" class="q-gutter-sm">
+            <div class="row items-center q-mb-md" v-if="professor?.preference.name === 'Alles'">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Vorliebe für diese Vorlesung:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedAssignment.lectureVorliebeId"
+                  :options="lectureVorliebeOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  hide-bottom-space
+                  map-options
+                  emit-value
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Vorlaufzeit für diese Vorlesung:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedAssignment.lectureVorlaufzeit"
+                  :options="vorlaufzeitOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                  map-options
+                  emit-value
+                />
+              </div>
+            </div>
+
+            <div class="row items-center q-mb-md">
+              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
+                Erfahrung in dieser Vorlesung:
+              </div>
+              <div class="col-7">
+                <q-select
+                  outlined
+                  rounded
+                  v-model="editedAssignment.lectureGehalten_anId"
+                  :options="gehaltenAnOptions"
+                  option-label="label"
+                  option-value="value"
+                  dense
+                  bg-color="white"
+                  color="light-blue-9"
+                  :rules="[(val) => !!val || 'Erforderlich']"
+                  hide-bottom-space
+                  map-options
+                  emit-value
+                />
+              </div>
+            </div>
+
+            <div class="row justify-center q-gutter-md q-mt-md q-mb-md">
+              <q-btn
+                type="button"
+                outline
+                color="grey-7"
+                label="Abbrechen"
+                rounded
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+                @click="cancelEditForm"
+              />
+              <q-btn
+                type="submit"
+                color="light-blue-9"
+                label="Änderungen speichern"
+                icon="save"
+                rounded
+                unelevated
+                padding="10px 30px"
+                style="font-family: Inter, sans-serif"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Floating Action Button -->
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn fab icon="menu_book" color="light-blue-9" @click="openDialog" />
+    </q-page-sticky>
+  </q-page>
 </template>
 
 <script setup>
@@ -626,6 +809,7 @@ import {
 } from 'src/utils/professor-helper'
 import { reactive, ref, watch, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { getVorlaufOptions } from 'src/utils/lecture-helper'
 
 const quasar = useQuasar()
 const router = useRouter()
@@ -640,6 +824,8 @@ const professorPreferences = computed(() =>
     professor.value?.prio_master,
   ),
 )
+
+const vorlaufzeitOptions = getVorlaufOptions()
 
 const lectures = computed(() => lectureStore.dozentLectures)
 const assignedIds = ref(new Set())
@@ -662,6 +848,78 @@ const professorId = route.params.id
 
 const notFoundModel = ref(false)
 
+const showEditAssignmentDialog = ref(false)
+
+const defaultEditedAssignment = () => ({
+  lectureVorlaufzeit: null,
+  lectureGehalten_anId: null,
+  lectureVorliebeId: null,
+})
+
+const editedAssignmentLectureData = ref(null)
+
+const editedAssignment = ref(defaultEditedAssignment())
+
+const lectureVorliebeOptions = computed(() => {
+  return [...(lectureStore.mappings?.preference || []), { value: null, label: 'Wie im Profil' }]
+})
+
+const gehaltenAnOptions = computed(() => {
+  return lectureStore.mappings?.gehalten_an || []
+})
+
+const editAssignment = async (assignment) => {
+  console.log('Editing assignment:', assignment)
+  if (!lectureStore.mappings || !Object.keys(lectureStore.mappings).length) {
+    await lectureStore.loadMappings()
+  }
+  if (!professorStore.mappings || !Object.keys(professorStore.mappings).length) {
+    await professorStore.loadMappings()
+  }
+
+  editedAssignment.value = {
+    lectureVorlaufzeit: assignment.vorlaufzeit || null,
+    lectureGehalten_anId: assignment.gehalten_anId || null,
+    lectureVorliebeId: assignment.vorliebeId || null,
+  }
+
+  editedAssignmentLectureData.value = assignment
+
+  showEditAssignmentDialog.value = true
+}
+
+const updateAssignment = async () => {
+  const payload = {
+    vorlaufzeit: editedAssignment.value.lectureVorlaufzeit,
+    gehalten_anId: editedAssignment.value.lectureGehalten_anId,
+    vorliebeId: editedAssignment.value.lectureVorliebeId,
+  }
+
+  console.log('Updating assignment with data:', payload)
+
+  const result = await professorStore.updateAssignment(
+    professorId,
+    editedAssignmentLectureData.value.id,
+    payload,
+  )
+
+  if (result === true) {
+    await reload() // Neu laden um Änderungen im UI zu sehen
+    showEditAssignmentDialog.value = false
+
+    quasar.notify({
+      message: 'Vorlesung erfolgreich aktualisiert',
+      color: 'positive',
+    })
+  } else {
+    console.error('Update failed:', result)
+    quasar.notify({
+      message: `Fehler beim Aktualisieren der Vorlesung: ${result}`,
+      color: 'negative',
+    })
+  }
+}
+
 watch(
   () => route.params.id,
   async () => {
@@ -677,6 +935,14 @@ onMounted(async () => {
     professorStore.loadMappings(),
   ])
 })
+
+async function reload() {
+  await Promise.all([
+    loadProfessor(),
+    lectureStore.loadDozentLectures(professorId),
+    professorStore.loadMappings(),
+  ])
+}
 
 async function loadProfessor() {
   const result = await professorStore.getProfessorById(professorId)
@@ -714,6 +980,11 @@ const columns = [
     label: 'Bereits gehalten',
     field: 'gehalten_anName',
     sortable: true,
+  },
+  {
+    name: 'edit',
+    align: 'right',
+    label: '',
   },
 ]
 
@@ -957,6 +1228,8 @@ const cancelForm = () => {
   lectureStore.filters.offset = 0
   // The selected options in the dialog are intentionally not reset. So the user could open it again!
   // However the selected and unselected lectures are still reset!
+  showEditAssignmentDialog.value = false
+  editedAssignment.value = defaultEditedAssignment()
 }
 
 const submitAssignment = async () => {
@@ -1109,6 +1382,8 @@ const cancelEditForm = () => {
   showEditDialog.value = false
   editedProfessor.value = defaultEditedProfessor()
   selectedEditPriority.value = null
+  showEditAssignmentDialog.value = false
+  editedAssignment.value = defaultEditedAssignment()
 }
 
 const updateProfessor = async () => {
