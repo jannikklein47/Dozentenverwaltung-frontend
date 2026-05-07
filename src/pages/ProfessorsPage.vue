@@ -378,7 +378,16 @@
 
   <!-- Floating Action Button -->
   <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="person_add" color="light-blue-9" @click="addNewProfessor" />
+    <q-btn
+      no-caps
+      class="q-py-md q-px-lg"
+      rounded
+      icon-right="school"
+      color="light-blue-9"
+      @click="addNewProfessor"
+    >
+      <span class="q-mr-sm">Neu</span>
+    </q-btn>
   </q-page-sticky>
 </template>
 

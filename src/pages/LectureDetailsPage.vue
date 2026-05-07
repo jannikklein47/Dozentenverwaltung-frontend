@@ -12,21 +12,6 @@
             <div class="text-weight-bold text-h6">{{ lecture.name || 'Kein Name' }}</div>
           </div>
 
-          <!-- Edit Button column -->
-          <div class="edit-col column justify-end items-center q-pb-sm q-pr-sm">
-            <q-btn
-              round
-              unelevated
-              dense
-              size="sm"
-              color="grey-3"
-              text-color="grey-8"
-              icon="edit"
-              class="edit-btn"
-              @click="editLecture"
-            />
-          </div>
-
           <q-separator vertical />
           <div class="col-2 text-center q-pa-md">
             <div
@@ -58,11 +43,26 @@
             />
           </div>
           <q-separator vertical />
-          <div class="col-4 q-pa-md text-center">
+          <div class="col-3 q-pa-md text-center">
             <div class="text-caption text-grey-6 text-weight-bold" style="letter-spacing: 3px">
               Semester
             </div>
             <div class="text-weight-bold">Regelsemester: {{ lecture.semester || '-' }}</div>
+          </div>
+
+          <q-separator vertical />
+          <!-- Edit Button column -->
+          <div class="column justify-center items-center col-1">
+            <q-btn
+              flat
+              color="grey-3"
+              text-color="grey-8"
+              icon="edit"
+              class="edit-btn"
+              @click="editLecture"
+            >
+              <q-tooltip class="text-body2" style="width: 100px">Vorlesung Bearbeiten</q-tooltip>
+            </q-btn>
           </div>
         </q-card-section>
       </q-card>
@@ -773,7 +773,16 @@
     </q-dialog>
 
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn fab icon="person_add" color="light-blue-9" @click="openDialog" />
+      <q-btn
+        no-caps
+        class="q-py-md q-px-lg"
+        rounded
+        icon-right="exposure"
+        color="light-blue-9"
+        @click="openDialog"
+      >
+        <span class="q-mr-sm">Zuweisung</span>
+      </q-btn>
     </q-page-sticky>
   </q-page>
 </template>
@@ -1276,11 +1285,7 @@ const submitAssignment = async () => {
 .lecture-card {
   border-radius: 8px;
 }
-.edit-col {
-  width: 44px;
-  min-width: 44px;
-  align-self: stretch;
-}
+
 .edit-btn {
   margin-bottom: 2px;
 }
