@@ -268,7 +268,16 @@
   </q-page>
 
   <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-btn fab icon="menu_book" color="light-blue-9" @click="addNewLecture" />
+    <q-btn
+      no-caps
+      class="q-py-md q-px-lg"
+      rounded
+      icon-right="menu_book"
+      color="light-blue-9"
+      @click="addNewLecture"
+    >
+      <span class="q-mr-sm">Neu</span>
+    </q-btn>
   </q-page-sticky>
 </template>
 

@@ -37,20 +37,6 @@
           </div>
         </div>
 
-        <div class="edit-col column justify-end items-center q-pb-sm">
-          <q-btn
-            round
-            unelevated
-            dense
-            size="sm"
-            color="grey-3"
-            text-color="grey-8"
-            icon="edit"
-            class="edit-btn"
-            @click="editProfessor"
-          />
-        </div>
-
         <q-separator vertical />
 
         <!-- Status -->
@@ -106,6 +92,21 @@
             <div class="text-weight-bold text-body2 text-left">{{ professor.email }}</div>
             <div class="text-weight-bold text-body2 text-left">{{ professor.telefonnummer }}</div>
           </div>
+        </div>
+
+        <q-separator vertical />
+        <!-- Edit Button column -->
+        <div class="column justify-center items-center col-1">
+          <q-btn
+            flat
+            color="grey-3"
+            text-color="grey-8"
+            icon="edit"
+            class="edit-btn"
+            @click="editProfessor"
+          >
+            <q-tooltip class="text-body2" style="width: 100px">Dozent Bearbeiten</q-tooltip>
+          </q-btn>
         </div>
       </q-card-section>
     </q-card>
@@ -199,7 +200,9 @@
             icon="edit"
             class="edit-btn"
             @click.stop="editAssignment(props.row)"
-          />
+          >
+            <q-tooltip class="text-body2" style="width: 100px">Zuweisung bearbeiten</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
     </q-table>
@@ -791,7 +794,16 @@
 
     <!-- Floating Action Button -->
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn fab icon="menu_book" color="light-blue-9" @click="openDialog" />
+      <q-btn
+        no-caps
+        class="q-py-md q-px-lg"
+        rounded
+        icon-right="exposure"
+        color="light-blue-9"
+        @click="openDialog"
+      >
+        <span class="q-mr-sm">Zuweisung</span>
+      </q-btn>
     </q-page-sticky>
   </q-page>
 </template>
