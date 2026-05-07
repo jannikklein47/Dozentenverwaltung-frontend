@@ -15,7 +15,7 @@ const api = axios.create({
   baseURL,
 })
 
-export default defineBoot(({ app, store, router }) => {
+export default defineBoot(({ app, store }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
   const userStore = useUserStore(store)
 
@@ -50,8 +50,8 @@ export default defineBoot(({ app, store, router }) => {
           return api(originalRequest)
         } catch (refreshError) {
           // Refresh token is invalid / expired
-          userStore.logout()
-          router.push('/login')
+          userStore.silentLogout()
+          location.reload()
           return Promise.reject(refreshError)
         }
       }
