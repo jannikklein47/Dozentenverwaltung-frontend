@@ -10,7 +10,7 @@ import { useUserStore } from 'src/stores/user-store'
 // for each client)
 const baseURL = process.env.DEV
   ? 'http://localhost:3000/api/v1.0/' // Dev-Mode
-  : 'http://164.30.75.20:3000/api/v1.0/' // Production-Mode
+  : 'https://https://api.doz.cookiee.org/api/v1.0/' // Production-Mode
 const api = axios.create({
   baseURL,
 })
