@@ -50,8 +50,8 @@ export default defineBoot(({ app, store, router }) => {
           return api(originalRequest)
         } catch (refreshError) {
           // Refresh token is invalid / expired
-          userStore.logout()
-          router.push('/login')
+          userStore.silentLogout()
+          location.reload()
           return Promise.reject(refreshError)
         }
       }
