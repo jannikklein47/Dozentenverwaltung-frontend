@@ -174,6 +174,11 @@
                 />
               </template>
             </q-input>
+
+<div class="text-caption text-grey-7 q-mt-md">
+  {{ passwordRulesText }}
+</div>
+            
           </form>
         </q-card-section>
         <q-separator />
@@ -232,6 +237,9 @@ const passwordLoading = ref(false)
 const showOldPassword = ref(false)
 const showNewPassword = ref(false)
 const showRepeatPassword = ref(false)
+
+  const passwordRulesText =
+  'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.'
 
 onMounted(async () => {
   const profile = await userStore.getUserProfile()
