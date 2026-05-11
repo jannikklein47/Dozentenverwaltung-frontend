@@ -218,6 +218,37 @@ export const useLectureStore = defineStore('lecture', {
       }
     },
     /**
+     * Load lectures including those held by a specific professor, even if they don't match the filters.
+     * This is useful for the professor assignment dialog where you need to see all matching lectures
+     * plus all lectures already assigned to the professor.
+     *
+     * @param {number} professorId The ID of the professor.
+     * @returns {Promise<void>}
+     */
+    async loadLecturesIncludingProfessor(professorId) {
+      try {
+        const query =
+          '?' +
+          Object.entries(this.filters)
+            .filter((data) => data[1] !== null && data[1] !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&')
+        // request the api with all filters, including professor's own lectures
+        const response = await api.get('/app/lectures/including/' + professorId + query)
+
+        if (response.status === 200) {
+          const lecs = response.data.lectures
+          // set total lectures for visual feedback
+          this.totalLectures = response.data.total
+          // replace all entries after offset with new data
+          this.lectures.splice(this.filters.offset, this.lectures.length, ...lecs)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    /**
      * Updates an existing lecture using the API.
      *
      * @param {number} id The ID of the lecture to update.
