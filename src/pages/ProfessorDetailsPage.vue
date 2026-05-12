@@ -1401,10 +1401,6 @@ const cancelEditForm = () => {
 const updateProfessor = async () => {
   const payload = { ...editedProfessor.value }
 
-  if (!payload.titel?.trim()) {
-    delete payload.titel
-  }
-
   const result = await professorStore.updateProfessor(professorId, payload)
 
   if (result === true) {
