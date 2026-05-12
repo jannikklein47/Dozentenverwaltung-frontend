@@ -1149,7 +1149,7 @@ function confirmReset() {
 async function onLoadDialog(index, done) {
   const beforeCount = lectureStore.lectures.length
   lectureStore.filters.offset += lectureStore.filters.limit
-  await lectureStore.loadLectures()
+  await lectureStore.loadLecturesIncludingProfessor(professorId)
   const newlyLoaded = lectureStore.lectures.slice(beforeCount)
   syncNewlyLoadedLectures(newlyLoaded)
   done()
@@ -1204,7 +1204,10 @@ const openDialog = async () => {
   lectureStore.filters.offset = 0
   lectureStore.filters.abschluss_typId = completionTypeFilterId.value
 
-  await Promise.all([lectureStore.loadLectures(), lectureStore.loadMappings()])
+  await Promise.all([
+    lectureStore.loadLecturesIncludingProfessor(professorId),
+    lectureStore.loadMappings(),
+  ])
 
   const dozentLectureMap = new Map(lectureStore.dozentLectures.map((l) => [l.id, l]))
   const matchedAssigned = lectureStore.lectures.filter((l) => dozentLectureMap.has(l.id))
