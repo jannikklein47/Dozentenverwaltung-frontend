@@ -939,7 +939,6 @@ const updateAssignment = async () => {
   const payload = {
     vorlaufzeit: editedAssignment.value.lectureVorlaufzeit,
     gehalten_anId: editedAssignment.value.lectureGehalten_anId,
-    vorliebeId: editedAssignment.value.lectureVorliebeId,
   }
 
   console.log('Updating assignment with data:', payload)
@@ -1122,9 +1121,8 @@ function setRowField(id, field, value) {
 }
 
 const makeRowData = (overrides = {}) => ({
-  gehalten_anId: null,
-  vorliebeId: null,
-  vorlaufzeit: null,
+  gehalten_anId: 1,
+  vorlaufzeit: 'S',
   lectureGehalten_anName: '',
   lectureVorliebeName: '',
   lectureVorlaufzeit: '',
@@ -1137,13 +1135,6 @@ const toggleRow = (row) => {
     selectedProfessors.value.splice(idx, 1)
   } else {
     selectedProfessors.value.push(row)
-
-    if (!getRowData(row.id).vorliebeId && row.preference?.name) {
-      const match = lectureStore.mappings.preference?.find((p) => p.label === row.preference.name)
-      if (match) {
-        setRowField(row.id, 'vorliebeId', match.value)
-      }
-    }
   }
 }
 
@@ -1235,7 +1226,6 @@ const submitAssignment = async () => {
     professorId: p.id,
     lectureId: Number(lectureId),
     gehalten_anId: rowAssignData[p.id]?.gehalten_anId ?? null,
-    vorliebeId: rowAssignData[p.id]?.vorliebeId ?? null,
     vorlaufzeit: rowAssignData[p.id]?.vorlaufzeit ?? null,
   }))
 

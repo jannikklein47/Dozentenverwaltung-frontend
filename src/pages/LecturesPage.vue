@@ -324,7 +324,7 @@ const newLecture = ref({
   kuerzel: '',
   name: '',
   semester: null,
-  abschluss_typId: null,
+  abschluss_typId: 1,
   vorlesung_statusId: null,
 })
 
@@ -335,7 +335,7 @@ const cancelForm = () => {
     kuerzel: '',
     name: '',
     semester: null,
-    abschluss_typId: null,
+    abschluss_typId: 1,
     vorlesung_statusId: null,
   }
 }

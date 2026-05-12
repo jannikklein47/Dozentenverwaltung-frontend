@@ -1121,12 +1121,7 @@ function resetAssignmentForm() {
   )
 
   lectureStore.lectures.forEach((lecture) => {
-    const dozentData = dozentLectureMap.get(lecture.id)
-
-    rowAssignData[lecture.id] = makeRowData({
-      gehalten_anId: dozentData?.gehalten_anId ?? null,
-      vorlaufzeit: dozentData?.vorlaufzeit ?? null,
-    })
+    rowAssignData[lecture.id] = makeRowData()
   })
 }
 
@@ -1161,8 +1156,8 @@ async function onLoadDialog(index, done) {
 }
 
 const makeRowData = (overrides = {}) => ({
-  gehalten_anId: null,
-  vorlaufzeit: null,
+  gehalten_anId: 1,
+  vorlaufzeit: 'S',
   ...overrides,
 })
 
