@@ -1122,9 +1122,9 @@ function setRowField(id, field, value) {
 }
 
 const makeRowData = (overrides = {}) => ({
-  gehalten_anId: null,
+  gehalten_anId: 1,
   vorliebeId: null,
-  vorlaufzeit: null,
+  vorlaufzeit: 'S',
   lectureGehalten_anName: '',
   lectureVorliebeName: '',
   lectureVorlaufzeit: '',
