@@ -379,7 +379,13 @@ const createLectureAction = async () => {
 }
 
 const columns = [
-  { name: 'kuerzel', align: 'left', label: 'Kürzel', field: 'kuerzel', sortable: true },
+  {
+    name: 'kuerzel',
+    align: 'left',
+    label: 'Kürzel',
+    field: 'kuerzel',
+    sortable: true,
+  },
   {
     name: 'bezeichnung',
     align: 'left',
@@ -388,10 +394,35 @@ const columns = [
     sortable: true,
     style: 'font-weight: 500',
   },
-  { name: 'offen', align: 'center', label: 'Offen', field: 'lectureStatus', sortable: true },
-  { name: 'abschluss', align: 'left', label: 'Abschluss', field: 'completionType' },
-  { name: 'semester', align: 'center', label: 'Semester', field: 'semester', sortable: true },
-  { name: 'dozenten', align: 'left', label: 'Dozenten', field: 'professors' },
+  {
+    name: 'offen',
+    align: 'center',
+    label: 'Offen',
+    field: 'lectureStatus',
+    sortable: true,
+    sort: (a, b) => (a.name || '').localeCompare(b.name || ''),
+  },
+  {
+    name: 'abschluss',
+    align: 'left',
+    label: 'Abschluss',
+    field: 'completionType',
+    sortable: true,
+    sort: (a, b) => (a.name || '').localeCompare(b.name || ''),
+  },
+  {
+    name: 'semester',
+    align: 'center',
+    label: 'Semester',
+    field: 'semester',
+    sortable: true,
+  },
+  {
+    name: 'dozenten',
+    align: 'left',
+    label: 'Dozenten',
+    field: 'professors',
+  },
 ]
 </script>
 
