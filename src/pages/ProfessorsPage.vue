@@ -512,7 +512,13 @@ const createProfessor = async () => {
 
 //Definition of columns for the table
 const columns = [
-  { name: 'title', align: 'left', label: 'Titel', field: 'titel', sortable: true },
+  {
+    name: 'title',
+    align: 'left',
+    label: 'Titel',
+    field: 'titel',
+    sortable: true,
+  },
   {
     name: 'profName',
     align: 'left',
@@ -520,8 +526,21 @@ const columns = [
     field: (row) => `${row.vorname} ${row.name}`,
     sortable: true,
   },
-  { name: 'status', align: 'center', label: 'Status', field: 'professorStatus', sortable: true },
-  { name: 'email', align: 'left', label: 'E-Mail-Adresse', field: 'email', sortable: true },
+  {
+    name: 'status',
+    align: 'center',
+    label: 'Status',
+    field: 'professorStatus',
+    sortable: true,
+    sort: (a, b) => (a.name || '').localeCompare(b.name || ''),
+  },
+  {
+    name: 'email',
+    align: 'left',
+    label: 'E-Mail-Adresse',
+    field: 'email',
+    sortable: true,
+  },
   {
     name: 'telefon',
     align: 'left',
@@ -529,7 +548,12 @@ const columns = [
     field: 'telefonnummer',
     sortable: true,
   },
-  { name: 'vorlesungen', align: 'left', label: 'Vorlesungen', field: 'lectures' },
+  {
+    name: 'vorlesungen',
+    align: 'left',
+    label: 'Vorlesungen',
+    field: 'lectures',
+  },
   {
     name: 'vorlieben',
     align: 'left',
