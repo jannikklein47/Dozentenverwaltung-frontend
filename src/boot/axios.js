@@ -8,7 +8,9 @@ import { useUserStore } from 'src/stores/user-store'
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const baseURL = 'http://localhost:3000/api/v1.0/' //process.env.DEV
+
+const baseURL =
+  process.env.PROD_API === '1' ? process.env.PROD_API_ADDRESS : 'http://localhost:3000/api/v1.0/' //process.env.DEV
 //  ? 'http://localhost:3000/api/v1.0/' // Dev-Mode
 //  : 'https://doz.cookiee.org/api/v1.0/' // Production-Mode
 const api = axios.create({
