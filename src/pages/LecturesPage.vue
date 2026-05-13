@@ -400,6 +400,7 @@ const columns = [
     label: 'Offen',
     field: 'lectureStatus',
     sortable: true,
+    sort: (a, b) => (a.name || '').localeCompare(b.name || ''),
   },
   {
     name: 'abschluss',
