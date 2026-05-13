@@ -697,28 +697,6 @@
 
         <q-card-section class="q-pt-none q-px-lg">
           <q-form @submit="updateAssignment" class="q-gutter-sm">
-            <div class="row items-center q-mb-md" v-if="professor?.preference.name === 'Alles'">
-              <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
-                Vorliebe für diese Vorlesung:
-              </div>
-              <div class="col-7">
-                <q-select
-                  outlined
-                  rounded
-                  v-model="editedAssignment.lectureVorliebeId"
-                  :options="lectureVorliebeOptions"
-                  option-label="label"
-                  option-value="value"
-                  dense
-                  bg-color="white"
-                  color="light-blue-9"
-                  hide-bottom-space
-                  map-options
-                  emit-value
-                />
-              </div>
-            </div>
-
             <div class="row items-center q-mb-md">
               <div class="col-5 text-grey-8 text-left" style="font-family: Inter, sans-serif">
                 Vorlaufzeit für diese Vorlesung:
@@ -865,16 +843,11 @@ const showEditAssignmentDialog = ref(false)
 const defaultEditedAssignment = () => ({
   lectureVorlaufzeit: null,
   lectureGehalten_anId: null,
-  lectureVorliebeId: null,
 })
 
 const editedAssignmentLectureData = ref(null)
 
 const editedAssignment = ref(defaultEditedAssignment())
-
-const lectureVorliebeOptions = computed(() => {
-  return [...(lectureStore.mappings?.preference || []), { value: null, label: 'Wie im Profil' }]
-})
 
 const gehaltenAnOptions = computed(() => {
   return lectureStore.mappings?.gehalten_an || []
@@ -892,7 +865,6 @@ const editAssignment = async (assignment) => {
   editedAssignment.value = {
     lectureVorlaufzeit: assignment.vorlaufzeit || null,
     lectureGehalten_anId: assignment.gehalten_anId || null,
-    lectureVorliebeId: assignment.vorliebeId || null,
   }
 
   editedAssignmentLectureData.value = assignment
@@ -904,7 +876,6 @@ const updateAssignment = async () => {
   const payload = {
     vorlaufzeit: editedAssignment.value.lectureVorlaufzeit,
     gehalten_anId: editedAssignment.value.lectureGehalten_anId,
-    vorliebeId: editedAssignment.value.lectureVorliebeId,
   }
 
   console.log('Updating assignment with data:', payload)
