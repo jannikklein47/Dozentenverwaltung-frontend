@@ -263,6 +263,14 @@
             Dozent(en) zuweisen
           </div>
 
+          <q-input
+            v-model="assignmentFilters.term"
+            label="Nach einer Vorlesung suchen..."
+            @update:model-value="debounceApplyFilterToProfessorLectures"
+            filled
+            class="q-mb-md"
+          />
+
           <div
             ref="dialogScrollRef"
             style="max-height: 66vh; overflow-y: auto; font-family: Inter, sans-serif"
@@ -772,7 +780,7 @@ import {
   getGehaltenColor,
   getVorlaufOptions,
 } from 'src/utils/lecture-helper'
-import { useQuasar } from 'quasar'
+import { debounce, useQuasar } from 'quasar'
 
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
@@ -856,7 +864,6 @@ const editLecture = async () => {
 }
 
 const editAssignment = async (assignment) => {
-  console.log('Editing assignment:', assignment)
   if (!lectureStore.mappings || !Object.keys(lectureStore.mappings).length) {
     await lectureStore.loadMappings()
   }
@@ -908,8 +915,6 @@ const updateAssignment = async () => {
     gehalten_anId: editedAssignment.value.lectureGehalten_anId,
   }
 
-  console.log('Updating assignment with data:', payload)
-
   const result = await professorStore.updateAssignment(
     editedAssignmentProfData.value.id,
     lectureId,
@@ -954,6 +959,8 @@ const isSelected = (id) => selectedProfessors.value.some((p) => p.id === id)
 const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
 const isRemoved = (id) => assignedIds.value.has(id) && !isSelected(id)
 
+const assignmentFilters = professorStore.filters
+
 watch(
   () => route.params.id,
   async () => {
@@ -995,8 +1002,20 @@ async function onLoad(index, done) {
   done()
 }
 
+const debounceApplyFilterToProfessorLectures = debounce(applyFilterToProfessorLectures, 500)
+
+function applyFilterToProfessorLectures() {
+  openDialog(true)
+}
+
 // --- Dialog Logic ---
-const openDialog = async () => {
+const openDialog = async (dontOpen = false) => {
+  if (dontOpen !== true) {
+    professorFilters.term = null
+    professorFilters.dozenten_statusId = null
+    professorFilters.vorliebeId = null
+  }
+
   professorStore.clearProfessors()
   professorStore.filters.offset = 0
   professorStore.filters.vorliebeId = completionTypeFilterId.value
@@ -1028,6 +1047,7 @@ const openDialog = async () => {
 
   selectedProfessors.value = matchedAssigned
 
+  if (dontOpen === true) return
   showDialog.value = true
 }
 

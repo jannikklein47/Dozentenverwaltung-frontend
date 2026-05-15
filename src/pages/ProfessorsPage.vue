@@ -94,7 +94,7 @@
             :style="{
               fontFamily: 'Inter, sans-serif',
             }"
-            v-if="props.value.length > 3"
+            v-if="props?.value?.length > 3 || false"
             color="grey-3"
             text-color="black"
             class="text-weight-bold shadow-3"
@@ -417,7 +417,6 @@ onMounted(async () => {
   professorStore.clearProfessors()
   await professorStore.loadProfessors()
   await professorStore.loadMappings()
-  console.log(professors.value)
 })
 
 async function loadMore() {
