@@ -417,7 +417,6 @@ onMounted(async () => {
   professorStore.clearProfessors()
   await professorStore.loadProfessors()
   await professorStore.loadMappings()
-  console.log(professors.value)
 })
 
 async function loadMore() {
