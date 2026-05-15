@@ -392,7 +392,7 @@
             </q-table>
 
             <q-infinite-scroll
-              v-if="totalAllProfessors !== professorStore.professors.length"
+              v-if="totalAllProfessors !== allProfessors.length"
               :scroll-target="dialogScrollRef"
               :offset="250"
               @load="onLoadDialog"
@@ -836,8 +836,6 @@ const editLecture = async () => {
     await lectureStore.loadMappings()
   }
 
-  // Da das Backend bei getLectureById die IDs nicht liefert, suchen wir uns die ID
-  // über den Namen, der als String im lecture-Objekt hängt.
   const currentStatusName = lecture.value.lectureStatus?.name
   const currentCompletionName = lecture.value.completionType?.name
 
@@ -939,21 +937,14 @@ const updateAssignment = async () => {
 const showDialog = ref(false)
 const dialogScrollRef = ref(null)
 
-const allProfessors = computed(() => {
-  const lectureType = lecture.value?.completionType?.name?.toUpperCase() || ''
-
-  return professorStore.professors.filter((prof) => {
-    const prefName = prof.preference?.name?.toUpperCase() || 'A'
-    const isBachelorProf = prefName === 'B' || prefName === 'BACHELOR'
-    const isMasterProf = prefName === 'M' || prefName === 'MASTER'
-
-    if (lectureType.includes('BACHELOR') && isMasterProf) return false
-    if (lectureType.includes('MASTER') && isBachelorProf) return false
-
-    return true
-  })
+const completionTypeFilterId = computed(() => {
+  const abschluss = lecture.value?.completionType?.name
+  if (abschluss === 'Bachelor') return 2
+  if (abschluss === 'Master') return 1
+  return null
 })
 
+const allProfessors = computed(() => professorStore.professors)
 const totalAllProfessors = computed(() => professorStore.totalProfessors)
 const selectedProfessors = ref([])
 const assignedIds = ref(new Set())
@@ -1008,26 +999,34 @@ async function onLoad(index, done) {
 const openDialog = async () => {
   professorStore.clearProfessors()
   professorStore.filters.offset = 0
+  professorStore.filters.vorliebeId = completionTypeFilterId.value
 
-  await Promise.all([professorStore.loadProfessors(), lectureStore.loadMappings()])
+  await Promise.all([
+    professorStore.loadProfessorsIncludingLecture(lectureId),
+    lectureStore.loadMappings(),
+  ])
 
   const assignedProfMap = new Map(professorStore.lectureProfessors.map((p) => [p.id, p]))
-  assignedIds.value = new Set(assignedProfMap.keys())
+  const matchedAssigned = professorStore.professors.filter((p) => assignedProfMap.has(p.id))
+  assignedIds.value = new Set(matchedAssigned.map((p) => p.id))
 
-  selectedProfessors.value = [...professorStore.lectureProfessors]
-
-  professorStore.lectureProfessors.forEach((prof) => {
+  matchedAssigned.forEach((prof) => {
+    const profData = assignedProfMap.get(prof.id)
     rowAssignData[prof.id] = makeRowData({
-      lectureGehalten_anName: prof.lectureGehalten_anName,
-      lectureVorlaufzeit: prof.lectureVorlaufzeit,
+      gehalten_anId: profData.lectureGehalten_anId ?? null,
+      vorlaufzeit: profData.lectureVorlaufzeit ?? null,
+      lectureGehalten_anName: profData.lectureGehalten_anName,
+      lectureVorlaufzeit: profData.lectureVorlaufzeit,
     })
   })
 
-  allProfessors.value.forEach((prof) => {
+  professorStore.professors.forEach((prof) => {
     if (!rowAssignData[prof.id]) {
       rowAssignData[prof.id] = makeRowData()
     }
   })
+
+  selectedProfessors.value = matchedAssigned
 
   showDialog.value = true
 }
@@ -1105,14 +1104,45 @@ const toggleRow = (row) => {
   }
 }
 
-async function onLoadDialog(index, done) {
-  professorStore.filters.offset += professorStore.filters.limit
-  await professorStore.loadProfessors()
-  allProfessors.value.forEach((prof) => {
-    if (!rowAssignData[prof.id]) {
-      rowAssignData[prof.id] = makeRowData()
+function syncNewlyLoadedProfessors(newProfessors) {
+  const assignedProfMap = new Map(professorStore.lectureProfessors.map((p) => [p.id, p]))
+  const newIds = []
+
+  newProfessors.forEach((prof) => {
+    const profData = assignedProfMap.get(prof.id)
+
+    if (profData) {
+      newIds.push(prof.id)
+
+      rowAssignData[prof.id] = makeRowData({
+        gehalten_anId: profData.lectureGehalten_anId ?? null,
+        vorlaufzeit: profData.lectureVorlaufzeit ?? null,
+        lectureGehalten_anName: profData.lectureGehalten_anName,
+        lectureVorlaufzeit: profData.lectureVorlaufzeit,
+      })
+
+      if (!selectedProfessors.value.some((p) => p.id === prof.id)) {
+        selectedProfessors.value.push(prof)
+      }
+    } else {
+      if (!rowAssignData[prof.id]) {
+        rowAssignData[prof.id] = makeRowData()
+      }
     }
   })
+
+  if (newIds.length) {
+    assignedIds.value = new Set([...assignedIds.value, ...newIds])
+  }
+}
+
+async function onLoadDialog(index, done) {
+  const beforeCount = professorStore.professors.length
+  professorStore.filters.offset += professorStore.filters.limit
+  await professorStore.loadProfessorsIncludingLecture(lectureId)
+
+  const newlyLoaded = professorStore.professors.slice(beforeCount)
+  syncNewlyLoadedProfessors(newlyLoaded)
   done()
 }
 
@@ -1179,6 +1209,11 @@ function confirmReset() {
 
 const cancelForm = () => {
   showDialog.value = false
+  selectedProfessors.value = []
+  professorStore.filters.vorliebeId = null
+  professorStore.filters.offset = 0
+  showEditAssignmentDialog.value = false
+  editedAssignment.value = defaultEditedAssignment()
 }
 
 const assignDisabledReason = computed(() => {

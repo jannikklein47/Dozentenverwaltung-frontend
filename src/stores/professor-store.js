@@ -298,6 +298,26 @@ export const useProfessorStore = defineStore('professor', {
         }
       }
     },
+    async loadProfessorsIncludingLecture(lectureId) {
+      try {
+        const query =
+          '?' +
+          Object.entries(this.filters)
+            .filter((data) => data[1] !== null && data[1] !== undefined)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&')
+
+        const response = await api.get(`/app/professors/including/${lectureId}${query}`)
+
+        if (response.status === 200) {
+          const profs = response.data.professors
+          this.totalProfessors = response.data.total
+          this.professors.splice(this.filters.offset, this.professors.length, ...profs)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
   },
 })
 
