@@ -94,10 +94,15 @@ export const useProfessorStore = defineStore('professor', {
 
         if (response.status === 200) {
           const profs = response.data.professors
+          // Ensure every professor has a lectures array to prevent undefined errors
+          const normalizedProfs = profs.map(prof => ({
+            ...prof,
+            lectures: prof.lectures || []
+          }))
           // set total professors for visual feedback
           this.totalProfessors = response.data.total
           // replace all entries after offset with new data
-          this.professors.splice(this.filters.offset, this.professors.length, ...profs)
+          this.professors.splice(this.filters.offset, this.professors.length, ...normalizedProfs)
         }
       } catch (error) {
         console.error(error)
@@ -169,13 +174,18 @@ export const useProfessorStore = defineStore('professor', {
 
         if (response.status === 200) {
           const profs = response.data.professors
+          // Ensure every professor has a lectures array to prevent undefined errors
+          const normalizedProfs = profs.map(prof => ({
+            ...prof,
+            lectures: prof.lectures || []
+          }))
           // set total professors for visual feedback
           this.totalLectureProfessors = response.data.total
           // replace all entries after offset with new data
           this.lectureProfessors.splice(
             this.lectureFilters.offset,
             this.lectureProfessors.length,
-            ...profs,
+            ...normalizedProfs,
           )
         }
       } catch (error) {
