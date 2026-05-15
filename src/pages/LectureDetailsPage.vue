@@ -864,7 +864,6 @@ const editLecture = async () => {
 }
 
 const editAssignment = async (assignment) => {
-  console.log('Editing assignment:', assignment)
   if (!lectureStore.mappings || !Object.keys(lectureStore.mappings).length) {
     await lectureStore.loadMappings()
   }
@@ -915,8 +914,6 @@ const updateAssignment = async () => {
     vorlaufzeit: editedAssignment.value.lectureVorlaufzeit,
     gehalten_anId: editedAssignment.value.lectureGehalten_anId,
   }
-
-  console.log('Updating assignment with data:', payload)
 
   const result = await professorStore.updateAssignment(
     editedAssignmentProfData.value.id,
