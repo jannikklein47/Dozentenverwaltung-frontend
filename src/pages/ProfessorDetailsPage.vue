@@ -244,6 +244,14 @@
             Vorlesung(en) zuweisen
           </div>
 
+          <q-input
+            v-model="assignmentFilters.term"
+            label="Nach einer Vorlesung suchen..."
+            @update:model-value="debounceApplyFilterToProfessorLectures"
+            filled
+            class="q-mb-md"
+          />
+
           <div
             ref="dialogScrollRef"
             style="max-height: 66vh; overflow-y: auto; font-family: Inter, sans-serif"
@@ -787,7 +795,7 @@
 </template>
 
 <script setup>
-import { useQuasar } from 'quasar'
+import { debounce, useQuasar } from 'quasar'
 import { useLectureStore } from 'src/stores/lecture-store'
 import { useProfessorStore } from 'src/stores/professor-store'
 import {
@@ -821,6 +829,7 @@ const lectures = computed(() => lectureStore.dozentLectures)
 const assignedIds = ref(new Set())
 const totalLectures = computed(() => lectureStore.totalDozentLectures)
 const lectureFilters = lectureStore.dozentFilters
+const assignmentFilters = lectureStore.filters
 const selectedLectures = ref([])
 const isSelected = (id) => selectedLectures.value.some((l) => l.id === id)
 const isVisibleRow = (id) => isSelected(id) || assignedIds.value.has(id)
@@ -852,6 +861,12 @@ const editedAssignment = ref(defaultEditedAssignment())
 const gehaltenAnOptions = computed(() => {
   return lectureStore.mappings?.gehalten_an || []
 })
+
+const debounceApplyFilterToProfessorLectures = debounce(applyFilterToProfessorLectures, 500)
+
+function applyFilterToProfessorLectures() {
+  openDialog(true)
+}
 
 const editAssignment = async (assignment) => {
   console.log('Editing assignment:', assignment)
@@ -1170,7 +1185,16 @@ const completionTypeFilterId = computed(() => {
   return null // Alles => no filter
 })
 
-const openDialog = async () => {
+const openDialog = async (dontOpen = false) => {
+  if (dontOpen !== true) {
+    assignmentFilters.term = null
+    assignmentFilters.vorlesung_statusId = null
+    assignmentFilters.abschluss_typId = null
+    assignmentFilters.gehalten_anId = null
+    assignmentFilters.semester = null
+    assignmentFilters.vorlaufzeit = null
+  }
+
   lectureStore.clearLectures()
   lectureStore.filters.offset = 0
   lectureStore.filters.abschluss_typId = completionTypeFilterId.value
@@ -1199,6 +1223,8 @@ const openDialog = async () => {
   })
 
   selectedLectures.value = matchedAssigned
+  console.log(dontOpen)
+  if (dontOpen === true) return
   showDialog.value = true
 }
 
